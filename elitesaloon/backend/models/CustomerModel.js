@@ -9,7 +9,7 @@ const CustomerSchema = new mongoose.Schema({
                      type: String, required: true
     },
     customerMobile : {
-                     type: String, required: true
+                     type: String, required: true, unique: true
     },
     customerGender : {
                         type: String, required: true        
@@ -49,7 +49,16 @@ const CustomerSchema = new mongoose.Schema({
     },
     customerUpdatedAt : {  
                     type: Date, default: Date.now
-    } 
+    }, 
+    customerOTP : {
+                    type: String, default: null
+    },
+    customerVerified : {
+                    type: Boolean, default: false
+    },
+    customerStatus : {
+                    type: String, default: "deactive"
+    }
 }); 
 
 const Customer = mongoose.model('Customer', CustomerSchema);

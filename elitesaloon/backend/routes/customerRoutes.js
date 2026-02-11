@@ -6,6 +6,7 @@ const CustomerController = require('../controllers/CustomerController/CustomerCo
 
 routes.post('/register', upload.single('customerProfileImage'), CustomerController.registerCustomer);
 routes.get('/login', CustomerController.loginCustomer);
+routes.post('/verifyotp', CustomerController.verifyOTP);
 
 module.exports = routes;
 
