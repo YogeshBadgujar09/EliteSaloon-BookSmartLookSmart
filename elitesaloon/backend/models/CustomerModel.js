@@ -6,10 +6,10 @@ const CustomerSchema = new mongoose.Schema({
                     type: String, required: true
     },
     customerEmail : {
-                     type: String, required: true
+                     type: String, required: true, unique: true
     },
     customerMobile : {
-                     type: String, required: true, unique: true
+                     type: String, required: true,
     },
     customerGender : {
                         type: String, required: true        
