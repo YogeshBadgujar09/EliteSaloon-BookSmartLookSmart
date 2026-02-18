@@ -1,11 +1,11 @@
-const CustomerModel = require('../../models/CustomerModel');
-const bcrypt = require('bcrypt');
-const { customerFindUsingEmail } = require('./CustomerOptimizeCode');
-const { emailSendOptimizeCode } = require('./CustomerOptimizeCode');
+const CustomerModel = require("../../models/CustomerModel");
+const bcrypt = require("bcrypt");
+const { customerFindUsingEmail } = require("./CustomerOptimizeCode");
+const { emailSendOptimizeCode } = require("./CustomerOptimizeCode");
 
 /**
  * Author : Yogesh Badgujar
- * Date : 06-02-2026    
+ * Date : 06-02-2026
  * Description : This is the controller for customer registration. It handles the logic for registering a new customer.
  * @param {*} req - In this function, we are receiving the request body which contains the customer details that we want to save in the database.
  * @param {*} res - In this function, we are sending the response back to the client after processing the registration request.
@@ -15,95 +15,122 @@ const { emailSendOptimizeCode } = require('./CustomerOptimizeCode');
  *            we will return an error message with details about the issue.
  */
 exports.registerCustomer = async (req, res) => {
+  const subject = "Mail for Register in Elite Saloon";
+  const message =
+    "Please enter OTP for customer registration in Elite Saloon\n\n Your OTP is :";
 
-    const subject = "Mail for Register in Elite Saloon";
-    const message = "Please enter OTP for customer registration in Elite Saloon\n\n Your OTP is :";
-        
-    try{
+  try {
+    const { customerUsername, customerEmail } = req.body;
+    console.log("Request Body Username :" + customerUsername);
+    console.log("Request Body Email :" + customerEmail);
 
-        const { customerUsername, customerEmail } = req.body;
-        console.log("Request Body Username :" + customerUsername);
-        console.log("Request Body Email :" + customerEmail);
+    let existingCustomer = await CustomerModel.findOne({ customerUsername });
+    let existingEmail = await customerFindUsingEmail(customerEmail);
 
-        let existingCustomer = await CustomerModel.findOne({ customerUsername  });
-        let existingEmail = await customerFindUsingEmail(customerEmail); // Call the customerFindUsingEmail function to check for existing email in the database
+    // if (customerEmail) {
+    //   existingEmail = await customerFindUsingEmail(customerEmail);
+    // }
+    // Call the customerFindUsingEmail function to check for existing email in the database
 
-        console.log("Existing Customer :" + existingCustomer);
-        console.log("Existing Email :" + existingEmail);
+    // console.log("Existing Customer :" + existingCustomer);
+    // console.log("Existing Email :" + existingEmail);
 
-        /**
-         * This condition is added to handle the case when a customer tries to register with an email that has already been used for registration but the email is not verified yet. 
-         * In this case, we will delete the existing customer data associated with that email and allow the new registration to proceed. 
-         * This way, we can ensure that only one customer can register with a particular email address, and if the email is not verified, we can allow another customer to register with the same email address without any issues.
-         */
-        if(existingEmail == null && existingCustomer != null && existingCustomer.customerVerified === false){
-            console.log("delete this data because email is not varified ... !!!");
-            await CustomerModel.deleteOne({ customerUsername });
-            existingCustomer = null; // Set existingCustomer to null after deleting the existing customer data
+    /**
+     * This condition is added to handle the case when a customer tries to register with an email that has already been used for registration but the email is not verified yet.
+     * In this case, we will delete the existing customer data associated with that email and allow the new registration to proceed.
+     * This way, we can ensure that only one customer can register with a particular email address, and if the email is not verified, we can allow another customer to register with the same email address without any issues.
+     */
+    if (
+      existingEmail == null &&
+      existingCustomer != null &&
+      existingCustomer.customerVerified === false
+    ) {
+      console.log("delete this data because email is not varified ... !!!");
+      await CustomerModel.deleteOne({ customerUsername });
+      existingCustomer = null; // Set existingCustomer to null after deleting the existing customer data
 
-            console.log("Existing Customer after deletion :" + existingCustomer);
-        }
-
-        if (existingCustomer == null && existingEmail == null) {
-            
-            console.log("You can save data ... !!!");
-            const customer = new CustomerModel(req.body) ;
-
-            customer.customerPassword = bcrypt.hashSync(req.body.customerPassword, 10);   
-
-            //print customer data in console for checking data before saving in database
-            console.log(customer);
-
-            //By default, multer will save the uploaded file in the specified destination folder and provide the file path in req.file.path. We can directly assign this path to the customerProfileImage field in our customer model before saving it to the database.
-            customer.customerProfileImage = req.file.path ;
-
-            /**
-             *Send email to customer for OTP verification
-             *@returns {string} The generated OTP that is sent to the customer's email address. 
-             * This OTP is also stored in the customer's record in the database for later verification during the OTP verification process. 
-             * */
-            const generatedOTP = await emailSendOptimizeCode(customer.customerEmail, subject, message); // Send email with OTP to the customer's email address; // Generate OTP and store it in the variable
-            console.log("Generated OTP for registration :" + generatedOTP);
-
-            if (generatedOTP) { // Check if OTP generation and email sending was successful
-                
-                customer.customerOTP = generatedOTP; // Generate OTP and store it in the customer's record in the database
-                customer.customerVerified = false; // Set customerVerified to false until OTP is verified
-
-                // Save customer BEFORE sending response to ensure that the OTP is stored in the database and can be verified later
-                await customer.save();   
-
-                res.status(200).json({
-                    message: "redirect to OTP verification page",
-                    customerEmail: customer.customerEmail
-                });
-            }else{
-                res.status(500).json({
-                    message: "Failed to send OTP to customer email"
-                });
-            }
-
-        }else{
-
-            if (existingCustomer != null) {
-                console.log("Username already exists");
-                return res.status(400).json({ message: 'Username already exists' });
-            }
-            if (existingEmail != null) {
-                console.log("Email already exists");
-                return res.status(400).json({ message: 'Email already exists' });
-            }
-           
-        }
-
-    }catch(error){
-            res.status(500).json({
-                error: "Internal error in Customer Saving",
-                details: error.message
-            });
+      console.log("Existing Customer after deletion :" + existingCustomer);
     }
-}
 
+    if (existingCustomer == null && existingEmail == null) {
+      console.log("You can save data ... !!!");
+
+      // Remove confirmPassword before saving
+      const customerData = { ...req.body };
+      delete customerData.confirmPassword;
+
+      // Create customer properly
+      const customer = new CustomerModel(customerData);
+
+      // Hash password safely
+      // Hash password safely
+      if (!req.body.customerPassword) {
+        return res.status(400).json({
+          message: "Password is required",
+        });
+      }
+
+      customer.customerPassword = await bcrypt.hash(
+        req.body.customerPassword.toString(),
+        10,
+      );
+
+      // customer.customerPassword = bcrypt.hashSync(req.body.customerPassword, 10);
+
+      //print customer data in console for checking data before saving in database
+      console.log(customer);
+
+      //By default, multer will save the uploaded file in the specified destination folder and provide the file path in req.file.path. We can directly assign this path to the customerProfileImage field in our customer model before saving it to the database.
+
+      /**
+       *Send email to customer for OTP verification
+       *@returns {string} The generated OTP that is sent to the customer's email address.
+       * This OTP is also stored in the customer's record in the database for later verification during the OTP verification process.
+       * */
+      const generatedOTP = await emailSendOptimizeCode(
+        customer.customerEmail,
+        subject,
+        message,
+      ); // Send email with OTP to the customer's email address; // Generate OTP and store it in the variable
+      console.log("Generated OTP for registration :" + generatedOTP);
+
+      if (generatedOTP) {
+        // Check if OTP generation and email sending was successful
+
+        customer.customerOTP = generatedOTP; // Generate OTP and store it in the customer's record in the database
+        customer.customerVerified = false; // Set customerVerified to false until OTP is verified
+
+        // Save customer BEFORE sending response to ensure that the OTP is stored in the database and can be verified later
+        await customer.save();
+
+        res.status(200).json({
+          message: "redirect to OTP verification page",
+          customerEmail: customer.customerEmail,
+        });
+      } else {
+        res.status(500).json({
+          message: "Failed to send OTP to customer email",
+        });
+      }
+    } else {
+      if (existingEmail != null) {
+        console.log("Email already exists");
+        return res.status(400).json({ message: "Email already exists" });
+      }
+
+      if (existingCustomer != null) {
+        console.log("Username already exists");
+        return res.status(400).json({ message: "Username already exists" });
+      }
+    }
+  } catch (error) {
+    console.log("Register Error:", error);
+    res.status(500).json({
+      error: "Internal error in Customer Saving",
+      details: error.message,
+    });
+  }
+};
 
 /**
  * Author : Yogesh Badgujar
@@ -116,197 +143,232 @@ exports.registerCustomer = async (req, res) => {
  */
 
 exports.loginCustomer = async (req, res) => {
+  // console.log("Inside Customer Login Controller");
 
-    // console.log("Inside Customer Login Controller");
+  try {
+    const { customerUsername, customerPassword } = req.body;
 
-    try {
-        const { customerUsername, customerPassword } = req.body;    
+    const customer = await CustomerModel.findOne({ customerUsername });
+    console.log("Customer Data print :", customer);
 
-        const customer = await CustomerModel.findOne({ customerUsername });
-        console.log("Customer Data print :", customer);
+    if (customer != null) {
+      const isMatch = await bcrypt.compare(
+        customerPassword,
+        customer.customerPassword,
+      );
+      console.log("Password Match Result :" + isMatch);
 
-        if (customer != null ) {
-            
-            const isMatch = await bcrypt.compare(customerPassword, customer.customerPassword);
-            console.log("Password Match Result :" + isMatch);
-
-            // Check if the password matches and the customer is verified and active
-            if (isMatch && customer.customerVerified && customer.customerStatus === "active") { 
-                    res.status(200).json({
-                    message: "Customer Login Successful"
-                    // customer: customer
-                    });
-            }else{
-                return res.status(401).json({
-                    message: "Invalid Password"
-                });
-            }
-
-        }else{
-            // console.log("Invalid Username or Password");
-            res.status(401).json({
-                message: "Username does not exist"
-            });
-        }
-
-    }
-    catch (error) {
-
-        console.log("Error in Customer Login :", error.message);
-        res.status(500).json({
-            error: "Internal error in Customer Login", 
-            details: error.message
+      // Check if the password matches and the customer is verified and active
+      if (
+        isMatch &&
+        customer.customerVerified &&
+        customer.customerStatus === "active"
+      ) {
+        res.status(200).json({
+          message: "Customer Login Successful",
+          // customer: customer
         });
-    }               
-}   
+      } else {
+        return res.status(401).json({
+          message: "Invalid Password",
+        });
+      }
+    } else {
+      // console.log("Invalid Username or Password");
+      res.status(401).json({
+        message: "Username does not exist",
+      });
+    }
+  } catch (error) {
+    console.log("Error in Customer Login :", error.message);
+    res.status(500).json({
+      error: "Internal error in Customer Login",
+      details: error.message,
+    });
+  }
+};
 
 /**
- * 
+ *
  * @param {customerEmail, otp } req This function receives the customer email and OTP from the request body,
  * when the customer tries to verify their email address using the OTP sent to their email.
- * @param {*} res This function sends a response back to the client indicating whether the OTP verification was successful or not. If the OTP is correct, 
+ * @param {*} res This function sends a response back to the client indicating whether the OTP verification was successful or not. If the OTP is correct,
  * it will update the customer's record in the database to mark them as verified and active, and send a success message.
- * If the OTP is incorrect, it will send an error message indicating that the OTP is invalid. 
- * If there is an issue with finding the customer or any other error during the process, 
+ * If the OTP is incorrect, it will send an error message indicating that the OTP is invalid.
+ * If there is an issue with finding the customer or any other error during the process,
  * it will send an appropriate error message with details about the issue.
- * @returns This function returns a JSON response to the client indicating the result of the OTP verification process. 
+ * @returns This function returns a JSON response to the client indicating the result of the OTP verification process.
  * If the OTP verification is successful, it will return a message indicating that the OTP verification was successful.
- *  If the OTP verification fails due to an invalid OTP, it will return a message indicating that the OTP is invalid. 
- * If there is an issue with finding the customer or any other error during the process, it will return an error message with details about the issue. 
+ *  If the OTP verification fails due to an invalid OTP, it will return a message indicating that the OTP is invalid.
+ * If there is an issue with finding the customer or any other error during the process, it will return an error message with details about the issue.
  */
 exports.verifyOTP = async (req, res) => {
+  try {
+    const { customerEmail, otp } = req.body;
+    console.log("OTP received from client :" + otp);
 
-    try {
-        const { customerEmail, otp } = req.body; 
-        console.log("OTP received from client :" + otp);
+    const customer = await customerFindUsingEmail(customerEmail);
 
-        const customer = await customerFindUsingEmail(customerEmail);
-        
-        if (customer != null) {
-            
-            if (customer.customerOTP === otp) { 
+    if (customer != null) {
+      if (customer.customerOTP === otp) {
+        customer.customerVerified = true; // Set customerVerified to true after successful OTP verification
+        customer.customerOTP = null; // Clear the OTP after successful verification
+        customer.customerStatus = "active"; // Update customer status to active after successful verification
 
-                customer.customerVerified = true; // Set customerVerified to true after successful OTP verification
-                customer.customerOTP = null; // Clear the OTP after successful verification
-                customer.customerStatus = "active"; // Update customer status to active after successful verification
+        await customer.save();
 
-                await customer.save();
-               
-                res.status(200).json({ 
-                    message: "OTP verification successful" 
-                });
-            } else {
-                res.status(400).json({ message: "enter valid OTP" });
-            }   
-        } else {
-            console.log("Customer not found for OTP verification");
-            res.status(404).json({ message: "Customer not found" });
-        }       
-    } catch (error) {
-        console.log("Error in OTP verification :", error.message);
-        res.status(500).json({
-            error: "Internal error in OTP verification",
-            details: error.message
+        res.status(200).json({
+          message: "OTP verification successful",
         });
+      } else {
+        res.status(400).json({ message: "enter valid OTP" });
+      }
+    } else {
+      console.log("Customer not found for OTP verification");
+      res.status(404).json({ message: "Customer not found" });
     }
-}
+  } catch (error) {
+    console.log("Error in OTP verification :", error.message);
+    res.status(500).json({
+      error: "Internal error in OTP verification",
+      details: error.message,
+    });
+  }
+};
 
 /**
  * Author : Yogesh Badgujar
  * Date : 12-02-2026
  * Description : This is the controller for handling the forgot password functionality for customers.
  * It allows customers to request a password reset by providing their email address.
- * 
+ *
  */
-exports.forgotPassword = async (req, res) =>{
+exports.forgotPassword = async (req, res) => {
+  const { customerEmail } = req.body;
+  const customer = await customerFindUsingEmail(customerEmail);
 
-    const { customerEmail } = req.body;
-    const customer = await customerFindUsingEmail(customerEmail);
-   
-    if(customer != null){
+  if (customer != null) {
+    let subject = "Mail for Reset Password in Elite Saloon";
+    let message =
+      "Please enter OTP for reset password in Elite Saloon\n\n Your OTP is :";
 
-        let subject = "Mail for Reset Password in Elite Saloon";
-        let message = "Please enter OTP for reset password in Elite Saloon\n\n Your OTP is :";
+    const generatedOTP = await emailSendOptimizeCode(
+      customerEmail,
+      subject,
+      message,
+    );
 
-        const generatedOTP = await emailSendOptimizeCode(customerEmail, subject, message);
+    if (generatedOTP) {
+      customer.customerOTP = generatedOTP; // Store the generated OTP in the customer's record in the database
+      await customer.save(); // Save the updated customer record with the new OTP
 
-        if(generatedOTP){
-
-            customer.customerOTP = generatedOTP; // Store the generated OTP in the customer's record in the database
-            await customer.save(); // Save the updated customer record with the new OTP
-            
-            res.status(200).json({
-                message: "OTP sent successfully to customer email ... redirect to OTP verification page for reset password",
-                customerEmail: customer.customerEmail
-            });
-        }else{
-            res.status(500).json({
-                message: "Failed to send OTP to customer email"
-            });
-        }
-
-
-    }else{
-        res.status(404).json({
-            message: "Customer not found with the provided email address"
-        });
-  
+      res.status(200).json({
+        message:
+          "OTP sent successfully to customer email ... redirect to OTP verification page for reset password",
+        customerEmail: customer.customerEmail,
+      });
+    } else {
+      res.status(500).json({
+        message: "Failed to send OTP to customer email",
+      });
     }
-
-}
+  } else {
+    res.status(404).json({
+      message: "Customer not found with the provided email address",
+    });
+  }
+};
 
 /**
  * Author : Yogesh Badgujar
  * Date : 12-02-2026
  * Description : This is the controller for matching the OTP provided by the customer during the password reset process.
- * @param {*} req  - In this function, we are receiving the request body 
+ * @param {*} req  - In this function, we are receiving the request body
  * which contains the customer email and the OTP that the customer has entered for verification during the password reset process.
  * @param {*} res - In this function, we are sending the response back to the client after processing the OTP verification request for password reset.
- * @returns - In this function, we will return a JSON response to the client indicating whether the OTP verification for password reset was successful or not. 
- * If the OTP is correct, we will return a message indicating that the OTP verification was successful and the customer can proceed to reset their password. 
- * If the OTP is incorrect, we will return a message indicating that the OTP is invalid for password reset. 
+ * @returns - In this function, we will return a JSON response to the client indicating whether the OTP verification for password reset was successful or not.
+ * If the OTP is correct, we will return a message indicating that the OTP verification was successful and the customer can proceed to reset their password.
+ * If the OTP is incorrect, we will return a message indicating that the OTP is invalid for password reset.
  * If there is an issue with finding the customer or any other error during the process, we will return an appropriate error message with details about the issue.
  */
-exports.matchOTP = async (req, res) =>{
-
-    const { customerEmail, otp } = req.body;
-    const customer = await customerFindUsingEmail(customerEmail);
-    if(customer != null){
-
-        if(customer.customerOTP === otp){
-            res.status(200).json({
-                message: "OTP verification successful for password reset ... redirect to reset password page",
-                customerEmail: customer.customerEmail
-            });
-        }else{
-            res.status(400).json({
-                message: "Invalid OTP provided for password reset"
-            });
-        }
+exports.matchOTP = async (req, res) => {
+  const { customerEmail, otp } = req.body;
+  const customer = await customerFindUsingEmail(customerEmail);
+  if (customer != null) {
+    if (customer.customerOTP === otp) {
+      res.status(200).json({
+        message:
+          "OTP verification successful for password reset ... redirect to reset password page",
+        customerEmail: customer.customerEmail,
+      });
+    } else {
+      res.status(400).json({
+        message: "Invalid OTP provided for password reset",
+      });
     }
-}
+  }
+};
 
 /**
  * Author : Yogesh Badgujar
  * Date : 12-02-2026
  * Description : This is the controller for resetting the customer's password after successful OTP verification during the forgot password process.
  * @param {*} req - In this function, we are receiving the request body which contains the customer email and the new password that the customer wants to set after successful OTP verification.
- * @param {*} res - In this function, we are sending the response back to the client after processing the password reset request. We will send a success message if the password reset is successful, 
+ * @param {*} res - In this function, we are sending the response back to the client after processing the password reset request. We will send a success message if the password reset is successful,
  * or an error message if there is an issue with the password reset process.
  * @returns - In this function, we will return a JSON response to the client indicating the success or failure of the password reset process. If the password reset is successful,
  *  we will return a message indicating that the password has been reset successfully. If there is an error during the password reset process, we will return an error message with details about the issue.
  */
 
-exports.resetPassword = async (req, res) =>{
+exports.resetPassword = async (req, res) => {
+  const { customerEmail, newPassword } = req.body;
+  const customer = await customerFindUsingEmail(customerEmail);
+  if (customer != null) {
+    customer.customerPassword = bcrypt.hashSync(newPassword, 10); // Hash the new password before saving
+    customer.customerOTP = null;
+    await customer.save();
+    res.status(200).json({
+      message: "Password reset successful",
+    });
+  }
+};
 
-    const { customerEmail, newPassword } = req.body;
+/**
+ * add image controller
+ * @param {*} req
+ * @param {*} res
+ * @returns
+ */
+exports.uploadProfileImage = async (req, res) => {
+  try {
+    const { customerEmail } = req.body;
+
     const customer = await customerFindUsingEmail(customerEmail);
-    if(customer != null){
-        customer.customerPassword = bcrypt.hashSync(newPassword, 10); // Hash the new password before saving
-        customer.customerOTP = null;
-        await customer.save();
-        res.status(200).json({
-            message: "Password reset successful"
-        });
+
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found" });
     }
-}
+
+    // If user selected image
+    if (req.file) {
+      customer.customerProfileImage = req.file.path;
+    }
+    // If user did NOT select image
+    else {
+      customer.customerProfileImage = "uploads/default.png";
+    }
+
+    // customer.customerStatus = "active";
+
+    await customer.save();
+
+    res.status(200).json({
+      message: "Profile image updated successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: "Error uploading profile image",
+      details: error.message,
+    });
+  }
+};

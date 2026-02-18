@@ -1,0 +1,423 @@
+import React, { useState } from "react";
+import PhoneInput from "react-phone-input-2";
+import Swal from "sweetalert2";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import "react-phone-input-2/lib/style.css";
+import "./CustomerForm.css";
+import { useNavigate } from "react-router-dom";
+
+const CustomerRegistration = () => {
+  const [form, setForm] = useState({
+    customerName: "",
+    customerEmail: "",
+    customerMobileNo: "",
+    customerGender: "",
+    customerDob: "",
+    customerStreet: "",
+    customerPincode: "",
+    customerCity: "",
+    customerblock: "",
+    customerDistrict: "",
+    customerState: "",
+    customerUsername: "",
+    customerPassword: "",
+    confirmPassword: "",
+  });
+
+  const [errors, setErrors] = useState({});
+  const [showPwd, setShowPwd] = useState(false);
+  const [showCpwd, setShowCpwd] = useState(false);
+  const [postOffices, setPostOffices] = useState([]);
+
+  const navigate = useNavigate();
+
+  /* ================= VALIDATION ================= */
+
+  const validate = () => {
+    let err = {};
+
+    if (!form.customerName.trim()) {
+      err.customerName = "Customer name is required";
+    } else if (!/^[A-Za-z\s]+$/.test(form.customerName)) {
+      err.customerName = "Name should contain only letters";
+    }
+
+    if (!form.customerEmail) {
+      err.customerEmail = "Email is required";
+    } else if (!/^\S+@\S+\.\S+$/.test(form.customerEmail)) {
+      err.customerEmail = "Enter valid email";
+    }
+
+    if (!form.customerMobileNo || form.customerMobileNo.length < 10) {
+      err.customerMobileNo = "Valid mobile number required";
+    }
+
+    if (!form.customerGender) {
+      err.customerGender = "Gender is required";
+    }
+
+    if (!form.customerDob) {
+      err.customerDob = "Date of birth is required";
+    }
+
+    if (!form.customerStreet) {
+      err.customerStreet = "Street is required";
+    }
+
+    if (!form.customerPincode || form.customerPincode.length !== 6) {
+      err.customerPincode = "Valid pincode required";
+    }
+
+    if (!form.customerblock) {
+      err.customerblock = "Village/Block required";
+    }
+
+    if (!form.customerUsername) {
+      err.customerUsername = "Username is required";
+    }
+
+    const strongPassword =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#]).{8,}$/;
+
+    if (!form.customerPassword) {
+      err.customerPassword = "Password is required";
+    } else if (!strongPassword.test(form.customerPassword)) {
+      err.customerPassword =
+        "Password must contain uppercase, lowercase, number & special character";
+    }
+
+    if (!form.confirmPassword) {
+      err.confirmPassword = "Confirm password required";
+    } else if (form.customerPassword !== form.confirmPassword) {
+      err.confirmPassword = "Passwords do not match";
+    }
+
+    setErrors(err);
+
+    console.log("Validation Errors:", err);
+
+    return Object.keys(err).length === 0;
+  };
+
+  /* ================= HANDLE CHANGE ================= */
+
+  const handleChange = async (e) => {
+    const { name, value, files } = e.target;
+
+    if (name === "customerName" && !/^[A-Za-z\s]*$/.test(value)) return;
+    if (name === "customerPincode" && !/^\d*$/.test(value)) return;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: files ? files[0] : value,
+    }));
+
+    /* PINCODE API */
+
+    if (name === "customerPincode") {
+      if (value.length === 6) {
+        try {
+          const res = await fetch(
+            `https://api.postalpincode.in/pincode/${value}`
+          );
+
+          const data = await res.json();
+
+          if (data[0].Status === "Success") {
+            const offices = data[0].PostOffice;
+
+            setPostOffices(offices);
+
+            const first = offices[0];
+
+            setForm((prev) => ({
+              ...prev,
+              customerDistrict: first?.District || "",
+              customerState: first?.State || "",
+              customerCity: "",
+              customerblock: "",
+            }));
+          } else {
+            setPostOffices([]);
+
+            setForm((prev) => ({
+              ...prev,
+              customerDistrict: "",
+              customerState: "",
+              customerCity: "",
+              customerblock: "",
+            }));
+
+            Swal.fire("Invalid Pincode", "No data found", "error");
+          }
+        } catch {
+          Swal.fire("Error", "Pincode API failed", "error");
+        }
+      } else {
+        setPostOffices([]);
+
+        setForm((prev) => ({
+          ...prev,
+          customerDistrict: "",
+          customerState: "",
+          customerCity: "",
+          customerblock: "",
+        }));
+      }
+    }
+  };
+
+  /* ================= SUBMIT ================= */
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validate()) {
+      Swal.fire("Validation Error", "Please fix all fields", "error");
+      return;
+    }
+
+    try {
+      // 🔥 FIELD MAPPING FOR BACKEND
+      const payload = {
+        customerName: form.customerName,
+        customerEmail: form.customerEmail,
+        customerMobile: form.customerMobileNo,
+        customerGender: form.customerGender,
+        customerDOB: form.customerDob,
+        customerStreet: form.customerStreet,
+        customerPincode: form.customerPincode,
+        customerCity: form.customerCity,
+        customerBlock: form.customerblock,
+        customerDistrict: form.customerDistrict,
+        customerState: form.customerState,
+        customerUsername: form.customerUsername,
+        customerPassword: form.customerPassword,
+        customerProfileImage: "default.jpg",
+      };
+
+      console.log("Payload:", payload);
+
+      const response = await fetch(
+        "http://localhost:5000/customer/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Swal.fire({
+          title: "Registration Successful",
+          text: "OTP Sent Successfully",
+          icon: "success",
+        }).then(() => {
+          navigate("/customerotpverify");
+        });
+      } else {
+        Swal.fire("Registration Failed", data.message || "Try again", "error");
+      }
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Server Error", "Backend not responding", "error");
+    }
+  };
+
+  /* ================= UI ================= */
+
+  return (
+    <div className="form-wrapper">
+      <h2>EliteSalon Customer Registration</h2>
+
+      <form onSubmit={handleSubmit}>
+        {/* PERSONAL DETAILS */}
+
+        <div className="form-section">
+          <h3>Personal Details</h3>
+
+          <div className="form-grid">
+
+            <div className="form-group">
+              <input
+                name="customerName"
+                placeholder="Customer Name"
+                value={form.customerName}
+                onChange={handleChange}
+              />
+              <small className="error-text">{errors.customerName}</small>
+            </div>
+
+            <div className="form-group">
+              <input
+                name="customerEmail"
+                placeholder="Email"
+                value={form.customerEmail}
+                onChange={handleChange}
+              />
+              <small className="error-text">{errors.customerEmail}</small>
+            </div>
+
+            <div className="form-group">
+              <PhoneInput
+                country="in"
+                value={form.customerMobileNo}
+                onChange={(phone) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    customerMobileNo: phone,
+                  }))
+                }
+              />
+              <small className="error-text">{errors.customerMobileNo}</small>
+            </div>
+
+            <div className="form-group">
+              <select
+                name="customerGender"
+                value={form.customerGender}
+                onChange={handleChange}
+              >
+                <option value="">Gender</option>
+                <option>Male</option>
+                <option>Female</option>
+                <option>Other</option>
+              </select>
+              <small className="error-text">{errors.customerGender}</small>
+            </div>
+
+            <div className="form-group">
+              <input
+                type="date"
+                name="customerDob"
+                value={form.customerDob}
+                onChange={handleChange}
+              />
+              <small className="error-text">{errors.customerDob}</small>
+            </div>
+
+          </div>
+        </div>
+
+        {/* ADDRESS */}
+
+        <div className="form-section">
+          <h3>Address</h3>
+
+          <div className="form-grid">
+
+            <input
+              name="customerStreet"
+              placeholder="Street"
+              value={form.customerStreet}
+              onChange={handleChange}
+            />
+
+            <input
+              name="customerPincode"
+              placeholder="Pincode"
+              maxLength="6"
+              value={form.customerPincode}
+              onChange={handleChange}
+            />
+
+            <select
+              name="customerblock"
+              value={form.customerblock}
+              onChange={(e) => {
+                const selectedPO = postOffices.find(
+                  (po) => po.Name === e.target.value
+                );
+
+                if (!selectedPO) return;
+
+                setForm((prev) => ({
+                  ...prev,
+                  customerblock: selectedPO.Name,
+                  customerCity: selectedPO.Block,
+                  customerDistrict: selectedPO.District,
+                  customerState: selectedPO.State,
+                }));
+              }}
+            >
+              <option value="">Select Village / Block</option>
+              {postOffices.map((po, index) => (
+                <option key={index} value={po.Name}>
+                  {po.Name}
+                </option>
+              ))}
+            </select>
+
+            <input value={form.customerCity} readOnly />
+            <input value={form.customerDistrict} readOnly />
+            <input value={form.customerState} readOnly />
+
+          </div>
+        </div>
+
+        {/* CREDENTIALS */}
+
+      
+
+<div className="form-section">
+  <h3>Credentials</h3>
+
+  <div className="form-grid">
+    <div className="form-group">
+      <input
+        name="customerUsername"
+        placeholder="Username"
+        value={form.customerUsername}
+        onChange={handleChange}
+      />
+
+      <small className="error-text">{errors.customerUsername}</small>
+    </div>
+
+    <div className="password-group">
+      <input
+        type={showPwd ? "text" : "password"}
+        name="customerPassword"
+        placeholder="Password"
+        value={form.customerPassword}
+        onChange={handleChange}
+      />
+
+      <span onClick={() => setShowPwd(!showPwd)}>
+        {showPwd ? <FaEyeSlash /> : <FaEye />}
+      </span>
+
+      <small className="error-text">{errors.customerPassword}</small>
+    </div>
+
+    <div className="password-group">
+      <input
+        type={showCpwd ? "text" : "password"}
+        name="confirmPassword"
+        placeholder="Confirm Password"
+        value={form.confirmPassword}
+        onChange={handleChange}
+      />
+
+      <span onClick={() => setShowCpwd(!showCpwd)}>
+        {showCpwd ? <FaEyeSlash /> : <FaEye />}
+      </span>
+
+      <small className="error-text">{errors.confirmPassword}</small>
+    </div>
+  </div>
+</div>
+
+
+        <button className="submit-btn">Register</button>
+
+      </form>
+    </div>
+  );
+};
+
+export default CustomerRegistration;

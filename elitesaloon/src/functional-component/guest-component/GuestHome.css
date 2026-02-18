@@ -1,0 +1,283 @@
+/* ===== CSS VARIABLES ===== */
+:root {
+  --primary-gold: #d4af37;
+  --secondary-gold: #b8962e;
+  --rose-gold: #b76e79;
+  --burgundy: #800020;
+  --dark-bg: #1a1a1a;
+  --light-bg: #fafafa;
+  --off-white: #f8f5f2;
+  --text-dark: #333333;
+  --text-light: #ffffff;
+  --text-muted: #666666;
+  --transition: all 0.4s ease;
+}
+
+/* Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ===== BASE ===== */
+.guest-home {
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-dark);
+  overflow-x: hidden;
+  background: var(--light-bg);
+}
+
+/* =====================================================
+   HERO SECTION – Luxury Background Upgrade
+===================================================== */
+.hero-section {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  background: url("https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1600&q=80")
+    center/cover no-repeat;
+  overflow: hidden;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.75),
+    rgba(128, 0, 32, 0.6)
+  );
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  color: white;
+}
+
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.8rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 24px;
+}
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 32px;
+}
+
+.text-highlight {
+  color: var(--primary-gold);
+}
+
+/* Buttons */
+.btn-primary {
+  padding: 16px 40px;
+  background: linear-gradient(135deg, var(--primary-gold), var(--rose-gold));
+  border-radius: 50px;
+  font-weight: 600;
+  border: none;
+  color: white;
+  transition: var(--transition);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* =====================================================
+   SERVICES – More Depth & Modern Feel
+===================================================== */
+.services-section {
+  padding: 120px 0;
+  background: var(--off-white);
+}
+
+.service-card {
+  background: white;
+  padding: 45px 30px;
+  border-radius: 20px;
+  text-align: center;
+  transition: var(--transition);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05);
+}
+
+.service-card:hover {
+  transform: translateY(-15px);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12);
+}
+
+.service-icon {
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    rgba(212, 175, 55, 0.1),
+    rgba(183, 110, 121, 0.1)
+  );
+  border-radius: 50%;
+  font-size: 34px;
+  color: var(--burgundy);
+  transition: var(--transition);
+}
+
+.service-card:hover .service-icon {
+  background: linear-gradient(135deg, var(--primary-gold), var(--rose-gold));
+  color: white;
+  transform: rotate(8deg) scale(1.1);
+}
+
+/* =====================================================
+   ABOUT – Premium Image Styling
+===================================================== */
+.about-section {
+  padding: 120px 0;
+  background: white;
+}
+
+.about-image {
+  border-radius: 20px;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+  transition: var(--transition);
+}
+
+.about-image:hover {
+  transform: scale(1.05);
+}
+
+.about-experience-badge {
+  background: linear-gradient(135deg, var(--primary-gold), var(--rose-gold));
+  padding: 28px 35px;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+/* =====================================================
+   TESTIMONIALS – Glass Effect
+===================================================== */
+.testimonials-section {
+  padding: 120px 0;
+  background: var(--off-white);
+}
+
+.testimonial-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  padding: 45px;
+  border-radius: 20px;
+  transition: var(--transition);
+}
+
+.testimonial-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12);
+}
+
+/* =====================================================
+   GALLERY – Luxury Hover Zoom
+===================================================== */
+.gallery-section {
+  padding: 120px 0;
+}
+
+.gallery-item {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.gallery-image {
+  height: 300px;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.gallery-item:hover .gallery-image {
+  transform: scale(1.15);
+}
+
+/* =====================================================
+   CONTACT – Dark Luxury Feel
+===================================================== */
+.contact-section {
+  padding: 120px 0;
+  background: linear-gradient(135deg, #5a0014, #800020);
+  color: white;
+}
+
+.contact-card {
+  padding: 45px 30px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(6px);
+  transition: var(--transition);
+}
+
+.contact-card:hover {
+  transform: translateY(-8px);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.contact-icon {
+  width: 75px;
+  height: 75px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  color: var(--primary-gold);
+  margin: 0 auto 20px;
+}
+
+/* =====================================================
+   FOOTER – Elegant Minimal
+===================================================== */
+.footer {
+  background: var(--dark-bg);
+  padding: 70px 0 30px;
+  text-align: center;
+}
+
+.footer .logo-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 34px;
+  color: white;
+}
+
+.footer .logo-accent {
+  color: var(--primary-gold);
+  font-style: italic;
+}
+
+/* =====================================================
+   RESPONSIVE IMPROVEMENTS
+===================================================== */
+@media (max-width: 992px) {
+  .hero-title {
+    font-size: 2.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    min-height: 80vh;
+  }
+
+  .hero-title {
+    font-size: 2.2rem;
+  }
+
+  .service-card {
+    margin-bottom: 20px;
+  }
+}
