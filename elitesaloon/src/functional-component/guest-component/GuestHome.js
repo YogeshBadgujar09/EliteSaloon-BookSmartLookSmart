@@ -134,15 +134,15 @@ const GuestHome = () => {
           <div className="row text-center">
             <div className="col-md-4 mb-4">
               <FaMapMarkerAlt size={40} className="text-warning mb-3" />
-              <p>123 Beauty Street, Downtown City</p>
+              <p>123, Beauty Street, Surat (GJ)</p>
             </div>
             <div className="col-md-4 mb-4">
               <FaPhone size={40} className="text-warning mb-3" />
-              <p>+1 (123) 456-7890</p>
+              <p>+91 1234567890</p>
             </div>
             <div className="col-md-4 mb-4">
               <FaEnvelope size={40} className="text-warning mb-3" />
-              <p>info@elitesalon.com</p>
+              <p>elitesaloon18@gmail.com</p>
             </div>
           </div>
         </div>
