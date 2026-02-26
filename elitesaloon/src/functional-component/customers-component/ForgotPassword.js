@@ -91,7 +91,7 @@ const ForgotPassword = () => {
 
       <form onSubmit={handleSubmit}>
         <div className="form-section">
-          <h3>Reset Your Password</h3>
+          <h3>For Reset Password Enter Email</h3>
 
           <div className="form-group">
             <input
