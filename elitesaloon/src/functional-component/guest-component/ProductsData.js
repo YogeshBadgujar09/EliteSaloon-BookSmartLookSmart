@@ -1,0 +1,167 @@
+export const products = [
+  {
+    id: 1,
+    name: "Luxe Hair Serum",
+    description: "Argan oil infused serum for shine and smoothness",
+    price: "₹450",
+    image:
+      "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?auto=format&fit=crop&w=400&q=80",
+    category: "hair",
+    rating: 4.8,
+    gender: "unisex",
+  },
+  {
+    id: 2,
+    name: "Hydrating Face Cream",
+    description: "24-hour moisture lock with aloe vera",
+    price: "₹650",
+    image:
+      "https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?auto=format&fit=crop&w=400&q=80",
+    category: "skin",
+    rating: 4.6,
+    gender: "unisex",
+  },
+  {
+    id: 3,
+    name: "Professional Shampoo",
+    description: "Sulfate-free formula for all hair types",
+    price: "₹350",
+    image:
+      "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&w=400&q=80",
+    category: "hair",
+    rating: 4.7,
+    gender: "unisex",
+  },
+  {
+    id: 4,
+    name: "Anti-Aging Eye Cream",
+    description: "Reduces fine lines and dark circles",
+    price: "₹850",
+    image:
+      "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80",
+    category: "skin",
+    rating: 4.5,
+    gender: "unisex",
+  },
+  {
+    id: 5,
+    name: "Beard Oil",
+    description: "Softens and conditions beard hair",
+    price: "₹299",
+    image:
+      "https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=400&q=80",
+    category: "grooming",
+    rating: 4.9,
+    gender: "male",
+  },
+  {
+    id: 6,
+    name: "Nail Polish Set",
+    description: "Long-lasting gel polish collection",
+    price: "₹550",
+    image:
+      "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=400&q=80",
+    category: "nails",
+    rating: 4.4,
+    gender: "female",
+  },
+  {
+    id: 7,
+    name: "Hair Mask",
+    description: "Deep conditioning treatment",
+    price: "₹400",
+    image:
+      "https://images.unsplash.com/photo-1629198688000-71f23e745b6e?auto=format&fit=crop&w=400&q=80",
+    category: "hair",
+    rating: 4.6,
+    gender: "unisex",
+  },
+  {
+    id: 8,
+    name: "Body Lotion",
+    description: "Vitamin E enriched body moisturizer",
+    price: "₹380",
+    image:
+      "https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?auto=format&fit=crop&w=400&q=80",
+    category: "skin",
+    rating: 4.7,
+    gender: "unisex",
+  },
+  {
+    id: 9,
+    name: "Makeup Kit",
+    description: "Professional makeup essentials",
+    price: "₹2500",
+    image:
+      "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=400&q=80",
+    category: "makeup",
+    rating: 4.8,
+    gender: "female",
+  },
+  {
+    id: 10,
+    name: "Perfume Collection",
+    description: "Signature fragrances",
+    price: "₹1200",
+    image:
+      "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=400&q=80",
+    category: "fragrance",
+    rating: 4.9,
+    gender: "unisex",
+  },
+  {
+    id: 11,
+    name: "Hair Styling Gel",
+    description: "Strong hold with natural finish",
+    price: "₹250",
+    image:
+      "https://images.unsplash.com/photo-1585232569525-f087bd9dae8e?auto=format&fit=crop&w=400&q=80",
+    category: "hair",
+    rating: 4.3,
+    gender: "unisex",
+  },
+  {
+    id: 12,
+    name: "Face Wash",
+    description: "Gentle cleansing for all skin types",
+    price: "₹280",
+    image:
+      "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=400&q=80",
+    category: "skin",
+    rating: 4.5,
+    gender: "unisex",
+  },
+  {
+    id: 13,
+    name: "Men's Hair Wax",
+    description: "Strong hold pomade for men",
+    price: "₹320",
+    image:
+      "https://images.unsplash.com/photo-1585232569525-f087bd9dae8e?auto=format&fit=crop&w=400&q=80",
+    category: "hair",
+    rating: 4.4,
+    gender: "male",
+  },
+  {
+    id: 14,
+    name: "Men's Face Scrub",
+    description: "Exfoliating face scrub for men",
+    price: "₹380",
+    image:
+      "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=400&q=80",
+    category: "skin",
+    rating: 4.6,
+    gender: "male",
+  },
+  {
+    id: 15,
+    name: "Lipstick Collection",
+    description: "Long-lasting matte lipsticks",
+    price: "₹450",
+    image:
+      "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=400&q=80",
+    category: "makeup",
+    rating: 4.7,
+    gender: "female",
+  },
+];

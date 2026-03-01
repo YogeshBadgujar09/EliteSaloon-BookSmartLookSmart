@@ -3,6 +3,9 @@ import Swal from "sweetalert2";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import "./CustomerForm.css";
+import useLoader from "../../hooks/useLoader";
+import CommonLoader from "../../components/CommonLoader";
+
 
 const CustomerLogin = () => {
 
@@ -12,10 +15,11 @@ const CustomerLogin = () => {
     customerUsername: "",
     customerPassword: "",
   });
+  
 
   const [errors, setErrors] = useState({});
   const [showPwd, setShowPwd] = useState(false);
-  const [loading, setLoading] = useState(false);
+   const { loading, startLoading, stopLoading } = useLoader();
 
   // ================= VALIDATION =================
   const validate = () => {
@@ -65,7 +69,7 @@ const CustomerLogin = () => {
 
     try {
 
-      setLoading(true);
+       startLoading();
 
       const response = await fetch(
         "http://localhost:5000/customer/login", 
@@ -92,10 +96,10 @@ const CustomerLogin = () => {
           text: "Welcome " + customer.customerUsername
         });
 
-        // console.log("Login Success:", data.customer );
+        console.log("Login Success:", data.customer );
 
         // redirect to dashboard
-        // navigate("/dashboard");
+        navigate("/customerdashboard");
 
       } else {
 
@@ -117,7 +121,7 @@ const CustomerLogin = () => {
 
     } finally {
 
-      setLoading(false);
+      stopLoading();
 
     }
 
@@ -127,6 +131,8 @@ const CustomerLogin = () => {
   return (
 
     <div className="form-wrapper login-wrapper">
+
+    {loading && <CommonLoader />}
 
       <h2>EliteSalon Login</h2>
 

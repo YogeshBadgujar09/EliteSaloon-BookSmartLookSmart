@@ -1,9 +1,13 @@
 import React from "react";
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // Guest
 import Navbar from "./functional-component/guest-component/Navbar";
 import GuestHome from "./functional-component/guest-component/GuestHome";
+import Shop from "./functional-component/guest-component/Shop";
+import Search from "./functional-component/guest-component/Search";
+import Offers from "./functional-component/guest-component/Offers";
 
 // Customer
 import CustomerLogin from "./functional-component/customers-component/CustomerLogin";
@@ -12,11 +16,16 @@ import CustomerLoginWithOTP from "./functional-component/customers-component/Cus
 import CustomerOtpVerify from "./functional-component/customers-component/CustomerOtpVerify";
 import CustomerProfileSetup from "./functional-component/customers-component/CustomerProfileSetup";
 import ResetPassword from "./functional-component/customers-component/ResetPassword";
+import CustomerDashboard from "./functional-component/customers-component/CustomerDashboard";
 
 
 // Forgot Password Pages
 import ForgotPassword from "./functional-component/customers-component/ForgotPassword";
 import ResetOtp from "./functional-component/customers-component/ResetOtp";
+
+
+//Owner 
+// import OwnerDashboard from "./functional-component/owner-component/OwnerDashboard";
 
 function App() {
   return (
@@ -26,6 +35,9 @@ function App() {
       <Routes>
         {/* GUEST */}
         <Route path="/" element={<GuestHome />} />
+         <Route path="/shop" element={<Shop />} />
+        <Route path="/search" element={<Search />} />
+        <Route path="/offers" element={<Offers />} />
 
         {/* CUSTOMER */}
         <Route path="/register" element={<CustomerRegistration />} />
@@ -33,6 +45,8 @@ function App() {
         <Route path="/customerloginotp" element={<CustomerLoginWithOTP />} />
         <Route path="/customerotpverify" element={<CustomerOtpVerify />} />
         <Route path="/profilesetup" element={<CustomerProfileSetup />} />
+        <Route path="/customerdashboard" element={<CustomerDashboard />} />
+
 
 
         {/* FORGOT PASSWORD FLOW */}
