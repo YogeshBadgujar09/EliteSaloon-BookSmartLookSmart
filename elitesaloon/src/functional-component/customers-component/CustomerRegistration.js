@@ -5,6 +5,10 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import "react-phone-input-2/lib/style.css";
 import "./CustomerForm.css";
 import { useNavigate } from "react-router-dom";
+import useLoader from "../../hooks/useLoader";
+import CommonLoader from "../../components/CommonLoader";
+
+
 
 const CustomerRegistration = () => {
  
@@ -25,14 +29,17 @@ const CustomerRegistration = () => {
     customerConfirmPassword: "",
   });
 
-  const [loading, setLoading] = useState(false);
+ const { loading, startLoading, stopLoading } = useLoader();
 
   const [errors, setErrors] = useState({});
   const [showPwd, setShowPwd] = useState(false);
   const [showCpwd, setShowCpwd] = useState(false);
   const [postOffices, setPostOffices] = useState([]);
+ 
 
   const navigate = useNavigate();
+
+  
 
   /* ================= VALIDATION ================= */
 
@@ -63,6 +70,7 @@ const CustomerRegistration = () => {
       err.customerDob = "Date of birth is required";
     }
 
+   
     if (!form.customerStreet) {
       err.customerStreet = "Street is required";
     }
@@ -183,8 +191,8 @@ const CustomerRegistration = () => {
 
 
     try {
-      // 🔥 FIELD MAPPING FOR BACKEND
-      const payload = {
+      // FIELD MAPPING FOR BACKEND
+      const customer = {
         customerName: form.customerName,
         customerEmail: form.customerEmail,
         customerMobile: form.customerMobile,
@@ -201,10 +209,10 @@ const CustomerRegistration = () => {
         customerProfileImage: "default.jpg",
       };
 
-      console.log("Payload:", payload);
+      console.log("customer:", customer);
 
       if (loading) return; // 🔒 prevent double click
-      setLoading(true);
+         startLoading(); 
 
 
       const response = await fetch(
@@ -214,7 +222,7 @@ const CustomerRegistration = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(customer),
         }
       );
 
@@ -224,28 +232,37 @@ const CustomerRegistration = () => {
     
       console.log("Response Email Handle For OTP Confirmaion : " + customerEmailReceived);
 
-      if (response.ok) {
-        Swal.fire({
-          title: "Registration Successful",
-          text: "OTP Sent Successfully",
-          icon: "success",
-        }).then(() => {
-          navigate("/customerotpverify", {state : {customerEmail: customerEmailReceived}});
-        });
-      } else {
+     if (response.ok) {
+  Swal.fire({
+    title: "Registration Successful",
+    text: "OTP Sent Successfully",
+    icon: "success",
+  }).then(() => {
+
+    sessionStorage.removeItem("otpFlow");
+
+    navigate("/customerotpverify", {
+      replace: true,
+      state: { customerEmail: customerEmailReceived }
+    });
+
+  });
+} else {
         Swal.fire("Registration Failed", data.message || "Try again", "error");
       }
     } catch (error) {
       console.error(error);
       Swal.fire("Server Error", "Backend not responding", "error");
     }finally{
-       setLoading(false); // ⏹ stop spinner
+          stopLoading();; // ⏹ stop spinner
     }
   };
 
   /* ================= UI ================= */
 
   return (
+     <>
+      <CommonLoader loading={loading} />
     <div className="form-wrapper">
       <h2>EliteSalon Customer Registration</h2>
 
@@ -330,7 +347,9 @@ const CustomerRegistration = () => {
               placeholder="Street"
               value={form.customerStreet}
               onChange={handleChange}
+              
             />
+             <small className="error-text">{errors.customerStreet}</small>
 
             <input
               name="customerPincode"
@@ -440,6 +459,7 @@ const CustomerRegistration = () => {
 
       </form>
     </div>
+    </>
   );
 };
 

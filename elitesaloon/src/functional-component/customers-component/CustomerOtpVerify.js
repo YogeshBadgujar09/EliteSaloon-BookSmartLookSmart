@@ -3,15 +3,22 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import "./CustomerForm.css";
+import useLoader from "../../hooks/useLoader";
+import CommonLoader from "../../components/CommonLoader";
+
+import usePreventBackNavigation from "../../hooks/usePreventBackNavigation";//page prevent back
 
 const CustomerOtpVerify = () => {
 
   const navigate = useNavigate();
   const inputsRef = useRef([]);
   const location = useLocation();
+    usePreventBackNavigation("/");    //page prevent back
 
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [loading, setLoading] = useState(false);
+   const { loading, startLoading, stopLoading } = useLoader();
+
+   
   
   const customerEmail = location.state?.customerEmail;
   console.log("Customer OTP Verification Page :" + customerEmail);
@@ -41,7 +48,7 @@ const CustomerOtpVerify = () => {
       return;
     }
 
-    setLoading(true);
+ startLoading(); 
 
     try {
       const response = await fetch(
@@ -69,7 +76,7 @@ const CustomerOtpVerify = () => {
           icon: "success",
           title: "OTP Verified Successfully 🎉",
         }).then(() => {
-          navigate("/profilesetup", {state : {customerEmailData : customerEmailData}});
+          navigate("/profilesetup", {replace: true,state : {customerEmailData : customerEmailData}});
         });
       } else {
         Swal.fire("Error", "Invalid OTP", "error");
@@ -85,7 +92,7 @@ const CustomerOtpVerify = () => {
       );
     }
 
-    setLoading(false);
+    stopLoading();
   };
 
   /* ================= RESEND OTP API ================= */
@@ -131,7 +138,10 @@ const CustomerOtpVerify = () => {
   };
 
   return (
+    
     <div className="form-wrapper login-wrapper">
+      
+      {loading && <CommonLoader />}
       <h2>Verify OTP</h2>
 
       <div className="form-section">
