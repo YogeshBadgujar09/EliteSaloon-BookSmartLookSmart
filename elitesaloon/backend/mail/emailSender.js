@@ -1,9 +1,8 @@
 const nodemailer = require('nodemailer');
 
 
-let generatedOTP; // Declare otp variable to store the generated OTP
 
-const sendEmail = async (email, subject, message, generatedOTP) => { 
+const sendEmail = async (email, subject, message) => { 
 
     try {
         console.log("enter in email send function");
@@ -21,7 +20,7 @@ const sendEmail = async (email, subject, message, generatedOTP) => {
             from: 'Elite Saloon <elitesaloon18@gmail.com>',
             to: email,
             subject: subject,
-            text: message + generatedOTP, // Append generated OTP to the message
+            text: message, // Append generated OTP to the message
         });
 
         // console.log("info :" + info);

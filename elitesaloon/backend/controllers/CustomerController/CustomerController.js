@@ -1,7 +1,8 @@
 const CustomerModel = require("../../models/CustomerModel");
 const bcrypt = require("bcrypt");
 const { customerFindUsingEmail } = require("./CustomerOptimizeCode");
-const { emailSendOptimizeCode } = require("./CustomerOptimizeCode");
+const  emailSendOptimizeCode = require("../../utils/emailSendOptimizeCode");
+const generateOTP = require('../../utils/generateOTP');
 
 /**
  * Author : Yogesh Badgujar
@@ -16,7 +17,7 @@ const { emailSendOptimizeCode } = require("./CustomerOptimizeCode");
  */
 exports.registerCustomer = async (req, res) => {
   const subject = "Mail for Register in Elite Saloon";
-  const message = "Please enter OTP for customer registration in Elite Saloon\n\n Your OTP is :";
+  let message = "Please enter OTP for customer registration in Elite Saloon\n\n Your OTP is :";
 
     // console.log(req.body);
   try {
@@ -77,6 +78,10 @@ exports.registerCustomer = async (req, res) => {
        *@returns {string} The generated OTP that is sent to the customer's email address.
        * This OTP is also stored in the customer's record in the database for later verification during the OTP verification process.
        * */
+
+      let otp = await generateOTP();
+      message = message + otp ;
+
       const generatedOTP = await emailSendOptimizeCode(
         customer.customerEmail,
         subject,
@@ -87,7 +92,7 @@ exports.registerCustomer = async (req, res) => {
       if (generatedOTP) {
         // Check if OTP generation and email sending was successful
 
-        customer.customerOTP = generatedOTP; // Generate OTP and store it in the customer's record in the database
+        customer.customerOTP = otp; // Generate OTP and store it in the customer's record in the database
         customer.customerVerified = false; // Set customerVerified to false until OTP is verified
 
         // Save customer BEFORE sending response to ensure that the OTP is stored in the database and can be verified later
@@ -241,8 +246,10 @@ exports.forgotPassword = async (req, res) => {
 
   if (customer != null) {
     let subject = "Mail for Reset Password in Elite Saloon";
-    let message =
-      "Please enter OTP for reset password in Elite Saloon\n\n Your OTP is :";
+    let message = "Please enter OTP for reset password in Elite Saloon\n\n Your OTP is :";
+    let otp = await generateOTP();
+    
+    message = message + otp ;
 
     const generatedOTP = await emailSendOptimizeCode(
       customerEmail,
@@ -251,7 +258,7 @@ exports.forgotPassword = async (req, res) => {
     );
 
     if (generatedOTP) {
-      customer.customerOTP = generatedOTP; // Store the generated OTP in the customer's record in the database
+      customer.customerOTP = otp; // Store the generated OTP in the customer's record in the database
       await customer.save(); // Save the updated customer record with the new OTP
 
       res.status(200).json({
