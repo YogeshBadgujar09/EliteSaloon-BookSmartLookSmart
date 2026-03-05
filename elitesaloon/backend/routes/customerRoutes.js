@@ -1,6 +1,7 @@
 const express = require('express');
 const routes  = express.Router();
-const upload = require('../middleware/upload');
+// const upload = require('../middleware/upload');
+const imageUpload = require("../utils/imageUpload");
 const CustomerController = require('../controllers/CustomerController/CustomerController');
 
 // routes.post('/register', upload.single('customerProfileImage'), CustomerController.registerCustomer);
@@ -13,7 +14,7 @@ routes.post('/forgotpassword', CustomerController.forgotPassword);
 routes.post('/resetpassword', CustomerController.resetPassword);
 
 //for imsge
-routes.post('/uploadprofile', upload.single('customerProfileImage'), CustomerController.uploadProfileImage);
+routes.post('/uploadprofile', imageUpload.single('customerProfileImage'), CustomerController.uploadProfileImage);
 
 module.exports = routes;
 

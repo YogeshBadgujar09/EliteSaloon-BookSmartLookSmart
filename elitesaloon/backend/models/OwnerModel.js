@@ -15,10 +15,21 @@ const ownerSchema = new mongoose.Schema({
     ownerShopName: {
         type: String, required: true
     },
+
     ownerShopCertificate: {
         type: String, required: true
     },
-    
+
+    shopFrontPhoto: {
+        type: String,
+        required: true
+    },
+
+    shopInsidePhoto: {
+        type: String,
+        required: true
+    },
+
     ownerShopStreet: {
         type: String, required: true
     },
@@ -46,22 +57,27 @@ const ownerSchema = new mongoose.Schema({
         type: Boolean, default: false
     },
 
-    ownerStatus : {
-        type: String, default: "deactive"
+    ownerAccountStatus : {
+        type: String, default: "DEACTIVE"
+    },
+
+    ownerApprovedStatus :{
+        type: String, default: "PENDING"
     },
 
     ownerPassword: {
         type: String, required: true
     },
+
     ownerCreatedAt: {
         type: Date, default: Date.now
     },
-
     ownerUpdatedAt: {
         type: Date, default: Date.now   
     }
 
 });
+
 const Owner = mongoose.model('Owner', ownerSchema);
 
 module.exports = Owner;

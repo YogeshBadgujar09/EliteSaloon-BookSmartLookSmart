@@ -1,6 +1,6 @@
 const CustomerModel = require('../../models/CustomerModel');
 const sendEmail = require('../../mail/emailSender');
-const generateOTP = require('../../util/generateOTP');
+
 
 const customerFindUsingEmail = async (customerEmail) => {
      
@@ -22,16 +22,16 @@ const customerFindUsingEmail = async (customerEmail) => {
 
 const emailSendOptimizeCode = async (email, subject, message) => {     
 
+    const YES = 1;
     try {
-       const generatedOTP = await generateOTP();
-       const emailSent =await sendEmail(email, subject, message, generatedOTP);
+       const emailSent =await sendEmail(email, subject, message);
        
-        // Send email to customer for OTP verification
+      
         if (!emailSent) {
             return null; // Return null if email sending failed
         }else{
             console.log("Email sent successfully to :", email);
-            return generatedOTP;
+            return YES;
         }
 
     } catch (error) {
