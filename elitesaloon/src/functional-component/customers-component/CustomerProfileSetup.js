@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
 import { useLocation, useNavigate } from "react-router-dom";
-import "./CustomerForm.css";
+import "../../components/Form.css";
 import axios from "axios";
+import usePreventBackNavigation from "../../hooks/usePreventBackNavigation";
 
 
 const CustomerProfileSetup = () => {
@@ -11,7 +12,9 @@ const CustomerProfileSetup = () => {
       const location = useLocation();
 
       const [image, setImage] = useState(null);
-      const [preview, setPreview] = useState("/images/profileimg.png");// default image like instagram
+      const [preview, setPreview] = useState("/images/profileimg.png");// default image 
+
+      usePreventBackNavigation("/"); 
       
       const customerEmail = location.state?.customerEmailData;
     
@@ -55,7 +58,7 @@ const CustomerProfileSetup = () => {
               title: "Profile Setup Completed 🎉",
               text: "Now you can login",
             }).then(() => {
-              navigate("/customerlogin");
+              navigate("/customerlogin",{ replace: true });
             });
 
         } catch (error) {

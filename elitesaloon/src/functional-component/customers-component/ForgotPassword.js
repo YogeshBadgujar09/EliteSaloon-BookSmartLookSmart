@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-import "./CustomerForm.css";
+import "../../components/Form.css";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();

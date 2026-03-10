@@ -1,9 +1,13 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 
 // Guest
 import Navbar from "./functional-component/guest-component/Navbar";
 import GuestHome from "./functional-component/guest-component/GuestHome";
+import Shop from "./functional-component/guest-component/Shop";
+import Search from "./functional-component/guest-component/Search";
+import Offers from "./functional-component/guest-component/Offers";
 
 // Customer
 import CustomerLogin from "./functional-component/customers-component/CustomerLogin";
@@ -12,41 +16,102 @@ import CustomerLoginWithOTP from "./functional-component/customers-component/Cus
 import CustomerOtpVerify from "./functional-component/customers-component/CustomerOtpVerify";
 import CustomerProfileSetup from "./functional-component/customers-component/CustomerProfileSetup";
 import ResetPassword from "./functional-component/customers-component/ResetPassword";
+import CustomerDashboard from "./functional-component/customers-component/CustomerDashboard";
 
-
-// Forgot Password Pages
 import ForgotPassword from "./functional-component/customers-component/ForgotPassword";
 import ResetOtp from "./functional-component/customers-component/ResetOtp";
 
-function App() {
+import OtpVerify from "./components/OtpVerify";
+
+// Owner
+import OwnerRegistration from "./functional-component/owners-component/OwnerRegistration";
+import OwnerDashboard from "./functional-component/owners-component/OwnerDashboard";
+import OwnerOtpVerify from "./functional-component/owners-component/OwnerOtpVerify";
+import OwnerLogin from "./functional-component/owners-component/OwnerLogin";
+
+import OwnerForgotPassword from "./functional-component/owners-component/OwnerForgotPassword";
+import OwnerResetOtp from "./functional-component/owners-component/OwnerResetOtp";
+import OwnerResetPassword from "./functional-component/owners-component/OwnerResetPassword";
+
+
+function AppContent() {
+
+  const location = useLocation();
+
+  // Pages where Navbar should NOT appear
+  const hideNavbarRoutes = [
+    "/customerregister",
+    "/customerlogin",
+    "/customerloginotp",
+    "/customerotpverify",
+    "/profilesetup",
+    "/customerdashboard",
+    "/OtpVerify",
+    "/forgotpassword",
+    "/resetotp",
+    "/resetpassword",
+    "/ownerregister",
+    "/ownerotpverify",
+    "/ownerlogin",
+    "/ownerdashboard",
+    "/ownerforgotpassword",
+    "/ownerresetotp",
+    "/ownerresetpassword"
+  ];
+
+  const showNavbar = !hideNavbarRoutes.includes(location.pathname);
+
   return (
-    <BrowserRouter>
-      <Navbar />
+    <>
+      {showNavbar && <Navbar />}
 
       <Routes>
+
         {/* GUEST */}
         <Route path="/" element={<GuestHome />} />
+        <Route path="/shop" element={<Shop />} />
+        <Route path="/search" element={<Search />} />
+        <Route path="/offers" element={<Offers />} />
 
         {/* CUSTOMER */}
-        <Route path="/register" element={<CustomerRegistration />} />
+        <Route path="/customerregister" element={<CustomerRegistration />} />
         <Route path="/customerlogin" element={<CustomerLogin />} />
         <Route path="/customerloginotp" element={<CustomerLoginWithOTP />} />
         <Route path="/customerotpverify" element={<CustomerOtpVerify />} />
         <Route path="/profilesetup" element={<CustomerProfileSetup />} />
+        <Route path="/customerdashboard" element={<CustomerDashboard />} />
 
+        <Route path="/OtpVerify" element={<OtpVerify />} />
 
-        {/* FORGOT PASSWORD FLOW */}
+        {/* FORGOT PASSWORD */}
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/resetotp" element={<ResetOtp />} />
         <Route path="/resetpassword" element={<ResetPassword />} />
-
 
         {/* ADMIN */}
         <Route path="/admin" element={<h1>Admin Dashboard</h1>} />
 
         {/* OWNER */}
-        <Route path="/owner" element={<h1>Owner Dashboard</h1>} />
+        <Route path="/ownerregister" element={<OwnerRegistration />} />
+        <Route path="/ownerotpverify" element={<OwnerOtpVerify />} />
+        <Route path="/ownerlogin" element={<OwnerLogin />} />
+        <Route path="/ownerdashboard" element={<OwnerDashboard />} />
+
+        {/* OWNER FORGOT PASSWORD */}
+        <Route path="/ownerforgotpassword" element={<OwnerForgotPassword />} />
+        <Route path="/ownerresetotp" element={<OwnerResetOtp />} />
+        <Route path="/ownerresetpassword" element={<OwnerResetPassword />} />
+
       </Routes>
+    </>
+  );
+}
+
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
     </BrowserRouter>
   );
 }

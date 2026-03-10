@@ -1,0 +1,677 @@
+/* ================================================
+   ELITE SALON - Premium Professional Form Styles
+   Created by 15+ year expert developer
+   ================================================ */
+
+/* ===== CSS VARIABLES ===== */
+:root {
+  /* Website Brand Colors */
+  --brand-gold: #d4af37;
+  --brand-gold-light: #e5c14d;
+  --brand-gold-dark: #b8962e;
+  --brand-rose: #b76e79;
+  --brand-rose-light: #d4a5ad;
+  --brand-burgundy: #800020;
+  --brand-charcoal: #36454f;
+  
+  /* Neutrals */
+  --white: #ffffff;
+  --off-white: #faf8f5;
+  --cream: #f5f0e8;
+  --border: #e0e0e0;
+  --border-light: #eeeeee;
+  --text-primary: #1a1a1a;
+  --text-secondary: #555555;
+  --text-muted: #999999;
+  
+  /* Semantic */
+  --success: #27ae60;
+  --error: #e74c3c;
+  
+  /* Premium Effects */
+  --glass-bg: rgba(255, 255, 255, 0.95);
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.15);
+  --shadow-gold: 0 15px 50px rgba(212, 175, 55, 0.25);
+  
+  /* Gradients */
+  --gradient-gold: linear-gradient(135deg, #d4af37 0%, #e5c14d 50%, #b8962e 100%);
+  --gradient-bg: linear-gradient(135deg, #fdfbf7 0%, #f5f0e8 50%, #fdf2f4 100%);
+  --gradient-shimmer: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  
+  /* Transitions */
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 50%;
+}
+
+/* ===== FONTS ===== */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* ===== RESET ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--gradient-bg);
+  min-height: 100vh;
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+/* Background decoration */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(ellipse at 10% 10%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 90%, rgba(183, 110, 121, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(128, 0, 32, 0.04) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ===== FORM WRAPPER ===== */
+.form-wrapper {
+  max-width: 880px;
+  margin: 70px auto;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 55px 60px;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(212, 175, 55, 0.1);
+  position: relative;
+  overflow: hidden;
+  animation: cardEntry 0.6s var(--ease-out) forwards;
+}
+
+@keyframes cardEntry {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.form-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-gold);
+}
+
+/* ===== LOGIN WRAPPER ===== */
+.login-wrapper {
+  max-width: 440px;
+  margin: 110px auto;
+  background: var(--glass-bg);
+  backdrop-filter: blur(25px);
+  padding: 50px 45px;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg), var(--shadow-gold);
+  position: relative;
+  animation: cardEntry 0.6s var(--ease-out) forwards;
+}
+
+.login-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--brand-gold), var(--brand-rose), var(--brand-gold));
+}
+
+/* ===== HEADINGS ===== */
+h2 {
+  text-align: center;
+  margin-bottom: 40px;
+  color: var(--text-primary);
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: 2rem;
+  position: relative;
+  padding-bottom: 20px;
+}
+
+h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: var(--gradient-gold);
+  border-radius: 2px;
+}
+
+/* ===== FORM SECTIONS ===== */
+.form-section {
+  margin-bottom: 40px;
+}
+
+.form-section h3 {
+  margin-bottom: 24px;
+  color: var(--brand-charcoal);
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  border-left: 4px solid var(--brand-gold);
+  padding-left: 16px;
+}
+
+/* ===== GRID LAYOUT ===== */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px;
+}
+
+/* ===== FORM GROUPS ===== */
+.form-group,
+.password-group,
+.password-field {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.form-group label,
+.password-group label,
+.password-field label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+/* ===== INPUT FIELDS ===== */
+input,
+select {
+  width: 100%;
+  height: 54px;
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-light);
+  font-size: 0.95rem;
+  font-family: 'Poppins', sans-serif;
+  background: var(--white);
+  color: var(--text-primary);
+  transition: all 0.3s var(--ease-out);
+}
+
+/* Placeholder */
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
+  opacity: 1;
+}
+
+input::-moz-placeholder,
+textarea::-moz-placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+input:hover,
+select:hover {
+  border-color: var(--brand-gold-light);
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--brand-gold);
+  background: var(--white);
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15);
+  transform: translateY(-1px);
+}
+
+.form-group:focus-within label {
+  color: var(--brand-gold-dark);
+}
+
+input[readonly] {
+  background: var(--cream);
+  color: var(--text-primary);
+  cursor: not-allowed;
+}
+
+/* Force placeholder to show in readonly inputs */
+input[readonly]:not([value]):not(:focus)::before {
+  content: attr(placeholder);
+  color: var(--text-muted);
+  position: absolute;
+  pointer-events: none;
+}
+
+/* ===== PHONE INPUT ===== */
+.react-tel-input .form-control {
+  width: 100% !important;
+  height: 54px !important;
+  border-radius: var(--radius-md) !important;
+  border: 1.5px solid var(--border-light) !important;
+  background: var(--white) !important;
+  font-family: 'Poppins', sans-serif !important;
+  padding-left: 50px !important;
+}
+
+.react-tel-input .form-control:focus {
+  border-color: var(--brand-gold) !important;
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15) !important;
+}
+
+.react-tel-input .flag-dropdown {
+  border-radius: var(--radius-md) 0 0 var(--radius-md) !important;
+  background: var(--cream) !important;
+}
+
+/* ===== PASSWORD FIELD ===== */
+.password-field input,
+.password-group input {
+  padding-right: 50px;
+}
+
+.password-field span,
+.password-group span {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 18px;
+  transition: all 0.2s ease;
+}
+
+.password-field span:hover,
+.password-group span:hover {
+  color: var(--brand-gold);
+}
+
+/* ===== ERROR STATES ===== */
+.error-text {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: var(--error);
+  font-weight: 500;
+}
+
+input.error,
+select.error {
+  border-color: var(--error) !important;
+  background: #fffafa !important;
+}
+
+/* ===== FILE INPUT ===== */
+input[type="file"] {
+  padding: 12px 16px;
+  background: var(--off-white);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+input[type="file"]::file-selector-button {
+  padding: 10px 20px;
+  background: var(--gradient-gold);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  margin-right: 14px;
+}
+
+/* ===== SUBMIT BUTTON ===== */
+.submit-btn {
+  width: 100%;
+  margin-top: 30px;
+  padding: 18px 32px;
+  background: var(--gradient-gold);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: all 0.4s var(--ease-bounce);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(212, 175, 55, 0.4);
+}
+
+.submit-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--gradient-shimmer);
+  transition: 0.5s;
+}
+
+.submit-btn:hover::before {
+  left: 100%;
+}
+
+.submit-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 45px rgba(212, 175, 55, 0.5);
+}
+
+/* ===== FORM LINKS ===== */
+.form-links {
+  margin-top: 28px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.form-links span {
+  color: var(--brand-gold-dark);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  position: relative;
+}
+
+.form-links span::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--brand-gold);
+  transition: all 0.3s ease;
+}
+
+.form-links span:hover {
+  color: var(--brand-burgundy);
+}
+
+.form-links span:hover::after {
+  width: 100%;
+}
+
+/* ===== OTP INPUTS ===== */
+.otp-input {
+  letter-spacing: 14px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.otp-box {
+  width: 58px;
+  height: 60px;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-light);
+  background: var(--white);
+  transition: all 0.3s ease;
+}
+
+.otp-box:focus {
+  border-color: var(--brand-gold);
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15);
+  transform: scale(1.03);
+  outline: none;
+}
+
+.otp-container {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 25px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(183, 110, 121, 0.05) 100%);
+  border-radius: var(--radius-lg);
+  margin: 10px 0;
+}
+
+/* ===== PROFILE IMAGE ===== */
+.profile-container {
+  width: 150px;
+  height: 150px;
+  margin: 25px auto;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  border: 4px solid var(--brand-gold);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  position: relative;
+  background: var(--cream);
+  transition: all 0.4s var(--ease-bounce);
+}
+
+.profile-container:hover {
+  border-color: var(--brand-rose);
+  transform: scale(1.03);
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-btn {
+  display: block;
+  margin: 18px auto;
+  padding: 14px 32px;
+  background: var(--gradient-gold);
+  color: white;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: center;
+  border: none;
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35);
+}
+
+.upload-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.45);
+}
+
+/* ===== CHECKBOX & RADIO ===== */
+input[type="checkbox"],
+input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  accent-color: var(--brand-gold);
+  cursor: pointer;
+}
+
+/* ===== TEXTAREA ===== */
+textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 16px 18px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-light);
+  font-size: 0.95rem;
+  font-family: 'Poppins', sans-serif;
+  background: var(--white);
+  resize: vertical;
+  transition: all 0.3s ease;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: var(--brand-gold);
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15);
+}
+
+/* ===== SPINNER ===== */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-top: 2.5px solid white;
+  border-radius: var(--radius-full);
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== BUTTON STATES ===== */
+button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ===== PASSWORD OVERRIDES ===== */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none !important;
+}
+
+input[type="password"]::-webkit-credentials-auto-fill-button {
+  visibility: hidden !important;
+}
+
+/* ===== SUCCESS STATES ===== */
+input.valid,
+select.valid {
+  border-color: var(--success) !important;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-wrapper {
+    margin: 25px;
+    padding: 35px 28px;
+  }
+  
+  .login-wrapper {
+    margin: 50px 20px;
+    padding: 38px 28px;
+  }
+  
+  h2 {
+    font-size: 1.65rem;
+  }
+  
+  .otp-box {
+    width: 50px;
+    height: 54px;
+  }
+  
+  input,
+  select {
+    height: 50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-wrapper {
+    margin: 18px;
+    padding: 28px 20px;
+  }
+  
+  h2 {
+    font-size: 1.4rem;
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--brand-gold);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===== SELECT DROPDOWN ===== */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -ms-appearance: none;
+  background: var(--white) !important;
+  background-image: none !important;
+}
+
+select::-ms-expand {
+  display: none !important;
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cream);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--brand-gold);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-gold-dark);
+}
+
+/* ===== SELECTION ===== */
+::selection {
+  background: var(--brand-gold);
+  color: white;
+}
+

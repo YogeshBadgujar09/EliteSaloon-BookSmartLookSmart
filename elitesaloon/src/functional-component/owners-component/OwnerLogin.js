@@ -6,31 +6,32 @@ import "../../components/Form.css";
 import useLoader from "../../hooks/useLoader";
 import CommonLoader from "../../components/CommonLoader";
 
-
-const CustomerLogin = () => {
+const OwnerLogin = () => {
 
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    customerUsername: "",
-    customerPassword: "",
+    ownerUsername: "",
+    ownerPassword: "",
   });
-  
 
   const [errors, setErrors] = useState({});
   const [showPwd, setShowPwd] = useState(false);
-   const { loading, startLoading, stopLoading } = useLoader();
 
-  // ================= VALIDATION =================
+  const { loading, startLoading, stopLoading } = useLoader();
+
+  /* ================= VALIDATION ================= */
+
   const validate = () => {
 
     let err = {};
 
-    if (!form.customerUsername) {
-      err.customerUsername = "Username is required";
+    if (!form.ownerUsername) {
+      err.ownerUsername = "Username is required";
     }
-    if (!form.customerPassword) {
-      err.customerPassword = "Password is required";
+
+    if (!form.ownerPassword) {
+      err.ownerPassword = "Password is required";
     }
 
     setErrors(err);
@@ -38,11 +39,12 @@ const CustomerLogin = () => {
     return Object.keys(err).length === 0;
   };
 
+  /* ================= HANDLE CHANGE ================= */
 
-  // ================= HANDLE CHANGE =================
   const handleChange = (e) => {
 
     const { name, value } = e.target;
+
     setForm({
       ...form,
       [name]: value
@@ -50,8 +52,8 @@ const CustomerLogin = () => {
 
   };
 
+  /* ================= LOGIN ================= */
 
-  // ================= HANDLE SUBMIT WITH BACKEND =================
   const handleSubmit = async (e) => {
 
     e.preventDefault();
@@ -69,37 +71,39 @@ const CustomerLogin = () => {
 
     try {
 
-       startLoading();
+      startLoading();
 
       const response = await fetch(
-        "http://localhost:5000/customer/login", 
+        "http://localhost:5000/owner/login",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            customerUsername: form.customerUsername,
-            customerPassword: form.customerPassword, 
+            ownerUsername: form.ownerUsername,
+            ownerPassword: form.ownerPassword
           })
-      });
+        }
+      );
 
       const data = await response.json();
-      const customer = data.customer;
-      console.log("Find customer :", data.message);
-      
+
+      const owner = data.owner;
+
+      console.log("Find owner :", data.message);
+
       if (response.ok) {
-        
+
         Swal.fire({
           icon: "success",
           title: "Login Successful 🎉",
-          text: "Welcome " + customer.customerUsername
+          text: "Welcome " + owner.ownerUsername
         });
 
-        console.log("Login Success:", data.customer );
+        console.log("Login Success:", owner);
 
-        // redirect to dashboard
-        navigate("/customerdashboard");
+        navigate("/ownerdashboard");
 
       } else {
 
@@ -127,47 +131,45 @@ const CustomerLogin = () => {
 
   };
 
-
   return (
 
     <div className="form-wrapper login-wrapper">
 
-    {loading && <CommonLoader />}
+      {loading && <CommonLoader />}
 
-      <h2>EliteSalon Login</h2>
+      <h2>EliteSalon Owner Login</h2>
 
       <form onSubmit={handleSubmit}>
 
         <div className="form-section">
 
-          <h3>Account Login</h3>
+          <h3>Owner Account Login</h3>
 
-          {/* EMAIL */}
+          {/* USERNAME */}
           <div className="form-group">
 
             <input
               type="text"
-              name="customerUsername"
+              name="ownerUsername"
               placeholder="Username"
-              value={form.customerUsername}
+              value={form.ownerUsername}
               onChange={handleChange}
             />
 
             <small className="error-text">
-              {errors.customerUsername}
+              {errors.ownerUsername}
             </small>
 
           </div>
-
 
           {/* PASSWORD */}
           <div className="form-group password-field">
 
             <input
               type={showPwd ? "text" : "password"}
-              name="customerPassword"
+              name="ownerPassword"
               placeholder="Password"
-              value={form.customerPassword}
+              value={form.ownerPassword}
               onChange={handleChange}
             />
 
@@ -176,23 +178,21 @@ const CustomerLogin = () => {
             </span>
 
             <small className="error-text">
-              {errors.customerPassword}
+              {errors.ownerPassword}
             </small>
 
           </div>
 
-
           {/* FORGOT PASSWORD */}
           <div className="forgot-link">
 
-            <span onClick={() => navigate("/forgotpassword")}>
+            <span onClick={() => navigate("/ownerforgotpassword")}>
               Forgot Password?
             </span>
 
           </div>
 
         </div>
-
 
         <button className="submit-btn" disabled={loading}>
 
@@ -202,13 +202,13 @@ const CustomerLogin = () => {
 
       </form>
 
-
       {/* REGISTER LINK */}
+
       <div className="form-links">
 
         Don’t have an account?{" "}
 
-        <span onClick={() => navigate("/customerregister")}>
+        <span onClick={() => navigate("/ownerregister")}>
           Register
         </span>
 
@@ -220,4 +220,4 @@ const CustomerLogin = () => {
 
 };
 
-export default CustomerLogin;
+export default OwnerLogin;

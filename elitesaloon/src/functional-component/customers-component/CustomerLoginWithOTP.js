@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import PhoneInput from "react-phone-input-2";
 import Swal from "sweetalert2";
 import "react-phone-input-2/lib/style.css";
-import "./CustomerForm.css";
+import "../../components/Form.css";
 
 const CustomerLoginWithOTP = () => {
   const [input, setInput] = useState(""); // email or mobile
