@@ -4,6 +4,7 @@ const emailSendOptimizeCode = require("../../utils/emailSendOptimizeCode");
 const generateOTP  = require("../../utils/generateOTP");
 const ServiceModel = require("../../models/ServiceModel");
 const ProductModel = require("../../models/ProductModel");
+const StaffModel = require("../../models/StaffModel");
 
 exports.registerOwner = async (req, res) => {
 
@@ -579,6 +580,244 @@ exports.deleteProduct = async (req, res) => {
         res.status(500).json({
             success: false,
             message: "Error Deleting Product",
+            error: error.message
+        });
+
+    }
+
+};
+
+exports.addStaff = async (req, res) => {
+
+    const subject = "Staff Registration in Elite Saloon";
+    let message = "Please enter OTP for Staff Verification in Elite Saloon\n\n Your OTP is : ";
+
+    try {
+
+        const { staffEmail } = req.body;
+
+        console.log("Request Data :", req.body);
+
+        let existingStaff = await StaffModel.findOne({ staffEmail });
+
+        console.log("Existing Staff :", existingStaff);
+
+        // Delete old unverified staff
+        if (
+            existingStaff !== null &&
+            !existingStaff.isVerified
+        ) {
+            console.log("Deleting old unverified staff...");
+            await StaffModel.deleteOne({ staffEmail });
+            existingStaff = null;
+        }
+
+        if (existingStaff === null) {
+
+            const staff = new StaffModel(req.body);
+
+                req.body.staffProfile = req.file.path;
+            
+
+            // Generate OTP
+            let otp = await generateOTP();
+
+            message = message + otp;
+
+            const generatedOTP = await emailSendOptimizeCode(
+                staff.staffEmail,
+                subject,
+                message
+            );
+
+            if (generatedOTP) {
+
+                staff.staffOTP = otp;
+
+                await staff.save();
+
+                res.status(201).json({
+                    success: true,
+                    message: "Redirect To Staff OTP Verification Page",
+                    staffEmail: staff.staffEmail
+                });
+
+            } else {
+
+                res.status(500).json({
+                    success: false,
+                    message: "Failed to send OTP to staff email"
+                });
+
+            }
+
+        } else {
+
+            return res.status(409).json({
+                success: false,
+                message: "Staff Email Already Exists"
+            });
+
+        }
+
+    } catch (error) {
+
+        res.status(500).json({
+            success: false,
+            message: "Error Adding Staff",
+            error: error.message
+        });
+
+    }
+
+};
+
+exports.staffOTPverify = async (req, res) => {
+  try {
+    const { staffEmail, otp } = req.body;
+    const staff = await StaffModel.findOne({staffEmail});
+
+    if (staff != null) {
+      if (staff.staffOTP == otp) {
+
+        staff.isVerified = true ;
+        staff.staffOTP = null ;
+        
+        await staff.save();
+
+        res.status(200).json({
+          message: "OTP verification successfull ... !!!"
+        });
+      } else {
+        res.status(400).json({ message: "enter valid OTP" });
+      }
+    } else {
+      res.status(404).json({ message: "staff not found" });
+    }
+  } catch (error) {
+    res.status(500).json({
+      error: "Internal error in OTP verification",
+      details: error.message,
+    });
+  }
+};
+
+exports.updateStaff = async (req, res) => {
+
+    try {
+
+        const { staffId } = req.params;
+
+        console.log("Staff ID :", staffId);
+        console.log("Body Data :", req.body);
+
+        const staff = await StaffModel.findById(staffId);
+
+        if (!staff) {
+            return res.status(404).json({
+                success: false,
+                message: "Staff not found"
+            });
+        }
+
+        // Update fields
+        if (req.body.staffName) {
+            staff.staffName = req.body.staffName;
+        }
+
+        if (req.body.staffPhone) {
+            staff.staffPhone = req.body.staffPhone;
+        }
+
+        if (req.body.staffAddress) {
+            staff.staffAddress = req.body.staffAddress;
+        }
+
+        // Update profile image if new file uploaded
+        if (req.file) {
+            staff.staffProfile = req.file.path;
+        }
+
+        await staff.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Staff updated successfully",
+            staff
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            success: false,
+            message: "Error updating staff",
+            error: error.message
+        });
+
+    }
+
+};
+
+exports.deleteStaff = async (req, res) => {
+
+    try {
+
+        const { staffId } = req.params;
+
+        console.log("Deleting Staff ID :", staffId);
+
+        const staff = await StaffModel.findById(staffId);
+
+        if (!staff) {
+            return res.status(404).json({
+                success: false,
+                message: "Staff not found"
+            });
+        }
+
+        await StaffModel.findByIdAndDelete(staffId);
+
+        res.status(200).json({
+            success: true,
+            message: "Staff deleted successfully"
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            success: false,
+            message: "Error deleting staff",
+            error: error.message
+        });
+
+    }
+
+};
+
+exports.getOwnerStaff = async (req, res) => {
+
+    try {
+
+        const { ownerId } = req.params;
+
+        console.log("Owner ID :", ownerId);
+
+        const staffList = await StaffModel.find({
+            ownerId: ownerId,
+            isVerified: true
+        });
+
+        res.status(200).json({
+            success: true,
+            totalStaff: staffList.length,
+            staff: staffList
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            success: false,
+            message: "Error fetching staff list",
             error: error.message
         });
 
