@@ -1,44 +1,57 @@
 import React, { useState, useRef } from "react";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "../../components/Form.css";
 import useLoader from "../../hooks/useLoader";
 import CommonLoader from "../../components/CommonLoader";
-
-import usePreventBackNavigation from "../../hooks/usePreventBackNavigation";//page prevent back
+import usePreventBackNavigation from "../../hooks/usePreventBackNavigation";
 
 const CustomerOtpVerify = () => {
 
   const navigate = useNavigate();
-  const inputsRef = useRef([]);
   const location = useLocation();
-    usePreventBackNavigation("/");    //page prevent back
+  const inputsRef = useRef([]);
+
+  usePreventBackNavigation("/");
 
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-   const { loading, startLoading, stopLoading } = useLoader();
 
-   
-  
+  const { loading, startLoading, stopLoading } = useLoader();
+
   const customerEmail = location.state?.customerEmail;
-  console.log("Customer OTP Verification Page :" + customerEmail);
+
+  console.log("Customer OTP Verification Page :", customerEmail);
 
   /* ================= HANDLE CHANGE ================= */
+
   const handleChange = (value, index) => {
+
     if (!/^\d*$/.test(value)) return;
 
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // auto focus next
     if (value && index < 5) {
       inputsRef.current[index + 1].focus();
     }
+
   };
 
-  /* ================= VERIFY OTP WITH API ================= */
+  /* ================= HANDLE BACKSPACE ================= */
+
+  const handleKeyDown = (e, index) => {
+
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      inputsRef.current[index - 1].focus();
+    }
+
+  };
+
+  /* ================= VERIFY OTP ================= */
+
   const handleVerify = async () => {
+
     const enteredOtp = otp.join("");
 
     console.log("Entered OTP:", enteredOtp);
@@ -48,22 +61,24 @@ const CustomerOtpVerify = () => {
       return;
     }
 
- startLoading(); 
+    startLoading();
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/customer/verifyotp", // OTP verification API
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            customerEmail: customerEmail,
-            otp: enteredOtp
-          }),
-        }
-      );
+
+      const response = await fetch("http://localhost:5000/customer/verifyotp", {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          customerEmail: customerEmail,
+          otp: enteredOtp,
+        }),
+
+      });
 
       const data = await response.json();
 
@@ -72,17 +87,27 @@ const CustomerOtpVerify = () => {
       const customerEmailData = data.customerEmail;
 
       if (response.ok) {
+
         Swal.fire({
           icon: "success",
           title: "OTP Verified Successfully 🎉",
         }).then(() => {
-          navigate("/profilesetup", {replace: true,state : {customerEmailData : customerEmailData}});
+
+          navigate("/profilesetup", {
+            replace: true,
+            state: { customerEmailData: customerEmailData },
+          });
+
         });
+
       } else {
+
         Swal.fire("Error", "Invalid OTP", "error");
+
       }
 
     } catch (error) {
+
       console.log("OTP Verify Error:", error);
 
       Swal.fire(
@@ -90,82 +115,96 @@ const CustomerOtpVerify = () => {
         "Unable to verify OTP. Try again later.",
         "error"
       );
+
+    } finally {
+
+      stopLoading();
+
     }
 
-    stopLoading();
   };
 
-  /* ================= RESEND OTP API ================= */
+  /* ================= RESEND OTP ================= */
+
   const handleResendOtp = async () => {
 
     console.log("Resend OTP clicked");
 
+    startLoading();
+
     try {
-      const response = await fetch(
-        "http://localhost:5000/customer/resendotp", // replace with real resend API
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            mobile: localStorage.getItem("customerMobileNo"),
-            email: localStorage.getItem("customeremail"),
-          }),
-        }
-      );
+
+      const response = await fetch("http://localhost:5000/customer/resendotp", {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          customerEmail: customerEmail,
+        }),
+
+      });
 
       const data = await response.json();
 
       console.log("Resend OTP Response:", data);
 
       if (response.ok) {
+
         Swal.fire("Success", "OTP Resent Successfully", "success");
+
       } else {
+
         Swal.fire("Error", "Failed to resend OTP", "error");
+
       }
 
     } catch (error) {
 
       console.log("Resend OTP Error:", error);
 
-      Swal.fire(
-        "Server Error",
-        "Unable to resend OTP",
-        "error"
-      );
+      Swal.fire("Server Error", "Unable to resend OTP", "error");
+
+    } finally {
+
+      stopLoading();
+
     }
+
   };
 
   return (
-    
+
     <div className="form-wrapper login-wrapper">
-      
-      {loading && <CommonLoader />}
+
+      <CommonLoader loading={loading} />
+
       <h2>Verify OTP</h2>
 
       <div className="form-section">
+
         <h3>Enter 6-Digit OTP</h3>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            gap: "10px",
-            marginBottom: "20px"
-          }}
-        >
+        <div className="otp-container">
+
           {otp.map((digit, index) => (
+
             <input
               key={index}
               type="text"
               maxLength="1"
               value={digit}
               onChange={(e) => handleChange(e.target.value, index)}
+              onKeyDown={(e) => handleKeyDown(e, index)}
               ref={(el) => (inputsRef.current[index] = el)}
               className="otp-box"
             />
+
           ))}
+
         </div>
 
         <button
@@ -183,15 +222,18 @@ const CustomerOtpVerify = () => {
             marginTop: "15px",
             cursor: "pointer",
             color: "#f8b500",
-            fontWeight: "600"
+            fontWeight: "600",
           }}
         >
           Resend OTP
         </p>
 
       </div>
+
     </div>
+
   );
+
 };
 
 export default CustomerOtpVerify;

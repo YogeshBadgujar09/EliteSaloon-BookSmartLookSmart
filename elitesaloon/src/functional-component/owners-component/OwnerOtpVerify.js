@@ -33,8 +33,14 @@ const OwnerOtpVerify = () => {
 
     setOtp(newOtp);
 
+    // Move forward
     if (value && index < 5) {
       inputsRef.current[index + 1].focus();
+    }
+
+    // Move backward on delete
+    if (!value && index > 0) {
+      inputsRef.current[index - 1].focus();
     }
   };
 
@@ -46,8 +52,14 @@ const OwnerOtpVerify = () => {
 
     console.log("Entered OTP:", enteredOtp);
 
-    if (enteredOtp.length !== 6) {
+    if (!enteredOtp || enteredOtp.length !== 6) {
       Swal.fire("Error", "Please enter 6 digit OTP", "error");
+      return;
+    }
+
+    if (!ownerEmail) {
+      Swal.fire("Error", "Session expired. Please register again.", "error");
+      navigate("/ownerregistration");
       return;
     }
 
@@ -86,7 +98,7 @@ const OwnerOtpVerify = () => {
 
       } else {
 
-        Swal.fire("Error", "Invalid OTP", "error");
+        Swal.fire("Error", data.message || "Invalid OTP", "error");
 
       }
 
@@ -100,9 +112,11 @@ const OwnerOtpVerify = () => {
         "error"
       );
 
-    }
+    } finally {
 
-    stopLoading();
+      stopLoading();
+
+    }
   };
 
   /* ================= RESEND OTP ================= */
@@ -110,6 +124,12 @@ const OwnerOtpVerify = () => {
   const handleResendOtp = async () => {
 
     console.log("Resend OTP clicked");
+
+    if (!ownerEmail) {
+      Swal.fire("Error", "Session expired. Please register again.", "error");
+      navigate("/ownerregistration");
+      return;
+    }
 
     try {
 
@@ -136,7 +156,7 @@ const OwnerOtpVerify = () => {
 
       } else {
 
-        Swal.fire("Error", "Failed to resend OTP", "error");
+        Swal.fire("Error", data.message || "Failed to resend OTP", "error");
 
       }
 
@@ -165,14 +185,7 @@ const OwnerOtpVerify = () => {
 
         <h3>Enter 6 Digit OTP</h3>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            gap: "10px",
-            marginBottom: "20px"
-          }}
-        >
+      <div className="otp-container">
 
           {otp.map((digit, index) => (
 
@@ -219,7 +232,3 @@ const OwnerOtpVerify = () => {
 };
 
 export default OwnerOtpVerify;
-
-
-
-

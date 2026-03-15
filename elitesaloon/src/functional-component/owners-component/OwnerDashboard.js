@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback  } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import axios from "axios";
@@ -21,7 +21,6 @@ import {
   FiDollarSign,
   FiClock,
   FiStar,
-  FiX,
 } from "react-icons/fi";
 
 const OwnerDashboard = () => {
@@ -29,130 +28,7 @@ const OwnerDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [loading, setLoading] = useState(true);
 
-  // Validation helper functions
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const validateMobile = (mobile) => {
-    const mobileRegex = /^\+?[\d\s-]{10,}$/;
-    return mobileRegex.test(mobile);
-  };
-
-  const validateServiceForm = () => {
-    if (!serviceForm.serviceName || serviceForm.serviceName.trim().length < 2) {
-      Swal.fire(
-        "Validation Error",
-        "Service name must be at least 2 characters",
-        "error",
-      );
-      return false;
-    }
-    if (
-      !serviceForm.serviceDescription ||
-      serviceForm.serviceDescription.trim().length < 10
-    ) {
-      Swal.fire(
-        "Validation Error",
-        "Service description must be at least 10 characters",
-        "error",
-      );
-      return false;
-    }
-    if (!serviceForm.servicePrice || Number(serviceForm.servicePrice) <= 0) {
-      Swal.fire(
-        "Validation Error",
-        "Please enter a valid positive price",
-        "error",
-      );
-      return false;
-    }
-    if (
-      !serviceForm.serviceDuration ||
-      Number(serviceForm.serviceDuration) <= 0
-    ) {
-      Swal.fire(
-        "Validation Error",
-        "Please enter a valid duration in minutes",
-        "error",
-      );
-      return false;
-    }
-    return true;
-  };
-
-  const validateProductForm = () => {
-    if (!productForm.productName || productForm.productName.trim().length < 2) {
-      Swal.fire(
-        "Validation Error",
-        "Product name must be at least 2 characters",
-        "error",
-      );
-      return false;
-    }
-    if (
-      !productForm.productDescription ||
-      productForm.productDescription.trim().length < 10
-    ) {
-      Swal.fire(
-        "Validation Error",
-        "Product description must be at least 10 characters",
-        "error",
-      );
-      return false;
-    }
-    if (!productForm.productPrice || Number(productForm.productPrice) <= 0) {
-      Swal.fire(
-        "Validation Error",
-        "Please enter a valid positive price",
-        "error",
-      );
-      return false;
-    }
-    return true;
-  };
-
-  const validateStaffForm = () => {
-    if (!staffForm.staffName || staffForm.staffName.trim().length < 2) {
-      Swal.fire(
-        "Validation Error",
-        "Staff name must be at least 2 characters",
-        "error",
-      );
-      return false;
-    }
-    if (!staffForm.staffEmail || !validateEmail(staffForm.staffEmail)) {
-      Swal.fire(
-        "Validation Error",
-        "Please enter a valid email address",
-        "error",
-      );
-      return false;
-    }
-    if (!staffForm.staffMobile || !validateMobile(staffForm.staffMobile)) {
-      Swal.fire(
-        "Validation Error",
-        "Please enter a valid mobile number (at least 10 digits)",
-        "error",
-      );
-      return false;
-    }
-    if (
-      !staffForm.staffSpecialization ||
-      staffForm.staffSpecialization.trim().length < 2
-    ) {
-      Swal.fire(
-        "Validation Error",
-        "Please enter at least one specialization",
-        "error",
-      );
-      return false;
-    }
-    return true;
-  };
-
-  // Owner Profile State
+ 
   const [ownerProfile, setOwnerProfile] = useState({
     ownerName: "Elite Owner",
     ownerEmail: "owner@elitesaloon.com",
@@ -207,35 +83,50 @@ const OwnerDashboard = () => {
     staffSpecialization: "",
     staffExperience: "",
   });
+  
+const fetchDashboardData = useCallback(async () => {
+  try {
+    const ownerId = localStorage.getItem("ownerId");
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    // if (!ownerId) {
+    //   navigate("/"); // agar ownerId nahi hai to redirect
+    //   return;
+    // }
 
-  const fetchDashboardData = async () => {
-    try {
-      const serviceRes = await axios.get("/api/services");
-      const productRes = await axios.get("/api/products");
-      const staffRes = await axios.get("/api/staff");
+    // 🔹 Fetch owner profile
+    const ownerRes = await axios.get(`/api/owner/${ownerId}`);
+    setOwnerProfile(ownerRes.data || {});
 
-      setServices(serviceRes.data || []);
-      setProducts(productRes.data || []);
-      setStaff(staffRes.data || []);
-    } catch (error) {
-      console.error("Dashboard Load Error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    // 🔹 Fetch other dashboard data
+    const serviceRes = await axios.get(`/api/services/owner/${ownerId}`);
+    const productRes = await axios.get(`/api/products/owner/${ownerId}`);
+    const staffRes = await axios.get(`/api/staff/owner/${ownerId}`);
 
+    setServices(serviceRes.data || []);
+    setProducts(productRes.data || []);
+    setStaff(staffRes.data || []);
+  } catch (error) {
+    console.error("Dashboard Load Error:", error);
+  } finally {
+    setLoading(false);
+  }
+}, [navigate]);
+
+useEffect(() => {
+  fetchDashboardData();
+}, [fetchDashboardData]);
   const filteredServices =
     serviceCategory === "all"
       ? services
-      : services.filter((s) => s.servicePreferredGender === serviceCategory);
+      : services.filter(
+          (s) => s.servicePreferredGender === serviceCategory.toUpperCase(),
+        );
   const filteredProducts =
     productCategory === "all"
       ? products
-      : products.filter((p) => p.productPreferredGender === productCategory);
+      : products.filter(
+          (p) => p.productPreferredGender === productCategory.toUpperCase(),
+        );
 
   const getCategoryLabel = (category) => {
     switch (category) {
@@ -250,26 +141,37 @@ const OwnerDashboard = () => {
     }
   };
 
+
+  ///services handlesubmit
   const handleServiceSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate form before submission
-    if (!validateServiceForm()) {
-      return;
-    }
+   
 
-    const serviceData = {
-      ...serviceForm,
-      servicePrice: Number(serviceForm.servicePrice),
-      serviceDuration: Number(serviceForm.serviceDuration),
-    };
+    const formData = new FormData();
+
+    formData.append("serviceName", serviceForm.serviceName);
+    formData.append("serviceDescription", serviceForm.serviceDescription);
+    formData.append("serviceType", serviceForm.serviceType);
+    formData.append(
+      "servicePreferredGender",
+      serviceForm.servicePreferredGender,
+    );
+    formData.append("servicePrice", serviceForm.servicePrice);
+    formData.append("serviceDuration", serviceForm.serviceDuration);
+
+    formData.append("ownerId", localStorage.getItem("ownerId"));
+
+    for (let i = 0; i < serviceForm.serviceImages.length; i++) {
+      formData.append("serviceImages", serviceForm.serviceImages[i]);
+    }
 
     try {
       if (editingService) {
-        await axios.put(`/api/services/${editingService._id}`, serviceData);
+        await axios.put(`/api/services/${editingService._id}`, formData);
         Swal.fire("Success", "Service updated successfully", "success");
       } else {
-        await axios.post(`/api/services`, serviceData);
+        await axios.post(`/api/services`, formData);
         Swal.fire("Success", "Service added successfully", "success");
       }
 
@@ -277,6 +179,7 @@ const OwnerDashboard = () => {
       closeServiceModal();
     } catch (error) {
       console.error(error);
+      Swal.fire("Error", "Service save failed", "error");
     }
   };
 
@@ -313,38 +216,51 @@ const OwnerDashboard = () => {
       servicePreferredGender: "BOTH",
       servicePrice: "",
       serviceDuration: "",
-      serviceImages: [""],
+      serviceImages: [],
     });
   };
 
-  const handleProductSubmit = async (e) => {
-    e.preventDefault();
 
-    // Validate form before submission
-    if (!validateProductForm()) {
-      return;
+  ///product handlesubmit
+const handleProductSubmit = async (e) => {
+  e.preventDefault();
+
+  // Validation call
+
+
+  const formData = new FormData();
+
+  formData.append("productName", productForm.productName);
+  formData.append("productType", productForm.productType);
+  formData.append("productDescription", productForm.productDescription);
+  formData.append("productPrice", productForm.productPrice);
+  formData.append(
+    "productPreferredGender",
+    productForm.productPreferredGender
+  );
+
+  formData.append("ownerId", localStorage.getItem("ownerId"));
+
+  for (let i = 0; i < productForm.productImages.length; i++) {
+    formData.append("productImages", productForm.productImages[i]);
+  }
+
+  try {
+    if (editingProduct) {
+      await axios.put(`/api/products/${editingProduct._id}`, formData);
+      Swal.fire("Success", "Product updated successfully", "success");
+    } else {
+      await axios.post(`/api/products`, formData);
+      Swal.fire("Success", "Product added successfully", "success");
     }
 
-    const productData = {
-      ...productForm,
-      productPrice: Number(productForm.productPrice),
-    };
-
-    try {
-      if (editingProduct) {
-        await axios.put(`/api/products/${editingProduct._id}`, productData);
-        Swal.fire("Success", "Product updated successfully", "success");
-      } else {
-        await axios.post(`/api/products`, productData);
-        Swal.fire("Success", "Product added successfully", "success");
-      }
-
-      fetchDashboardData();
-      closeProductModal();
-    } catch (error) {
-      console.error(error);
-    }
-  };
+    fetchDashboardData();
+    closeProductModal();
+  } catch (error) {
+    console.error(error);
+    Swal.fire("Error", "Product save failed", "error");
+  }
+};
 
   const deleteProduct = async (id) => {
     Swal.fire({
@@ -378,40 +294,57 @@ const OwnerDashboard = () => {
       productType: "HAIRGEL",
       productPreferredGender: "BOTH",
       productPrice: "",
-      productImages: [""],
+      productImages: [],
     });
   };
+///staff handlesubmit
+ const handleStaffSubmit = async (e) => {
+  e.preventDefault();
 
-  const handleStaffSubmit = async (e) => {
-    e.preventDefault();
+  if (!staffForm.staffName) {
+    Swal.fire("Error", "Staff name required", "error");
+    return;
+  }
 
-    // Validate form before submission
-    if (!validateStaffForm()) {
-      return;
-    }
+  if (!staffForm.staffEmail) {
+    Swal.fire("Error", "Staff email required", "error");
+    return;
+  }
 
-    const staffData = {
-      ...staffForm,
-      staffSpecialization: staffForm.staffSpecialization
-        .split(",")
-        .map((s) => s.trim()),
-    };
+  if (!staffForm.staffMobile) {
+    Swal.fire("Error", "Staff mobile required", "error");
+    return;
+  }
 
-    try {
-      if (editingStaff) {
-        await axios.put(`/api/staff/${editingStaff._id}`, staffData);
-        Swal.fire("Success", "Staff updated successfully", "success");
-      } else {
-        await axios.post(`/api/staff`, staffData);
-        Swal.fire("Success", "Staff added successfully", "success");
-      }
+  if (!staffForm.staffExperience) {
+    Swal.fire("Error", "Staff experience required", "error");
+    return;
+  }
 
-      fetchDashboardData();
-      closeStaffModal();
-    } catch (error) {
-      console.error(error);
-    }
+  const staffData = {
+    ...staffForm,
+    ownerId: localStorage.getItem("ownerId"),
+   staffSpecialization: staffForm.staffSpecialization
+  ? staffForm.staffSpecialization.split(",").map((s) => s.trim())
+  : [],
   };
+
+  try {
+    if (editingStaff) {
+      await axios.put(`/api/staff/${editingStaff._id}`, staffData);
+      Swal.fire("Success", "Staff updated successfully", "success");
+    } else {
+      await axios.post(`/api/staff`, staffData);
+      Swal.fire("Success", "Staff added successfully", "success");
+    }
+
+    fetchDashboardData();
+    closeStaffModal();
+  } catch (error) {
+    console.error(error);
+    Swal.fire("Error", "Staff save failed", "error");
+  }
+};
 
   const deleteStaff = async (id) => {
     Swal.fire({
@@ -446,14 +379,12 @@ const OwnerDashboard = () => {
       staffName: "",
       staffEmail: "",
       staffMobile: "",
-      staffGender: "male",
+      staffGender: "MALE",
       staffRole: "stylist",
       staffSpecialization: "",
       staffExperience: "",
     });
   };
-
-
 
   const menuItems = [
     { id: "dashboard", icon: <FiGrid />, label: "Dashboard" },
@@ -625,8 +556,6 @@ const OwnerDashboard = () => {
             </>
           )}
 
-
-
           {/* PROFILE */}
           {activeTab === "profile" && (
             <OwnerProfile
@@ -641,8 +570,14 @@ const OwnerDashboard = () => {
               filteredServices={filteredServices}
               serviceCategory={serviceCategory}
               setServiceCategory={setServiceCategory}
+              showServiceModal={showServiceModal}
               setShowServiceModal={setShowServiceModal}
+              serviceForm={serviceForm}
+              setServiceForm={setServiceForm}
+              editingService={editingService}
+              handleServiceSubmit={handleServiceSubmit}
               openEditService={openEditService}
+              closeServiceModal={closeServiceModal}
               deleteService={deleteService}
               getCategoryLabel={getCategoryLabel}
             />
@@ -654,8 +589,14 @@ const OwnerDashboard = () => {
               filteredProducts={filteredProducts}
               productCategory={productCategory}
               setProductCategory={setProductCategory}
+              showProductModal={showProductModal}
               setShowProductModal={setShowProductModal}
+              productForm={productForm}
+              setProductForm={setProductForm}
+              editingProduct={editingProduct}
+              handleProductSubmit={handleProductSubmit}
               openEditProduct={openEditProduct}
+              closeProductModal={closeProductModal}
               deleteProduct={deleteProduct}
               getCategoryLabel={getCategoryLabel}
             />
@@ -665,8 +606,14 @@ const OwnerDashboard = () => {
           {activeTab === "staff" && (
             <Staff
               staff={staff}
+              showStaffModal={showStaffModal}
               setShowStaffModal={setShowStaffModal}
+              staffForm={staffForm}
+              setStaffForm={setStaffForm}
+              editingStaff={editingStaff}
+              handleStaffSubmit={handleStaffSubmit}
               openEditStaff={openEditStaff}
+              closeStaffModal={closeStaffModal}
               deleteStaff={deleteStaff}
             />
           )}
@@ -742,351 +689,6 @@ const OwnerDashboard = () => {
         </div>
       </main>
 
-      {/* SERVICE MODAL */}
-      {showServiceModal && (
-        <div className="od-modal-overlay active" onClick={closeServiceModal}>
-          <div className="od-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="od-modal-header">
-              <h3>{editingService ? "Edit Service" : "Add New Service"}</h3>
-              <button className="od-modal-close" onClick={closeServiceModal}>
-                <FiX />
-              </button>
-            </div>
-            <form onSubmit={handleServiceSubmit}>
-              <div className="od-modal-body">
-                <div className="od-form-group">
-                  <label>Service Name</label>
-                  <input
-                    type="text"
-                    value={serviceForm.serviceName}
-                    onChange={(e) =>
-                      setServiceForm({
-                        ...serviceForm,
-                        serviceName: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-                <div className="od-form-group">
-                  <label>Description</label>
-                  <textarea
-                    value={serviceForm.serviceDescription}
-                    onChange={(e) =>
-                      setServiceForm({
-                        ...serviceForm,
-                        serviceDescription: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-                <div className="od-form-group">
-                  <label>Service Type</label>
-                  <select
-                    value={serviceForm.serviceType}
-                    onChange={(e) =>
-                      setServiceForm({
-                        ...serviceForm,
-                        serviceType: e.target.value,
-                      })
-                    }
-                  >
-                    <option value="HAIRCUT">Haircut</option>
-                    <option value="BEARD">Beard</option>
-                    <option value="FACIAL">Facial</option>
-                    <option value="MAKEUP">Makeup</option>
-                    <option value="SKIN">Skin</option>
-                  </select>
-                </div>
-                <div className="od-form-group">
-                  <label>Preferred Gender</label>
-                  <select
-                    value={serviceForm.servicePreferredGender}
-                    onChange={(e) =>
-                      setServiceForm({
-                        ...serviceForm,
-                        servicePreferredGender: e.target.value,
-                      })
-                    }
-                  >
-                    <option value="MALE">Male</option>
-                    <option value="FEMALE">Female</option>
-                    <option value="BOTH">Unisex</option>
-                  </select>
-                </div>
-                <div className="od-form-group">
-                  <label>Price (₹)</label>
-                  <input
-                    type="number"
-                    value={serviceForm.servicePrice}
-                    onChange={(e) =>
-                      setServiceForm({
-                        ...serviceForm,
-                        servicePrice: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-                <div className="od-form-group">
-                  <label>Duration (minutes)</label>
-                  <input
-                    type="number"
-                    value={serviceForm.serviceDuration}
-                    onChange={(e) =>
-                      setServiceForm({
-                        ...serviceForm,
-                        serviceDuration: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-              </div>
-              <div className="od-modal-footer">
-                <button
-                  type="button"
-                  className="od-btn-cancel"
-                  onClick={closeServiceModal}
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="od-btn-save">
-                  {editingService ? "Update" : "Add"} Service
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* PRODUCT MODAL */}
-      {showProductModal && (
-        <div className="od-modal-overlay active" onClick={closeProductModal}>
-          <div className="od-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="od-modal-header">
-              <h3>{editingProduct ? "Edit Product" : "Add New Product"}</h3>
-              <button className="od-modal-close" onClick={closeProductModal}>
-                <FiX />
-              </button>
-            </div>
-            <form onSubmit={handleProductSubmit}>
-              <div className="od-modal-body">
-                <div className="od-form-group">
-                  <label>Product Name</label>
-                  <input
-                    type="text"
-                    value={productForm.productName}
-                    onChange={(e) =>
-                      setProductForm({
-                        ...productForm,
-                        productName: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-                <div className="od-form-group">
-                  <label>Description</label>
-                  <textarea
-                    value={productForm.productDescription}
-                    onChange={(e) =>
-                      setProductForm({
-                        ...productForm,
-                        productDescription: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-                <div className="od-form-group">
-                  <label>Product Type</label>
-                  <select
-                    value={productForm.productType}
-                    onChange={(e) =>
-                      setProductForm({
-                        ...productForm,
-                        productType: e.target.value,
-                      })
-                    }
-                  >
-                    <option value="HAIRGEL">Hair Gel</option>
-                    <option value="FACEWASH">Face Wash</option>
-                    <option value="SUNSCREAM">Sunscreen</option>
-                  </select>
-                </div>
-                <div className="od-form-group">
-                  <label>Preferred Gender</label>
-                  <select
-                    value={productForm.productPreferredGender}
-                    onChange={(e) =>
-                      setProductForm({
-                        ...productForm,
-                        productPreferredGender: e.target.value,
-                      })
-                    }
-                  >
-                    <option value="MALE">Male</option>
-                    <option value="FEMALE">Female</option>
-                    <option value="BOTH">Unisex</option>
-                  </select>
-                </div>
-                <div className="od-form-group">
-                  <label>Price (₹)</label>
-                  <input
-                    type="number"
-                    value={productForm.productPrice}
-                    onChange={(e) =>
-                      setProductForm({
-                        ...productForm,
-                        productPrice: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-              </div>
-              <div className="od-modal-footer">
-                <button
-                  type="button"
-                  className="od-btn-cancel"
-                  onClick={closeProductModal}
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="od-btn-save">
-                  {editingProduct ? "Update" : "Add"} Product
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* STAFF MODAL */}
-      {showStaffModal && (
-        <div className="od-modal-overlay active" onClick={closeStaffModal}>
-          <div className="od-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="od-modal-header">
-              <h3>{editingStaff ? "Edit Staff" : "Add New Staff"}</h3>
-              <button className="od-modal-close" onClick={closeStaffModal}>
-                <FiX />
-              </button>
-            </div>
-            <form onSubmit={handleStaffSubmit}>
-              <div className="od-modal-body">
-                <div className="od-form-group">
-                  <label>Staff Name</label>
-                  <input
-                    type="text"
-                    value={staffForm.staffName}
-                    onChange={(e) =>
-                      setStaffForm({ ...staffForm, staffName: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-                <div className="od-form-group">
-                  <label>Email</label>
-                  <input
-                    type="email"
-                    value={staffForm.staffEmail}
-                    onChange={(e) =>
-                      setStaffForm({ ...staffForm, staffEmail: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-                <div className="od-form-group">
-                  <label>Mobile</label>
-                  <input
-                    type="text"
-                    value={staffForm.staffMobile}
-                    onChange={(e) =>
-                      setStaffForm({
-                        ...staffForm,
-                        staffMobile: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-                <div className="od-form-group">
-                  <label>Gender</label>
-                  <select
-                    value={staffForm.staffGender}
-                    onChange={(e) =>
-                      setStaffForm({
-                        ...staffForm,
-                        staffGender: e.target.value,
-                      })
-                    }
-                  >
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                  </select>
-                </div>
-                <div className="od-form-group">
-                  <label>Role</label>
-                  <select
-                    value={staffForm.staffRole}
-                    onChange={(e) =>
-                      setStaffForm({ ...staffForm, staffRole: e.target.value })
-                    }
-                  >
-                    <option value="stylist">Stylist</option>
-                    <option value="colorist">Colorist</option>
-                    <option value="therapist">Therapist</option>
-                    <option value="manager">Manager</option>
-                    <option value="receptionist">Receptionist</option>
-                  </select>
-                </div>
-                <div className="od-form-group">
-                  <label>Specialization (comma separated)</label>
-                  <input
-                    type="text"
-                    placeholder="e.g., Haircut, Styling"
-                    value={staffForm.staffSpecialization}
-                    onChange={(e) =>
-                      setStaffForm({
-                        ...staffForm,
-                        staffSpecialization: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="od-form-group">
-                  <label>Experience</label>
-                  <input
-                    type="text"
-                    placeholder="e.g., 5 years"
-                    value={staffForm.staffExperience}
-                    onChange={(e) =>
-                      setStaffForm({
-                        ...staffForm,
-                        staffExperience: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-              <div className="od-modal-footer">
-                <button
-                  type="button"
-                  className="od-btn-cancel"
-                  onClick={closeStaffModal}
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="od-btn-save">
-                  {editingStaff ? "Update" : "Add"} Staff
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

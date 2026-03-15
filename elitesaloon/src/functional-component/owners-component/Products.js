@@ -20,47 +20,48 @@ const Products = ({
       </div>
 
       <div className="od-card-grid">
-        {filteredProducts.map((product) => (
-          <div key={product._id} className="od-item-card">
-            <div className="od-item-image">
-              <FiShoppingBag />
-            </div>
-
-            <div className="od-item-content">
-              <span
-                className={`od-item-category ${product.productPreferredGender.toLowerCase()}`}
-              >
-                {getCategoryLabel(product.productPreferredGender)}
-              </span>
-
-              <h3 className="od-item-name">{product.productName}</h3>
-
-              <p className="od-item-description">
-                {product.productDescription}
-              </p>
-
-              <div className="od-item-meta">
-                <div className="od-item-price">₹{product.productPrice}</div>
+        {filteredProducts.length > 0 ? (
+          filteredProducts.map((product) => (
+            <div key={product._id} className="od-item-card">
+              <div className="od-item-image">
+                <FiShoppingBag />
               </div>
 
-              <div className="od-item-actions">
-                <button
-                  className="od-btn od-btn-edit"
-                  onClick={() => openEditProduct(product)}
+              <div className="od-item-content">
+                <span
+                  className={`od-item-category ${product.productPreferredGender.toLowerCase()}`}
                 >
-                  <FiEdit2 /> Edit
-                </button>
+                  {getCategoryLabel(product.productPreferredGender)}
+                </span>
 
-                <button
-                  className="od-btn od-btn-delete"
-                  onClick={() => deleteProduct(product._id)}
-                >
-                  <FiTrash2 /> Delete
-                </button>
+                <h3 className="od-item-name">{product.productName}</h3>
+
+                <p className="od-item-description">{product.productDescription}</p>
+
+                <div className="od-item-meta">
+                  <div className="od-item-price">₹{product.productPrice}</div>
+                </div>
+
+                <div className="od-item-actions">
+                  <button
+                    className="od-btn od-btn-edit"
+                    onClick={() => openEditProduct(product)}
+                  >
+                    <FiEdit2 /> Edit
+                  </button>
+                  <button
+                    className="od-btn od-btn-delete"
+                    onClick={() => deleteProduct(product._id)}
+                  >
+                    <FiTrash2 /> Delete
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <div className="od-empty">No products found.</div>
+        )}
       </div>
     </div>
   );

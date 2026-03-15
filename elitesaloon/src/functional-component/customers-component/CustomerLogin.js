@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import Swal from "sweetalert2";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -5,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import "../../components/Form.css";
 import useLoader from "../../hooks/useLoader";
 import CommonLoader from "../../components/CommonLoader";
-
 
 const CustomerLogin = () => {
 
@@ -15,13 +15,12 @@ const CustomerLogin = () => {
     customerUsername: "",
     customerPassword: "",
   });
-  
 
   const [errors, setErrors] = useState({});
   const [showPwd, setShowPwd] = useState(false);
-   const { loading, startLoading, stopLoading } = useLoader();
 
-  // ================= VALIDATION =================
+  const { loading, startLoading, stopLoading } = useLoader();
+
   const validate = () => {
 
     let err = {};
@@ -29,6 +28,7 @@ const CustomerLogin = () => {
     if (!form.customerUsername) {
       err.customerUsername = "Username is required";
     }
+
     if (!form.customerPassword) {
       err.customerPassword = "Password is required";
     }
@@ -36,13 +36,14 @@ const CustomerLogin = () => {
     setErrors(err);
 
     return Object.keys(err).length === 0;
+
   };
 
 
-  // ================= HANDLE CHANGE =================
   const handleChange = (e) => {
 
     const { name, value } = e.target;
+
     setForm({
       ...form,
       [name]: value
@@ -51,7 +52,6 @@ const CustomerLogin = () => {
   };
 
 
-  // ================= HANDLE SUBMIT WITH BACKEND =================
   const handleSubmit = async (e) => {
 
     e.preventDefault();
@@ -65,14 +65,15 @@ const CustomerLogin = () => {
       });
 
       return;
+
     }
 
     try {
 
-       startLoading();
+      startLoading();
 
       const response = await fetch(
-        "http://localhost:5000/customer/login", 
+        "http://localhost:5000/customer/login",
         {
           method: "POST",
           headers: {
@@ -80,25 +81,26 @@ const CustomerLogin = () => {
           },
           body: JSON.stringify({
             customerUsername: form.customerUsername,
-            customerPassword: form.customerPassword, 
+            customerPassword: form.customerPassword,
           })
-      });
+        }
+      );
 
       const data = await response.json();
       const customer = data.customer;
+
       console.log("Find customer :", data.message);
-      
+
       if (response.ok) {
-        
+
         Swal.fire({
           icon: "success",
           title: "Login Successful 🎉",
           text: "Welcome " + customer.customerUsername
         });
 
-        console.log("Login Success:", data.customer );
+        console.log("Login Success:", data.customer);
 
-        // redirect to dashboard
         navigate("/customerdashboard");
 
       } else {
@@ -132,7 +134,7 @@ const CustomerLogin = () => {
 
     <div className="form-wrapper login-wrapper">
 
-    {loading && <CommonLoader />}
+      <CommonLoader loading={loading} />
 
       <h2>EliteSalon Login</h2>
 
@@ -142,7 +144,6 @@ const CustomerLogin = () => {
 
           <h3>Account Login</h3>
 
-          {/* EMAIL */}
           <div className="form-group">
 
             <input
@@ -160,7 +161,6 @@ const CustomerLogin = () => {
           </div>
 
 
-          {/* PASSWORD */}
           <div className="form-group password-field">
 
             <input
@@ -182,7 +182,6 @@ const CustomerLogin = () => {
           </div>
 
 
-          {/* FORGOT PASSWORD */}
           <div className="forgot-link">
 
             <span onClick={() => navigate("/forgotpassword")}>
@@ -203,7 +202,6 @@ const CustomerLogin = () => {
       </form>
 
 
-      {/* REGISTER LINK */}
       <div className="form-links">
 
         Don’t have an account?{" "}

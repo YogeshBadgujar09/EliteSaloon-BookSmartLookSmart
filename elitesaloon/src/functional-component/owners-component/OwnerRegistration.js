@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import PhoneInput from "react-phone-input-2";
 import Swal from "sweetalert2";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
 import "react-phone-input-2/lib/style.css";
 import "../../components/Form.css";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +8,6 @@ import useLoader from "../../hooks/useLoader";
 import CommonLoader from "../../components/CommonLoader";
 
 const OwnerRegistration = () => {
-
   const { loading, startLoading, stopLoading } = useLoader();
   const navigate = useNavigate();
 
@@ -27,53 +25,42 @@ const OwnerRegistration = () => {
     ownerShopBlock: "",
     ownerShopDistrict: "",
     ownerShopState: "",
-    ownerPassword: "",
-    confirmPassword: ""
   });
 
   const [errors, setErrors] = useState({});
-  const [showPwd, setShowPwd] = useState(false);
-  const [showCpwd, setShowCpwd] = useState(false);
+
   const [postOffices, setPostOffices] = useState([]);
 
   /* ================= VALIDATION ================= */
 
   const validate = () => {
-
     let err = {};
 
-    if (!form.ownerName.trim())
-      err.ownerName = "Owner name required";
+    if (!form.ownerName.trim()) err.ownerName = "Owner name required";
 
-    if (!form.ownerEmail)
-      err.ownerEmail = "Email required";
+    if (!form.ownerEmail) err.ownerEmail = "Email required";
+    else if (!/^\S+@\S+\.\S+$/.test(form.ownerEmail))
+      err.ownerEmail = "Enter valid email";
 
     if (!form.ownerMobile || form.ownerMobile.length < 10)
       err.ownerMobile = "Valid mobile required";
 
-    if (!form.ownerShopName)
-      err.ownerShopName = "Shop name required";
+    if (!form.ownerShopName) err.ownerShopName = "Shop name required";
 
-    if (!form.ownerShopStreet)
-      err.ownerShopStreet = "Street required";
+    if (!form.ownerShopCertificate)
+      err.ownerShopCertificate = "Shop certificate required";
+
+    if (!form.shopFrontPhoto) err.shopFrontPhoto = "Shop front photo required";
+
+    if (!form.shopInsidePhoto)
+      err.shopInsidePhoto = "Shop inside photo required";
+
+    if (!form.ownerShopStreet) err.ownerShopStreet = "Street required";
 
     if (!form.ownerShopPincode || form.ownerShopPincode.length !== 6)
       err.ownerShopPincode = "Valid pincode required";
 
-    if (!form.ownerShopBlock)
-      err.ownerShopBlock = "Select village/block";
-
-    const strongPassword =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#]).{8,}$/;
-
-    if (!form.ownerPassword)
-      err.ownerPassword = "Password required";
-    else if (!strongPassword.test(form.ownerPassword))
-      err.ownerPassword =
-        "Password must contain uppercase, lowercase, number & special character";
-
-    if (form.ownerPassword !== form.confirmPassword)
-      err.confirmPassword = "Passwords do not match";
+    if (!form.ownerShopBlock) err.ownerShopBlock = "Select village/block";
 
     setErrors(err);
 
@@ -83,31 +70,31 @@ const OwnerRegistration = () => {
   /* ================= HANDLE CHANGE ================= */
 
   const handleChange = async (e) => {
-
     const { name, value, files } = e.target;
 
-    if (name === "ownerShopPincode" && !/^\d*$/.test(value))
-      return;
+    if (name === "ownerShopPincode" && !/^\d*$/.test(value)) return;
 
     setForm((prev) => ({
       ...prev,
       [name]: files ? files[0] : value,
     }));
 
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
+
     /* PINCODE API */
 
     if (name === "ownerShopPincode" && value.length === 6) {
-
       try {
-
         const res = await fetch(
-          `https://api.postalpincode.in/pincode/${value}`
+          `https://api.postalpincode.in/pincode/${value}`,
         );
 
         const data = await res.json();
 
         if (data[0].Status === "Success") {
-
           const offices = data[0].PostOffice;
 
           setPostOffices(offices);
@@ -121,11 +108,9 @@ const OwnerRegistration = () => {
             ownerShopCity: "",
             ownerShopBlock: "",
           }));
-
         } else {
           Swal.fire("Invalid Pincode", "", "error");
         }
-
       } catch {
         Swal.fire("API Error", "", "error");
       }
@@ -135,7 +120,6 @@ const OwnerRegistration = () => {
   /* ================= SUBMIT ================= */
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
     if (!validate()) {
@@ -144,10 +128,8 @@ const OwnerRegistration = () => {
     }
 
     try {
-
       // OWNER OBJECT FOR CONSOLE
       const owner = {
-
         ownerName: form.ownerName,
         ownerEmail: form.ownerEmail,
         ownerMobile: form.ownerMobile,
@@ -158,7 +140,6 @@ const OwnerRegistration = () => {
         ownerShopBlock: form.ownerShopBlock,
         ownerShopDistrict: form.ownerShopDistrict,
         ownerShopState: form.ownerShopState,
-        ownerPassword: form.ownerPassword
       };
 
       console.log("Owner Data:", owner);
@@ -182,7 +163,7 @@ const OwnerRegistration = () => {
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
 
       const data = await response.json();
@@ -192,44 +173,26 @@ const OwnerRegistration = () => {
       console.log("Response Email For OTP:", ownerEmailReceived);
 
       if (response.ok) {
-
         Swal.fire({
           title: "Registration Successful",
           text: "OTP Sent Successfully",
           icon: "success",
         }).then(() => {
-
           sessionStorage.removeItem("otpFlow");
 
           navigate("/ownerotpverify", {
             replace: true,
-            state: { ownerEmail: ownerEmailReceived }
+            state: { ownerEmail: ownerEmailReceived },
           });
-
         });
-
       } else {
-
-        Swal.fire(
-          "Registration Failed",
-          data.message || "Try again",
-          "error"
-        );
-
+        Swal.fire("Registration Failed", data.message || "Try again", "error");
       }
-
     } catch (error) {
-
       console.error(error);
 
-      Swal.fire(
-        "Server Error",
-        "Backend not responding",
-        "error"
-      );
-
+      Swal.fire("Server Error", "Backend not responding", "error");
     } finally {
-
       stopLoading();
     }
   };
@@ -242,70 +205,98 @@ const OwnerRegistration = () => {
         <h2>EliteSalon Owner Registration</h2>
 
         <form onSubmit={handleSubmit}>
-
           <div className="form-section">
             <h3>Personal Details</h3>
 
             <div className="form-grid">
+              <div className="form-group">
+                <input
+                  name="ownerName"
+                  placeholder="Owner Name"
+                  value={form.ownerName}
+                  onChange={handleChange}
+                />
+                <small className="error-text">{errors.ownerName}</small>
+              </div>
 
-              <input
-                name="ownerName"
-                placeholder="Owner Name"
-                onChange={handleChange}
-              />
+              <div className="form-group">
+                <input
+                  name="ownerEmail"
+                  placeholder="Email"
+                  value={form.ownerEmail}
+                  onChange={handleChange}
+                />
+                <small className="error-text">{errors.ownerEmail}</small>
+              </div>
 
-              <input
-                name="ownerEmail"
-                placeholder="Email"
-                onChange={handleChange}
-              />
+              <div className="form-group">
+                <PhoneInput
+                  country="in"
+                  value={form.ownerMobile}
+                  onChange={(phone) => {
+                    setForm((prev) => ({
+                      ...prev,
+                      ownerMobile: phone,
+                    }));
 
-              <PhoneInput
-                country="in"
-                value={form.ownerMobile}
-                onChange={(phone) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    ownerMobile: phone,
-                  }))
-                }
-              />
+                    setErrors((prev) => ({
+                      ...prev,
+                      ownerMobile: "",
+                    }));
+                  }}
+                />
 
+                <small className="error-text">{errors.ownerMobile}</small>
+              </div>
             </div>
           </div>
 
           <div className="form-section">
             <h3>Shop Details</h3>
 
-            <div className="form-grid">
+            <div className="form-grid ">
+              <div className="form-group">
+                <label>Shop Name</label>
+                <input
+                  name="ownerShopName"
+                  placeholder="Shop Name"
+                  value={form.ownerShopName}
+                  onChange={handleChange}
+                />
+                <small className="error-text">{errors.ownerShopName}</small>
+              </div>
 
-              <input
-                name="ownerShopName"
-                placeholder="Shop Name"
-                onChange={handleChange}
-              />
+              <div className="form-group">
+                <label>Shop Certificate</label>
+                <input
+                  type="file"
+                  name="ownerShopCertificate"
+                  onChange={handleChange}
+                />
+                <small className="error-text">
+                  {errors.ownerShopCertificate}
+                </small>
+              </div>
 
-              <input
-                type="file"
-                name="ownerShopCertificate"
-                 title="Upload Shop Certificate"
-                onChange={handleChange}
-              />
+              <div className="form-group">
+                <label>Shop Front Photo</label>
+                <input
+                  type="file"
+                  name="shopFrontPhoto"
+                  onChange={handleChange}
+                />
+                <small className="error-text">{errors.shopFrontPhoto}</small>
+              </div>
 
-              <input
-                type="file"
-                name="shopFrontPhoto"
-                 title="Upload Shop Front Photo"
-                onChange={handleChange}
-              />
-
-              <input
-                type="file"
-                name="shopInsidePhoto"
-                 title="Upload Shop Inside Photo"
-                onChange={handleChange}
-              />
-
+              <div className="form-group">
+                <label>Shop Inside Photo</label>
+                <input
+                  type="file"
+                  name="shopInsidePhoto"
+                  onChange={handleChange}
+                />
+                <small className="error-text">{errors.shopInsidePhoto}</small>
+              </div>
             </div>
           </div>
 
@@ -313,101 +304,68 @@ const OwnerRegistration = () => {
             <h3>Shop Address</h3>
 
             <div className="form-grid">
+              <div className="form-group">
+                <input
+                  name="ownerShopStreet"
+                  placeholder="Street"
+                  value={form.ownerShopStreet}
+                  onChange={handleChange}
+                />
+                <small className="error-text">{errors.ownerShopStreet}</small>
+              </div>
 
-              <input
-                name="ownerShopStreet"
-                placeholder="Street"
-                onChange={handleChange}
-              />
+              <div className="form-group">
+                <input
+                  name="ownerShopPincode"
+                  placeholder="Pincode"
+                  maxLength="6"
+                  value={form.ownerShopPincode}
+                  onChange={handleChange}
+                />
+                <small className="error-text">{errors.ownerShopPincode}</small>
+              </div>
 
-              <input
-                name="ownerShopPincode"
-                placeholder="Pincode"
-                maxLength="6"
-                onChange={handleChange}
-              />
+              <div className="form-group">
+                <select
+                  name="ownerShopBlock"
+                  value={form.ownerShopBlock}
+                  onChange={(e) => {
+                    const selected = postOffices.find(
+                      (po) => po.Name === e.target.value,
+                    );
 
-              <select
-                name="ownerShopBlock"
-                value={form.ownerShopBlock}
-                onChange={(e) => {
+                    if (!selected) return;
 
-                  const selected = postOffices.find(
-                    (po) => po.Name === e.target.value
-                  );
+                    setForm((prev) => ({
+                      ...prev,
+                      ownerShopBlock: selected.Name,
+                      ownerShopCity: selected.Block,
+                      ownerShopDistrict: selected.District,
+                      ownerShopState: selected.State,
+                    }));
+                  }}
+                >
+                  <option value="">Select Village / Block</option>
 
-                  if (!selected) return;
+                  {postOffices.map((po, index) => (
+                    <option key={index} value={po.Name}>
+                      {po.Name}
+                    </option>
+                  ))}
+                </select>
 
-                  setForm((prev) => ({
-                    ...prev,
-                    ownerShopBlock: selected.Name,
-                    ownerShopCity: selected.Block,
-                    ownerShopDistrict: selected.District,
-                    ownerShopState: selected.State,
-                  }));
-
-                }}
-              >
-
-                <option value="">Select Village / Block</option>
-
-                {postOffices.map((po, index) => (
-                  <option key={index} value={po.Name}>
-                    {po.Name}
-                  </option>
-                ))}
-
-              </select>
+                <small className="error-text">{errors.ownerShopBlock}</small>
+              </div>
 
               <input value={form.ownerShopCity} readOnly />
               <input value={form.ownerShopDistrict} readOnly />
               <input value={form.ownerShopState} readOnly />
-
-            </div>
-          </div>
-
-          <div className="form-section">
-            <h3>Credentials</h3>
-
-            <div className="form-grid">
-
-              <div className="password-group">
-
-                <input
-                  type={showPwd ? "text" : "password"}
-                  name="ownerPassword"
-                  placeholder="Password"
-                  onChange={handleChange}
-                />
-
-                <span onClick={() => setShowPwd(!showPwd)}>
-                  {showPwd ? <FaEyeSlash /> : <FaEye />}
-                </span>
-
-              </div>
-
-              <div className="password-group">
-
-                <input
-                  type={showCpwd ? "text" : "password"}
-                  name="confirmPassword"
-                  placeholder="Confirm Password"
-                  onChange={handleChange}
-                />
-
-                <span onClick={() => setShowCpwd(!showCpwd)}>
-                  {showCpwd ? <FaEyeSlash /> : <FaEye />}
-                </span>
-
-              </div>
-
             </div>
           </div>
 
           <button className="submit-btn">
             {loading ? "Please wait..." : "Register"}
           </button>
-
         </form>
       </div>
     </>

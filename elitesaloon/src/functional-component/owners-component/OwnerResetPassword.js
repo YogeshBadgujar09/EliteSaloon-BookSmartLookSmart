@@ -4,6 +4,9 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../../components/Form.css";
 
+import useLoader from "../../hooks/useLoader";
+import CommonLoader from "../../components/CommonLoader";
+
 const OwnerResetPassword = () => {
 
   const navigate = useNavigate();
@@ -14,12 +17,14 @@ const OwnerResetPassword = () => {
   const [showPwd, setShowPwd] = useState(false);
   const [showCpwd, setShowCpwd] = useState(false);
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
+
+  const { loading, startLoading, stopLoading } = useLoader();
 
   const ownerEmail = location.state?.ownerEmail;
   console.log("Email Received at Reset Password", ownerEmail);
 
   const validate = () => {
+
     let err = {};
 
     const strongPassword =
@@ -37,14 +42,18 @@ const OwnerResetPassword = () => {
 
     setErrors(err);
     return Object.keys(err).length === 0;
+
   };
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
+
     if (!validate()) return;
 
+    startLoading();
+
     try {
-      setLoading(true);
 
       const response = await fetch(
         "http://localhost:5000/owner/resetpassword",
@@ -62,71 +71,99 @@ const OwnerResetPassword = () => {
       console.log("Owner Reset Password Response:", data);
 
       if (response.ok) {
+
         Swal.fire({
           icon: "success",
           title: "Password Reset Successful 🎉",
           text: data.message || "You can now login",
         }).then(() => {
+
           navigate("/ownerlogin");
+
         });
+
       } else {
+
         Swal.fire({
           icon: "error",
           title: "Reset Failed",
           text: data.message || "Unable to reset password",
         });
+
       }
 
     } catch (error) {
+
       console.error("Owner Reset Password Error:", error);
+
       Swal.fire({
         icon: "error",
         title: "Server Error",
         text: "Unable to connect to server",
       });
+
     } finally {
-      setLoading(false);
+
+      stopLoading();
+
     }
+
   };
 
   return (
+
     <div className="form-wrapper login-wrapper">
+
+      <CommonLoader loading={loading} />
+
       <h2>Reset Password</h2>
+
       <form onSubmit={handleSubmit}>
-        {/* NEW PASSWORD */}
+
         <div className="form-group password-field">
+
           <input
             type={showPwd ? "text" : "password"}
             placeholder="New Password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
           />
+
           <span onClick={() => setShowPwd(!showPwd)}>
             {showPwd ? <FaEyeSlash /> : <FaEye />}
           </span>
+
           <small className="error-text">{errors.newPassword}</small>
+
         </div>
 
-        {/* CONFIRM PASSWORD */}
         <div className="form-group password-field">
+
           <input
             type={showCpwd ? "text" : "password"}
             placeholder="Confirm Password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
+
           <span onClick={() => setShowCpwd(!showCpwd)}>
             {showCpwd ? <FaEyeSlash /> : <FaEye />}
           </span>
+
           <small className="error-text">{errors.confirmPassword}</small>
+
         </div>
 
         <button className="submit-btn" disabled={loading}>
           {loading ? "Resetting..." : "Reset Password"}
         </button>
+
       </form>
+
     </div>
+
   );
+
 };
 
 export default OwnerResetPassword;

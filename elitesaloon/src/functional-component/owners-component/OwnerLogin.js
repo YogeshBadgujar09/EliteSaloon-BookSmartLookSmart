@@ -25,14 +25,13 @@ const OwnerLogin = () => {
   const validate = () => {
 
     let err = {};
+if (!form.ownerUsername.trim()) {
+  err.ownerUsername = "Username is required";
+}
 
-    if (!form.ownerUsername) {
-      err.ownerUsername = "Username is required";
-    }
-
-    if (!form.ownerPassword) {
-      err.ownerPassword = "Password is required";
-    }
+if (!form.ownerPassword.trim()) {
+  err.ownerPassword = "Password is required";
+}
 
     setErrors(err);
 
@@ -45,10 +44,15 @@ const OwnerLogin = () => {
 
     const { name, value } = e.target;
 
-    setForm({
-      ...form,
-      [name]: value
-    });
+     setForm({
+    ...form,
+    [name]: value
+  });
+
+  setErrors({
+    ...errors,
+    [name]: ""
+  });
 
   };
 
