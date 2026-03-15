@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const OwnerController = require('../controllers/OwnerController/OwnerController');
 const imageUpload = require("../utils/imageUpload");
+
 // routes.post('/register', OwnerController.registerOwner);
 router.post(
   "/register",
@@ -31,5 +32,12 @@ router.get("/viewall-products", OwnerController.viewAllProducts);
 router.get("/search-product/:productId", OwnerController.searchProduct);
 router.put("/update-product/:productId", imageUpload.array("productImages",3), OwnerController.updateProduct);
 router.delete("/delete-product/:productId", OwnerController.deleteProduct);
+
+//Staff Operation 
+router.post("/add-staff", imageUpload.single("staffProfile"),OwnerController.addStaff);
+router.post("/staff-verify", OwnerController.staffOTPverify);
+router.put("/staff-update/:staffId", imageUpload.single("staffProfile"),OwnerController.updateStaff);
+router.delete("/staff-delete/:staffId", OwnerController.deleteStaff);
+router.get("/staff-list/:ownerId", OwnerController.getOwnerStaff);
 
 module.exports = router;
