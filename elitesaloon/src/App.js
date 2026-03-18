@@ -9,6 +9,9 @@ import Shop from "./functional-component/guest-component/Shop";
 import Search from "./functional-component/guest-component/Search";
 import Offers from "./functional-component/guest-component/Offers";
 
+//admin
+import AdminLogin from "./functional-component/admin-component/AdminLogin";
+
 // Customer
 import CustomerLogin from "./functional-component/customers-component/CustomerLogin";
 import CustomerRegistration from "./functional-component/customers-component/CustomerRegistration";
@@ -33,9 +36,10 @@ import OwnerForgotPassword from "./functional-component/owners-component/OwnerFo
 import OwnerResetOtp from "./functional-component/owners-component/OwnerResetOtp";
 import OwnerResetPassword from "./functional-component/owners-component/OwnerResetPassword";
 
+// Admin
+import AdminDashboard from "./functional-component/admin-component/AdminDashboard";
 
 function AppContent() {
-
   const location = useLocation();
 
   // Pages where Navbar should NOT appear
@@ -54,9 +58,11 @@ function AppContent() {
     "/ownerotpverify",
     "/ownerlogin",
     "/ownerdashboard",
+    "/adminlogin",
+    "/admindashboard",
     "/ownerforgotpassword",
     "/ownerresetotp",
-    "/ownerresetpassword"
+    "/ownerresetpassword",
   ];
 
   const showNavbar = !hideNavbarRoutes.includes(location.pathname);
@@ -66,7 +72,6 @@ function AppContent() {
       {showNavbar && <Navbar />}
 
       <Routes>
-
         {/* GUEST */}
         <Route path="/" element={<GuestHome />} />
         <Route path="/shop" element={<Shop />} />
@@ -89,7 +94,8 @@ function AppContent() {
         <Route path="/resetpassword" element={<ResetPassword />} />
 
         {/* ADMIN */}
-        <Route path="/admin" element={<h1>Admin Dashboard</h1>} />
+        <Route path="/adminlogin" element={<AdminLogin />} />
+        <Route path="/admindashboard" element={<AdminDashboard />} />
 
         {/* OWNER */}
         <Route path="/ownerregister" element={<OwnerRegistration />} />
@@ -101,12 +107,10 @@ function AppContent() {
         <Route path="/ownerforgotpassword" element={<OwnerForgotPassword />} />
         <Route path="/ownerresetotp" element={<OwnerResetOtp />} />
         <Route path="/ownerresetpassword" element={<OwnerResetPassword />} />
-
       </Routes>
     </>
   );
 }
-
 
 function App() {
   return (
