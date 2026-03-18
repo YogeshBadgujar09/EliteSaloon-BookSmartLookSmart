@@ -159,7 +159,7 @@ const OwnerRegistration = () => {
       startLoading();
 
       const response = await fetch(
-        "http://localhost:5000/owner/ownerregister",
+        "http://localhost:5000/owner/register",
         {
           method: "POST",
           body: formData,

@@ -11,7 +11,7 @@ const OwnerLogin = () => {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    ownerUsername: "",
+    ownerEmail: "",
     ownerPassword: "",
   });
 
@@ -25,8 +25,8 @@ const OwnerLogin = () => {
   const validate = () => {
 
     let err = {};
-if (!form.ownerUsername.trim()) {
-  err.ownerUsername = "Username is required";
+if (!form.ownerEmail.trim()) {
+  err.ownerEmail = "Email is required";
 }
 
 if (!form.ownerPassword.trim()) {
@@ -85,7 +85,7 @@ if (!form.ownerPassword.trim()) {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            ownerUsername: form.ownerUsername,
+            ownerEmail: form.ownerEmail,
             ownerPassword: form.ownerPassword
           })
         }
@@ -102,12 +102,12 @@ if (!form.ownerPassword.trim()) {
         Swal.fire({
           icon: "success",
           title: "Login Successful 🎉",
-          text: "Welcome " + owner.ownerUsername
+          text: "Welcome " + owner.ownerEmail
         });
 
         console.log("Login Success:", owner);
 
-        navigate("/ownerdashboard");
+        navigate("/ownerdashboard",{state: { owner: owner }});
 
       } else {
 
@@ -154,14 +154,14 @@ if (!form.ownerPassword.trim()) {
 
             <input
               type="text"
-              name="ownerUsername"
-              placeholder="Username"
-              value={form.ownerUsername}
+              name="ownerEmail"
+              placeholder="Email"
+              value={form.ownerEmail}
               onChange={handleChange}
             />
 
             <small className="error-text">
-              {errors.ownerUsername}
+              {errors.ownerEmail}
             </small>
 
           </div>

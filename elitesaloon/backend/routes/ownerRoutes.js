@@ -26,6 +26,9 @@ router.put("/search-service/:serviceId", OwnerController.searchServices);
 router.get("/viewall-service", OwnerController.viewAllServices);
 router.delete("/delete-service/:serviceId", OwnerController.deleteService);
 
+router.get("/allservices/:ownerId", OwnerController.searchServicesByOwnerId);
+
+
 //Product Operation
 router.post("/add-product", imageUpload.array("productImages",3),OwnerController.addProduct);
 router.get("/viewall-products", OwnerController.viewAllProducts);

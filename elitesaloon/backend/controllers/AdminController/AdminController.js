@@ -12,7 +12,11 @@ exports.approveOwner = async (req, res) =>{
 
     const owner = await OwnerModel.findOne({ ownerEmail});
 
-    if(owner !== null && owner.ownerAccountStatus === "DEACTIVE" && owner.ownerApprovedStatus === "PENDING"){
+    if(owner !== null && 
+        owner.ownerAccountStatus === "DEACTIVE" && 
+        owner.ownerApprovedStatus === "PENDING" &&
+        owner.ownerVerified === true
+    ){
 
         owner.ownerAccountStatus = ownerAccountStatus ;
         owner.ownerApprovedStatus = ownerApprovedStatus ;
@@ -27,6 +31,13 @@ exports.approveOwner = async (req, res) =>{
        emailSendOptimizeCode(owner.ownerEmail, subject, message);
         
     }else{
+
+        if(ownerVerified === false){
+            res.status(401).json({
+            message : "You are not verify OTP"
+        });
+        }
+
         console.log("NOT APPROVE ");
         res.status(401).json({
             message : "NOT ACCEPT"

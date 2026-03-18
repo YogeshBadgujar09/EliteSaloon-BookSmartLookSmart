@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback  } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import axios from "axios";
 import "./OwnerDashboard.css";
@@ -7,6 +7,7 @@ import Services from "./Services";
 import Products from "./Products";
 import Staff from "./Staff";
 import OwnerProfile from "./OwnerProfile";
+
 import {
   FiGrid,
   FiUser,
@@ -24,21 +25,25 @@ import {
 } from "react-icons/fi";
 
 const OwnerDashboard = () => {
+  
+  const location = useLocation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [loading, setLoading] = useState(true);
 
+  const owner = location.state?.owner;
+  // console.log("Owner Print at Dashboard :", owner);
  
   const [ownerProfile, setOwnerProfile] = useState({
-    ownerName: "Elite Owner",
-    ownerEmail: "owner@elitesaloon.com",
-    ownerMobile: "+91 9876543210",
-    ownerShopName: "Elite Saloon",
-    ownerShopStreet: "123 Luxury Street",
-    ownerShopCity: "Mumbai",
-    ownerShopState: "Maharashtra",
-    ownerShopPincode: "400001",
-    ownerShopDistrict: "Mumbai",
+    ownerName: "",
+    ownerEmail: "",
+    ownerMobile: "",
+    ownerShopName: "",
+    ownerShopStreet: "",
+    ownerShopCity: "",
+    ownerShopState: "",
+    ownerShopPincode: "",
+    ownerShopDistrict: "",
   });
 
   // Services State
@@ -46,6 +51,7 @@ const OwnerDashboard = () => {
   const [serviceCategory, setServiceCategory] = useState("all");
   const [showServiceModal, setShowServiceModal] = useState(false);
   const [editingService, setEditingService] = useState(null);
+ 
   const [serviceForm, setServiceForm] = useState({
     serviceName: "",
     serviceDescription: "",
@@ -86,25 +92,42 @@ const OwnerDashboard = () => {
   
 const fetchDashboardData = useCallback(async () => {
   try {
-    const ownerId = localStorage.getItem("ownerId");
-
+    
     // if (!ownerId) {
     //   navigate("/"); // agar ownerId nahi hai to redirect
     //   return;
     // }
 
     // 🔹 Fetch owner profile
-    const ownerRes = await axios.get(`/api/owner/${ownerId}`);
-    setOwnerProfile(ownerRes.data || {});
+    // const ownerRes = await axios.get(`/api/owner/${ownerId}`);
+    const ownerRes = owner;
+    setOwnerProfile(ownerRes || {});
+
+    console.log("Owner Res :", ownerRes);
+    console.log("Owner Id", ownerRes._id);
+
+    const ownerId = ownerRes._id;
 
     // 🔹 Fetch other dashboard data
-    const serviceRes = await axios.get(`/api/services/owner/${ownerId}`);
-    const productRes = await axios.get(`/api/products/owner/${ownerId}`);
-    const staffRes = await axios.get(`/api/staff/owner/${ownerId}`);
+    const serviceRes = await axios.get(`http://localhost:5000/owner/allservices/${ownerId}`);
+    // const productRes = await axios.get(`/api/products/owner/${ownerId}`);
+    // const staffRes = await axios.get(`/api/staff/owner/${ownerId}`);
 
-    setServices(serviceRes.data || []);
-    setProducts(productRes.data || []);
-    setStaff(staffRes.data || []);
+    console.log("Services after Login :",serviceRes.data );
+    
+  const serviceData = Array.isArray(serviceRes.data)
+  ? serviceRes.data
+  : [serviceRes.data];
+
+  console.log("Serveice Data",serviceData );
+
+
+    setServices(serviceData);
+
+    
+    // setServices(serviceRes.data || []);
+    // setProducts(productRes.data || []);
+    // setStaff(staffRes.data || []);
   } catch (error) {
     console.error("Dashboard Load Error:", error);
   } finally {
@@ -146,8 +169,6 @@ useEffect(() => {
   const handleServiceSubmit = async (e) => {
     e.preventDefault();
 
-   
-
     const formData = new FormData();
 
     formData.append("serviceName", serviceForm.serviceName);
@@ -160,7 +181,7 @@ useEffect(() => {
     formData.append("servicePrice", serviceForm.servicePrice);
     formData.append("serviceDuration", serviceForm.serviceDuration);
 
-    formData.append("ownerId", localStorage.getItem("ownerId"));
+    formData.append("ownerId", owner.ownerId);
 
     for (let i = 0; i < serviceForm.serviceImages.length; i++) {
       formData.append("serviceImages", serviceForm.serviceImages[i]);
@@ -171,7 +192,7 @@ useEffect(() => {
         await axios.put(`/api/services/${editingService._id}`, formData);
         Swal.fire("Success", "Service updated successfully", "success");
       } else {
-        await axios.post(`/api/services`, formData);
+        await axios.post(`http://localhost:5000/owner/add-service`, formData);
         Swal.fire("Success", "Service added successfully", "success");
       }
 
@@ -515,6 +536,7 @@ const handleProductSubmit = async (e) => {
                     <FiPlus /> Add Service
                   </button>
                 </div>
+
                 <div className="od-card-grid">
                   {services.slice(0, 3).map((service) => (
                     <div key={service._id} className="od-item-card">
@@ -532,7 +554,7 @@ const handleProductSubmit = async (e) => {
                       </div>
                       <div className="od-item-content">
                         <span
-                          className={`od-item-category ${service.servicePreferredGender.toLowerCase()}`}
+                          className={`od-item-category ${service.servicePreferredGender?.toLowerCase()}`}
                         >
                           {getCategoryLabel(service.servicePreferredGender)}
                         </span>

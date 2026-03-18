@@ -77,10 +77,19 @@ exports.registerOwner = async (req, res) => {
             }
 
         }else{
-            return res.status(409).json({
-                success: false,
-                message: "Email already exists",
-            });  
+            
+            if(existingOwner.ownerAccountStatus == "DEACTIVE" && existingOwner.ownerApprovedStatus == "PENDING"){
+                return res.status(409).json({
+                    success: false,
+                    message: "Your application is in process with this Email"
+                });
+            }else{
+                  return res.status(409).json({
+                    success: false,
+                    message: "Email already exists"
+                  });  
+            }
+
          }
        
     } catch (error) {
@@ -141,7 +150,8 @@ exports.loginOwner = async(req, res) => {
 
 
 exports.verifyOTP = async (req, res) => {
-  try {
+   
+    try {
     const { ownerEmail, otp } = req.body;
     console.log("OTP received from owner :" + otp);
 
@@ -153,10 +163,20 @@ exports.verifyOTP = async (req, res) => {
         owner.ownerOTP = null; // Clear the OTP after successful verification
         owner.ownerUpdatedAt = Date.now();
         await owner.save();
-
+        
         res.status(200).json({
           message: "OTP verification successfull .... Wait for approvals"
         });
+
+        const shopName = owner.ownerShopName;
+
+        let subject = `Application Status for ${shopName}`;
+        let message = "We receive your application for " + shopName +"." +
+                       "We will review your application, verify it and then send you mail.\n\nPlease check regular mail.";
+        
+        emailSendOptimizeCode(ownerEmail, subject, message);
+
+
       } else {
         res.status(400).json({ message: "enter valid OTP" });
       }
@@ -348,9 +368,54 @@ exports.searchServices = async (req, res) => {
             message: "Error Searching Service",
             error: error.message
         });
-
    }
 
+
+};
+
+exports.searchServicesByOwnerId = async (req, res) => {
+
+    try {
+
+        // const { serviceId } = 
+        const { ownerId } = req.params; // send ownerId in query
+        console.log("Owner Id:", ownerId);
+
+        const services = await ServiceModel.find({
+            ownerId: ownerId
+        });
+
+        if (!services) {
+            return res.status(404).json({
+                success: false,
+                message: "Service Not Found"
+            });
+        }else{
+            res.status(200).json({
+            // success: true,
+            // message: "Service Fetched Successfully",
+            // services : services
+
+            success: true,
+            totalServices: services.length,
+            message: "Owner services fetched successfully",
+            services: services || []   // always array
+
+          });
+        }
+
+        
+
+   } catch (error) {
+
+        res.status(500).json({
+            success: false,
+            message: "Error Searching Service",
+            error: error.message
+        });
+
+   }
+ 
 };
 
 exports.viewAllServices = async (req, res) => {
