@@ -23,7 +23,7 @@ router.post("/resetpassword", OwnerController.resetPassword);
 router.post("/add-service", imageUpload.array("serviceImages", 3), OwnerController.addService);
 router.put("/update-service/:serviceId", imageUpload.array("serviceImages", 3), OwnerController.updateService);
 router.put("/search-service/:serviceId", OwnerController.searchServices);
-router.get("/viewall-service", OwnerController.viewAllServices);
+// router.get("/viewall-service", OwnerController.viewAllServices);
 router.delete("/delete-service/:serviceId", OwnerController.deleteService);
 
 router.get("/allservices/:ownerId", OwnerController.searchServicesByOwnerId);
@@ -31,7 +31,7 @@ router.get("/allservices/:ownerId", OwnerController.searchServicesByOwnerId);
 
 //Product Operation
 router.post("/add-product", imageUpload.array("productImages",3),OwnerController.addProduct);
-router.get("/viewall-products", OwnerController.viewAllProducts);
+router.get("/viewall-products/:ownerId", OwnerController.viewAllProductsByOwnerId);
 router.get("/search-product/:productId", OwnerController.searchProduct);
 router.put("/update-product/:productId", imageUpload.array("productImages",3), OwnerController.updateProduct);
 router.delete("/delete-product/:productId", OwnerController.deleteProduct);

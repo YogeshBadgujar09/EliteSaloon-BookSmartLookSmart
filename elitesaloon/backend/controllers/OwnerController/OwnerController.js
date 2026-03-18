@@ -418,32 +418,32 @@ exports.searchServicesByOwnerId = async (req, res) => {
  
 };
 
-exports.viewAllServices = async (req, res) => {
+// exports.viewAllServices = async (req, res) => {
 
-    try {
+//     try {
 
-        const { ownerId } = req.body;
+//         const { ownerId } = req.body;
 
-        const services = await ServiceModel.find({ ownerId: ownerId });
+//         const services = await ServiceModel.find({ ownerId: ownerId });
 
-        res.status(200).json({
-            success: true,
-            totalServices: services.length,
-            message: "Owner services fetched successfully",
-            services
-        });
+//         res.status(200).json({
+//             success: true,
+//             totalServices: services.length,
+//             message: "Owner services fetched successfully",
+//             services
+//         });
 
-    } catch (error) {
+//     } catch (error) {
 
-        res.status(500).json({
-            success: false,
-            message: "Error fetching services",
-            error: error.message
-        });
+//         res.status(500).json({
+//             success: false,
+//             message: "Error fetching services",
+//             error: error.message
+//         });
 
-    }
+//     }
 
-};
+// };
 
 exports.deleteService = async (req, res) => {
 
@@ -512,18 +512,18 @@ exports.addProduct = async (req, res) => {
     }
 };
 
-exports.viewAllProducts = async (req, res) => {
+exports.viewAllProductsByOwnerId = async (req, res) => {
 
     try {
 
-        const { ownerId } = req.body;
+        const { ownerId } = req.params;
 
         const products = await ProductModel.find({ ownerId: ownerId });
 
         res.status(200).json({
             success: true,
             totalProducts: products.length,
-            products
+            products : products
         });
 
     } catch (error) {

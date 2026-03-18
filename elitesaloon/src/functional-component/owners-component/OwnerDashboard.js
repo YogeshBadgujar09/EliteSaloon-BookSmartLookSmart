@@ -110,20 +110,16 @@ const fetchDashboardData = useCallback(async () => {
 
     // 🔹 Fetch other dashboard data
     const serviceRes = await axios.get(`http://localhost:5000/owner/allservices/${ownerId}`);
-    // const productRes = await axios.get(`/api/products/owner/${ownerId}`);
+    const productRes = await axios.get(`http://localhost:5000/owner/viewall-products/${ownerId}`);
     // const staffRes = await axios.get(`/api/staff/owner/${ownerId}`);
 
-    console.log("Services after Login :",serviceRes.data );
-    
-  const serviceData = Array.isArray(serviceRes.data)
-  ? serviceRes.data
-  : [serviceRes.data];
 
-  console.log("Serveice Data",serviceData );
-
-
+    // console.log("Services after Login :",serviceRes.data );
+    const serviceData = serviceRes.data.services || [];
     setServices(serviceData);
 
+    const productData = productRes.data || [];
+    setProducts(productData);
     
     // setServices(serviceRes.data || []);
     // setProducts(productRes.data || []);

@@ -141,7 +141,7 @@ const Service = ({
             <div className="od-item-image">
               {service.serviceImages?.length > 0 ? (
                 <img
-                  src={`http://localhost:5000/uploads/${service.serviceImages[0]}`}
+                  src={`http://localhost:5000/uploads/serviceImages/${service.serviceImages[0]}`}
                   alt={service.serviceName}
                   style={{ width: "100%", height: "120px", objectFit: "cover" }}
                 />
