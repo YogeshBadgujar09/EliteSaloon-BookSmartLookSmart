@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback  } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import axios from "axios";
@@ -25,7 +25,6 @@ import {
 } from "react-icons/fi";
 
 const OwnerDashboard = () => {
-  
   const location = useLocation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -33,7 +32,7 @@ const OwnerDashboard = () => {
 
   const owner = location.state?.owner;
   // console.log("Owner Print at Dashboard :", owner);
- 
+
   const [ownerProfile, setOwnerProfile] = useState({
     ownerName: "",
     ownerEmail: "",
@@ -51,7 +50,7 @@ const OwnerDashboard = () => {
   const [serviceCategory, setServiceCategory] = useState("all");
   const [showServiceModal, setShowServiceModal] = useState(false);
   const [editingService, setEditingService] = useState(null);
- 
+
   const [serviceForm, setServiceForm] = useState({
     serviceName: "",
     serviceDescription: "",
@@ -59,7 +58,7 @@ const OwnerDashboard = () => {
     servicePreferredGender: "BOTH",
     servicePrice: "",
     serviceDuration: "",
-    serviceImages: [""],
+    serviceImages: [],
   });
 
   // Products State
@@ -73,7 +72,7 @@ const OwnerDashboard = () => {
     productType: "HAIRGEL",
     productPreferredGender: "BOTH",
     productPrice: "",
-    productImages: [""],
+    productImages: [],
   });
 
   // Staff State
@@ -83,69 +82,75 @@ const OwnerDashboard = () => {
   const [staffForm, setStaffForm] = useState({
     staffName: "",
     staffEmail: "",
-    staffMobile: "",
+    staffPhone: "",
     staffGender: "male",
     staffRole: "stylist",
     staffSpecialization: "",
     staffExperience: "",
   });
-  
-const fetchDashboardData = useCallback(async () => {
-  try {
-    
-    // if (!ownerId) {
-    //   navigate("/"); // agar ownerId nahi hai to redirect
-    //   return;
-    // }
 
-    // 🔹 Fetch owner profile
-    // const ownerRes = await axios.get(`/api/owner/${ownerId}`);
-    const ownerRes = owner;
-    setOwnerProfile(ownerRes || {});
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      // if (!ownerId) {
+      //   navigate("/"); // agar ownerId nahi hai to redirect
+      //   return;
+      // }
 
-    console.log("Owner Res :", ownerRes);
-    console.log("Owner Id", ownerRes._id);
+      // 🔹 Fetch owner profile
+      // const ownerRes = await axios.get(`/api/owner/${ownerId}`);
+      const ownerRes = owner;
+      setOwnerProfile(ownerRes || {});
 
-    const ownerId = ownerRes._id;
+      console.log("Owner Res :", ownerRes);
+      console.log("Owner Id", ownerRes._id);
 
-    // 🔹 Fetch other dashboard data
-    const serviceRes = await axios.get(`http://localhost:5000/owner/allservices/${ownerId}`);
-    const productRes = await axios.get(`http://localhost:5000/owner/viewall-products/${ownerId}`);
-    // const staffRes = await axios.get(`/api/staff/owner/${ownerId}`);
+      const ownerId = ownerRes._id;
 
+      // 🔹 Fetch other dashboard data
+      const serviceRes = await axios.get(
+        `http://localhost:5000/owner/allservices/${ownerId}`,
+      );
+      const productRes = await axios.get(
+        `http://localhost:5000/owner/viewall-products/${ownerId}`,
+      );
+      const staffRes = await axios.get(`/api/staff/owner/${ownerId}`);
 
-    // console.log("Services after Login :",serviceRes.data );
-    const serviceData = serviceRes.data.services || [];
-    setServices(serviceData);
+      // console.log("Services after Login :",serviceRes.data );
+      const serviceData = Array.isArray(serviceRes.data.services)
+        ? serviceRes.data.services
+        : [];
+      setServices(serviceData);
 
-    const productData = productRes.data || [];
-    setProducts(productData);
-    
-    // setServices(serviceRes.data || []);
-    // setProducts(productRes.data || []);
-    // setStaff(staffRes.data || []);
-  } catch (error) {
-    console.error("Dashboard Load Error:", error);
-  } finally {
-    setLoading(false);
-  }
-}, [navigate]);
+      const productData = Array.isArray(productRes.data) ? productRes.data : [];
+      setProducts(productData);
 
-useEffect(() => {
-  fetchDashboardData();
-}, [fetchDashboardData]);
-  const filteredServices =
-    serviceCategory === "all"
+      const staffData = Array.isArray(staffRes.data) ? staffRes.data : [];
+      setStaff(staffData);
+    } catch (error) {
+      console.error("Dashboard Load Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
+  const filteredServices = Array.isArray(services)
+    ? serviceCategory === "all"
       ? services
       : services.filter(
           (s) => s.servicePreferredGender === serviceCategory.toUpperCase(),
-        );
-  const filteredProducts =
-    productCategory === "all"
+        )
+    : [];
+
+  const filteredProducts = Array.isArray(products)
+    ? productCategory === "all"
       ? products
       : products.filter(
           (p) => p.productPreferredGender === productCategory.toUpperCase(),
-        );
+        )
+    : [];
 
   const getCategoryLabel = (category) => {
     switch (category) {
@@ -159,7 +164,6 @@ useEffect(() => {
         return category;
     }
   };
-
 
   ///services handlesubmit
   const handleServiceSubmit = async (e) => {
@@ -177,7 +181,7 @@ useEffect(() => {
     formData.append("servicePrice", serviceForm.servicePrice);
     formData.append("serviceDuration", serviceForm.serviceDuration);
 
-    formData.append("ownerId", owner.ownerId);
+    formData.append("ownerId", owner._id);
 
     for (let i = 0; i < serviceForm.serviceImages.length; i++) {
       formData.append("serviceImages", serviceForm.serviceImages[i]);
@@ -237,47 +241,45 @@ useEffect(() => {
     });
   };
 
-
   ///product handlesubmit
-const handleProductSubmit = async (e) => {
-  e.preventDefault();
+  const handleProductSubmit = async (e) => {
+    e.preventDefault();
 
-  // Validation call
+    // Validation call
 
+    const formData = new FormData();
 
-  const formData = new FormData();
+    formData.append("productName", productForm.productName);
+    formData.append("productType", productForm.productType);
+    formData.append("productDescription", productForm.productDescription);
+    formData.append("productPrice", productForm.productPrice);
+    formData.append(
+      "productPreferredGender",
+      productForm.productPreferredGender,
+    );
 
-  formData.append("productName", productForm.productName);
-  formData.append("productType", productForm.productType);
-  formData.append("productDescription", productForm.productDescription);
-  formData.append("productPrice", productForm.productPrice);
-  formData.append(
-    "productPreferredGender",
-    productForm.productPreferredGender
-  );
+    formData.append("ownerId", localStorage.getItem("ownerId"));
 
-  formData.append("ownerId", localStorage.getItem("ownerId"));
-
-  for (let i = 0; i < productForm.productImages.length; i++) {
-    formData.append("productImages", productForm.productImages[i]);
-  }
-
-  try {
-    if (editingProduct) {
-      await axios.put(`/api/products/${editingProduct._id}`, formData);
-      Swal.fire("Success", "Product updated successfully", "success");
-    } else {
-      await axios.post(`/api/products`, formData);
-      Swal.fire("Success", "Product added successfully", "success");
+    for (let i = 0; i < productForm.productImages.length; i++) {
+      formData.append("productImages", productForm.productImages[i]);
     }
 
-    fetchDashboardData();
-    closeProductModal();
-  } catch (error) {
-    console.error(error);
-    Swal.fire("Error", "Product save failed", "error");
-  }
-};
+    try {
+      if (editingProduct) {
+        await axios.put(`/api/products/${editingProduct._id}`, formData);
+        Swal.fire("Success", "Product updated successfully", "success");
+      } else {
+        await axios.post(`/api/products`, formData);
+        Swal.fire("Success", "Product added successfully", "success");
+      }
+
+      fetchDashboardData();
+      closeProductModal();
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "Product save failed", "error");
+    }
+  };
 
   const deleteProduct = async (id) => {
     Swal.fire({
@@ -314,54 +316,55 @@ const handleProductSubmit = async (e) => {
       productImages: [],
     });
   };
-///staff handlesubmit
- const handleStaffSubmit = async (e) => {
-  e.preventDefault();
 
-  if (!staffForm.staffName) {
-    Swal.fire("Error", "Staff name required", "error");
-    return;
-  }
+  ///staff handlesubmit
+  const handleStaffSubmit = async (e) => {
+    e.preventDefault();
 
-  if (!staffForm.staffEmail) {
-    Swal.fire("Error", "Staff email required", "error");
-    return;
-  }
-
-  if (!staffForm.staffMobile) {
-    Swal.fire("Error", "Staff mobile required", "error");
-    return;
-  }
-
-  if (!staffForm.staffExperience) {
-    Swal.fire("Error", "Staff experience required", "error");
-    return;
-  }
-
-  const staffData = {
-    ...staffForm,
-    ownerId: localStorage.getItem("ownerId"),
-   staffSpecialization: staffForm.staffSpecialization
-  ? staffForm.staffSpecialization.split(",").map((s) => s.trim())
-  : [],
-  };
-
-  try {
-    if (editingStaff) {
-      await axios.put(`/api/staff/${editingStaff._id}`, staffData);
-      Swal.fire("Success", "Staff updated successfully", "success");
-    } else {
-      await axios.post(`/api/staff`, staffData);
-      Swal.fire("Success", "Staff added successfully", "success");
+    if (!staffForm.staffName) {
+      Swal.fire("Error", "Staff name required", "error");
+      return;
     }
 
-    fetchDashboardData();
-    closeStaffModal();
-  } catch (error) {
-    console.error(error);
-    Swal.fire("Error", "Staff save failed", "error");
-  }
-};
+    if (!staffForm.staffEmail) {
+      Swal.fire("Error", "Staff email required", "error");
+      return;
+    }
+
+    if (!staffForm.staffMobile) {
+      Swal.fire("Error", "Staff mobile required", "error");
+      return;
+    }
+
+    if (!staffForm.staffExperience) {
+      Swal.fire("Error", "Staff experience required", "error");
+      return;
+    }
+
+    const staffData = {
+      ...staffForm,
+      ownerId: localStorage.getItem("ownerId"),
+      staffSpecialization: staffForm.staffSpecialization
+        ? staffForm.staffSpecialization.split(",").map((s) => s.trim())
+        : [],
+    };
+
+    try {
+      if (editingStaff) {
+        await axios.put(`/api/staff/${editingStaff._id}`, staffData);
+        Swal.fire("Success", "Staff updated successfully", "success");
+      } else {
+        await axios.post(`/api/staff`, staffData);
+        Swal.fire("Success", "Staff added successfully", "success");
+      }
+
+      fetchDashboardData();
+      closeStaffModal();
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "Staff save failed", "error");
+    }
+  };
 
   const deleteStaff = async (id) => {
     Swal.fire({
@@ -706,7 +709,6 @@ const handleProductSubmit = async (e) => {
           )}
         </div>
       </main>
-
     </div>
   );
 };
