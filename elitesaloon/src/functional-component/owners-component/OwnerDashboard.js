@@ -318,43 +318,21 @@ const OwnerDashboard = () => {
   };
 
   ///staff handlesubmit
-  const handleStaffSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!staffForm.staffName) {
-      Swal.fire("Error", "Staff name required", "error");
-      return;
-    }
-
-    if (!staffForm.staffEmail) {
-      Swal.fire("Error", "Staff email required", "error");
-      return;
-    }
-
-    if (!staffForm.staffMobile) {
-      Swal.fire("Error", "Staff mobile required", "error");
-      return;
-    }
-
-    if (!staffForm.staffExperience) {
-      Swal.fire("Error", "Staff experience required", "error");
-      return;
-    }
-
-    const staffData = {
-      ...staffForm,
-      ownerId: localStorage.getItem("ownerId"),
-      staffSpecialization: staffForm.staffSpecialization
-        ? staffForm.staffSpecialization.split(",").map((s) => s.trim())
-        : [],
-    };
-
+  const handleStaffSubmit = async (formData) => {
     try {
+      // ownerId add karo
+      formData.append("ownerId", owner._id);
+
       if (editingStaff) {
-        await axios.put(`/api/staff/${editingStaff._id}`, staffData);
+        await axios.put(
+          `http://localhost:5000/api/staff/${editingStaff._id}`,
+          formData,
+        );
+
         Swal.fire("Success", "Staff updated successfully", "success");
       } else {
-        await axios.post(`/api/staff`, staffData);
+        await axios.post(`http://localhost:5000/api/staff`, formData);
+
         Swal.fire("Success", "Staff added successfully", "success");
       }
 
