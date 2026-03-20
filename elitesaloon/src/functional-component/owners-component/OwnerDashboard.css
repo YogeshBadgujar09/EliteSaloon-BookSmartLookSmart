@@ -1049,3 +1049,6 @@ border:1px solid #ccc;
   border: 2px solid #fff;
 }
 
+.swal2-container {
+  z-index: 20000 !important;
+}

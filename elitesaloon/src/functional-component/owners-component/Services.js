@@ -1,6 +1,13 @@
 import React from "react";
 import Swal from "sweetalert2";
-import { FiScissors, FiEdit2, FiTrash2, FiClock, FiPlus, FiX } from "react-icons/fi";
+import {
+  FiScissors,
+  FiEdit2,
+  FiTrash2,
+  FiClock,
+  FiPlus,
+  FiX,
+} from "react-icons/fi";
 
 const Service = ({
   filteredServices,
@@ -17,12 +24,14 @@ const Service = ({
   deleteService,
   getCategoryLabel,
 }) => {
-
   // VALIDATION FUNCTION
   const validateServiceForm = () => {
-
     if (!serviceForm.serviceName || serviceForm.serviceName.trim().length < 3) {
-      Swal.fire("Validation Error", "Service name must be at least 3 characters", "error");
+      Swal.fire(
+        "Validation Error",
+        "Service name must be at least 3 characters",
+        "error",
+      );
       return false;
     }
 
@@ -31,8 +40,15 @@ const Service = ({
       return false;
     }
 
-    if (!serviceForm.serviceDescription || serviceForm.serviceDescription.trim().length < 10) {
-      Swal.fire("Validation Error", "Description must be at least 10 characters", "error");
+    if (
+      !serviceForm.serviceDescription ||
+      serviceForm.serviceDescription.trim().length < 10
+    ) {
+      Swal.fire(
+        "Validation Error",
+        "Description must be at least 10 characters",
+        "error",
+      );
       return false;
     }
 
@@ -42,7 +58,11 @@ const Service = ({
     }
 
     if (!serviceForm.serviceDuration || serviceForm.serviceDuration <= 0) {
-      Swal.fire("Validation Error", "Duration must be greater than 0 minutes", "error");
+      Swal.fire(
+        "Validation Error",
+        "Duration must be greater than 0 minutes",
+        "error",
+      );
       return false;
     }
 
@@ -51,8 +71,15 @@ const Service = ({
       return false;
     }
 
-    if (!editingService && (!serviceForm.serviceImages || serviceForm.serviceImages.length === 0)) {
-      Swal.fire("Validation Error", "Please upload at least one image", "error");
+    if (
+      !editingService &&
+      (!serviceForm.serviceImages || serviceForm.serviceImages.length === 0)
+    ) {
+      Swal.fire(
+        "Validation Error",
+        "Please upload at least one image",
+        "error",
+      );
       return false;
     }
 
@@ -61,46 +88,52 @@ const Service = ({
 
   // IMAGE VALIDATION
   const handleImageChange = (e) => {
-
     const files = Array.from(e.target.files);
 
     const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
     const maxSize = 2 * 1024 * 1024;
 
     for (let file of files) {
-
       if (!allowedTypes.includes(file.type)) {
-        Swal.fire("Invalid Image", "Only JPG, PNG, WEBP images allowed", "error");
+        Swal.fire(
+          "Invalid Image",
+          "Only JPG, PNG, WEBP images allowed",
+          "error",
+        );
         return;
       }
 
       if (file.size > maxSize) {
-        Swal.fire("File Too Large", "Image size must be less than 2MB", "error");
+        Swal.fire(
+          "File Too Large",
+          "Image size must be less than 2MB",
+          "error",
+        );
         return;
       }
-
     }
 
     setServiceForm({
       ...serviceForm,
-      serviceImages: files
+      serviceImages: files,
     });
   };
 
   return (
     <div className="od-section">
-
       <div className="od-section-header">
         <h2 className="od-section-title">Service Management</h2>
 
-        <button className="od-btn-add" onClick={() => setShowServiceModal(true)}>
+        <button
+          className="od-btn-add"
+          onClick={() => setShowServiceModal(true)}
+        >
           <FiPlus /> Add Service
         </button>
       </div>
 
       {/* CATEGORY FILTER */}
       <div className="od-category-tabs">
-
         <div
           className={`od-category-tab ${serviceCategory === "all" ? "active" : ""}`}
           onClick={() => setServiceCategory("all")}
@@ -128,22 +161,23 @@ const Service = ({
         >
           Unisex
         </div>
-
       </div>
 
       {/* SERVICE LIST */}
       <div className="od-card-grid">
-
         {filteredServices?.map((service) => (
-
           <div key={service._id} className="od-item-card">
-
             <div className="od-item-image">
               {service.serviceImages?.length > 0 ? (
                 <img
                   src={`http://localhost:5000/uploads/serviceImages/${service.serviceImages[0]}`}
                   alt={service.serviceName}
-                  style={{ width: "100%", height: "120px", objectFit: "cover" }}
+                  style={{
+                    width: "100%",
+                    height: "150px",
+                    objectFit: "cover",
+                    borderRadius: "10px",
+                  }}
                 />
               ) : (
                 <FiScissors />
@@ -151,8 +185,9 @@ const Service = ({
             </div>
 
             <div className="od-item-content">
-
-              <span className={`od-item-category ${service.servicePreferredGender?.toLowerCase()}`}>
+              <span
+                className={`od-item-category ${service.servicePreferredGender?.toLowerCase()}`}
+              >
                 {getCategoryLabel(service.servicePreferredGender)}
               </span>
 
@@ -163,19 +198,14 @@ const Service = ({
               </p>
 
               <div className="od-item-meta">
-
-                <div className="od-item-price">
-                  ₹{service.servicePrice}
-                </div>
+                <div className="od-item-price">₹{service.servicePrice}</div>
 
                 <div className="od-item-duration">
                   <FiClock /> {service.serviceDuration} min
                 </div>
-
               </div>
 
               <div className="od-item-actions">
-
                 <button
                   className="od-btn od-btn-edit"
                   onClick={() => openEditService(service)}
@@ -189,48 +219,34 @@ const Service = ({
                 >
                   <FiTrash2 /> Delete
                 </button>
-
               </div>
-
             </div>
-
           </div>
-
         ))}
-
       </div>
 
       {/* SERVICE MODAL */}
       {showServiceModal && (
-
         <div className="od-modal-overlay active" onClick={closeServiceModal}>
-
           <div className="od-modal" onClick={(e) => e.stopPropagation()}>
-
             <div className="od-modal-header">
-
               <h3>{editingService ? "Edit Service" : "Add New Service"}</h3>
 
               <button className="od-modal-close" onClick={closeServiceModal}>
                 <FiX />
               </button>
-
             </div>
 
             <form
               onSubmit={(e) => {
-
                 e.preventDefault();
 
                 if (!validateServiceForm()) return;
 
                 handleServiceSubmit(e);
-
               }}
             >
-
               <div className="od-modal-body">
-
                 <div className="od-form-group">
                   <label>Service Name</label>
 
@@ -240,14 +256,13 @@ const Service = ({
                     onChange={(e) =>
                       setServiceForm({
                         ...serviceForm,
-                        serviceName: e.target.value
+                        serviceName: e.target.value,
                       })
                     }
                   />
                 </div>
 
                 <div className="od-form-group">
-
                   <label>Service Type</label>
 
                   <select
@@ -255,7 +270,7 @@ const Service = ({
                     onChange={(e) =>
                       setServiceForm({
                         ...serviceForm,
-                        serviceType: e.target.value
+                        serviceType: e.target.value,
                       })
                     }
                   >
@@ -266,11 +281,9 @@ const Service = ({
                     <option value="MAKEUP">Makeup</option>
                     <option value="SKIN">Skin</option>
                   </select>
-
                 </div>
 
                 <div className="od-form-group">
-
                   <label>Description</label>
 
                   <textarea
@@ -278,15 +291,13 @@ const Service = ({
                     onChange={(e) =>
                       setServiceForm({
                         ...serviceForm,
-                        serviceDescription: e.target.value
+                        serviceDescription: e.target.value,
                       })
                     }
                   />
-
                 </div>
 
                 <div className="od-form-group">
-
                   <label>Price</label>
 
                   <input
@@ -295,15 +306,13 @@ const Service = ({
                     onChange={(e) =>
                       setServiceForm({
                         ...serviceForm,
-                        servicePrice: e.target.value
+                        servicePrice: e.target.value,
                       })
                     }
                   />
-
                 </div>
 
                 <div className="od-form-group">
-
                   <label>Duration (minutes)</label>
 
                   <input
@@ -312,15 +321,13 @@ const Service = ({
                     onChange={(e) =>
                       setServiceForm({
                         ...serviceForm,
-                        serviceDuration: e.target.value
+                        serviceDuration: e.target.value,
                       })
                     }
                   />
-
                 </div>
 
                 <div className="od-form-group">
-
                   <label>Preferred Gender</label>
 
                   <select
@@ -328,7 +335,7 @@ const Service = ({
                     onChange={(e) =>
                       setServiceForm({
                         ...serviceForm,
-                        servicePreferredGender: e.target.value
+                        servicePreferredGender: e.target.value,
                       })
                     }
                   >
@@ -337,11 +344,9 @@ const Service = ({
                     <option value="FEMALE">Female</option>
                     <option value="BOTH">Both</option>
                   </select>
-
                 </div>
 
                 <div className="od-form-group">
-
                   <label>Service Images</label>
 
                   <input
@@ -351,13 +356,10 @@ const Service = ({
                     onChange={handleImageChange}
                     required={!editingService}
                   />
-
                 </div>
-
               </div>
 
               <div className="od-modal-footer">
-
                 <button
                   type="button"
                   className="od-btn-cancel"
@@ -369,17 +371,11 @@ const Service = ({
                 <button type="submit" className="od-btn-save">
                   {editingService ? "Update" : "Add"} Service
                 </button>
-
               </div>
-
             </form>
-
           </div>
-
         </div>
-
       )}
-
     </div>
   );
 };
