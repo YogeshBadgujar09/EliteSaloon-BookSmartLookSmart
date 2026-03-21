@@ -9,10 +9,12 @@ const OwnerRequests = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedOwner, setSelectedOwner] = useState(null);
   const [owners, setOwners] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   // Fetch Owner Requests
   const fetchOwners = async () => {
     try {
+      setLoading(true);
 
       const res = await axios.get("http://localhost:5000/admin/owner-request");
       console.log("Requests :", res.data);
@@ -20,7 +22,9 @@ const OwnerRequests = () => {
       setOwners(res.data.data);
 
     } catch (error) {
-      console.log(error);
+      Swal.fire("Error", "Failed to fetch owner requests", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -33,24 +37,38 @@ const OwnerRequests = () => {
     setShowModal(true);
   };
 
-  const handleApprove = () => {
-    Swal.fire({
-      icon: "success",
-      title: "Approved!",
-      text: `Owner ${selectedOwner.ownerName}'s request approved`,
-    });
+  // ✅ APPROVE
+  const handleApprove = async () => {
+    try {
+      await axios.put(
+        `http://localhost:5000/api/owner-requests/approve/${selectedOwner._id}`
+      );
 
-    setShowModal(false);
+      Swal.fire("Approved!", "Owner request approved", "success");
+
+      setShowModal(false);
+      fetchOwners(); // refresh data
+
+    } catch (error) {
+      Swal.fire("Error", "Failed to approve request", "error");
+    }
   };
 
-  const handleReject = () => {
-    Swal.fire({
-      icon: "error",
-      title: "Rejected!",
-      text: `Owner ${selectedOwner.ownerName}'s request rejected`,
-    });
+  // ✅ REJECT
+  const handleReject = async () => {
+    try {
+      await axios.put(
+        `http://localhost:5000/api/owner-requests/reject/${selectedOwner._id}`
+      );
 
-    setShowModal(false);
+      Swal.fire("Rejected!", "Owner request rejected", "error");
+
+      setShowModal(false);
+      fetchOwners(); // refresh data
+
+    } catch (error) {
+      Swal.fire("Error", "Failed to reject request", "error");
+    }
   };
 
   return (
@@ -62,55 +80,56 @@ const OwnerRequests = () => {
         </div>
 
         <div className="ad-table-container">
-
           <div className="card-body ad-table-card-body p-0">
 
-            <Table responsive className="ad-table mb-0">
+            {loading ? (
+              <p className="text-center p-3">Loading...</p>
+            ) : owners.length === 0 ? (
+              <p className="text-center p-3">No owner requests found</p>
+            ) : (
 
-              <thead>
-                <tr>
-                  <th>Sr No</th>
-                  <th>Owner Name</th>
-                  <th>Email</th>
-                  <th>Mobile Number</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
+              <Table responsive className="ad-table mb-0">
 
-              <tbody>
-
-                {owners.map((owner, index) => (
-
-                  <tr key={owner._id}>
-
-                    <td>{index + 1}</td>
-
-                    <td>
-                      <strong>{owner.ownerName}</strong>
-                    </td>
-
-                    <td>{owner.ownerEmail}</td>
-
-                    <td>{owner.ownerMobile}</td>
-
-                    <td>
-
-                      <Button
-                        className="btn-view"
-                        onClick={() => handleView(owner)}
-                      >
-                        View
-                      </Button>
-
-                    </td>
-
+                <thead>
+                  <tr>
+                    <th>Sr No</th>
+                    <th>Owner Name</th>
+                    <th>Email</th>
+                    <th>Mobile Number</th>
+                    <th>Actions</th>
                   </tr>
+                </thead>
 
-                ))}
+                <tbody>
+                  {owners.map((owner, index) => (
+                    <tr key={owner._id}>
 
-              </tbody>
+                      <td>{index + 1}</td>
 
-            </Table>
+                      <td>
+                        <strong>{owner.ownerName}</strong>
+                      </td>
+
+                      <td>{owner.ownerEmail}</td>
+
+                      <td>{owner.ownerMobile}</td>
+
+                      <td>
+                        <Button
+                          className="btn-view"
+                          onClick={() => handleView(owner)}
+                        >
+                          View
+                        </Button>
+                      </td>
+
+                    </tr>
+                  ))}
+                </tbody>
+
+              </Table>
+
+            )}
 
           </div>
         </div>
@@ -123,7 +142,6 @@ const OwnerRequests = () => {
         onApprove={handleApprove}
         onReject={handleReject}
       />
-
     </>
   );
 };

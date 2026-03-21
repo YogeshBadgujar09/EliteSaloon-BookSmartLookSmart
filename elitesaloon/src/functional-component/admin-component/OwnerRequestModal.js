@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { Modal, Button, Row, Col } from "react-bootstrap";
+import Swal from "sweetalert2";
 
 const OwnerRequestModal = ({
   show,
@@ -8,10 +9,47 @@ const OwnerRequestModal = ({
   onApprove,
   onReject,
 }) => {
+
+  const [loading, setLoading] = useState(false);
+
   if (!owner) return null;
 
+  // ✅ Approve with confirmation
+  const handleApproveClick = async () => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You want to approve this owner?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Approve",
+    });
+
+    if (result.isConfirmed) {
+      setLoading(true);
+      await onApprove();
+      setLoading(false);
+    }
+  };
+
+  // ✅ Reject with confirmation
+  const handleRejectClick = async () => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You want to reject this owner?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Reject",
+    });
+
+    if (result.isConfirmed) {
+      setLoading(true);
+      await onReject();
+      setLoading(false);
+    }
+  };
+
   return (
-    <Modal show={show} onHide={handleClose} size="lg" centered>
+    <Modal show={show} onHide={!loading ? handleClose : null} size="lg" centered>
 
       <Modal.Header closeButton>
         <Modal.Title>Owner Registration Details</Modal.Title>
@@ -22,7 +60,6 @@ const OwnerRequestModal = ({
         <Row>
 
           <Col md={6}>
-
             <h6 className="text-primary mb-3">Personal Information</h6>
 
             <div className="mb-3">
@@ -39,11 +76,9 @@ const OwnerRequestModal = ({
               <label className="form-label fw-bold">Mobile:</label>
               <p className="form-control-plaintext">{owner.ownerMobile}</p>
             </div>
-
           </Col>
 
           <Col md={6}>
-
             <h6 className="text-primary mb-3">Salon Information</h6>
 
             <div className="mb-3">
@@ -65,7 +100,6 @@ const OwnerRequestModal = ({
                 {owner.ownerShopCity}, {owner.ownerShopDistrict},{" "}
                 {owner.ownerShopState} - {owner.ownerShopPincode}
               </p>
-
             </div>
 
             <div className="mt-3">
@@ -83,9 +117,7 @@ const OwnerRequestModal = ({
                 width="150"
               
               />
-
             </div>
-
           </Col>
 
         </Row>
@@ -96,26 +128,26 @@ const OwnerRequestModal = ({
 
         <Button
           variant="secondary"
-          className="btn-ad-cancel"
           onClick={handleClose}
+          disabled={loading}
         >
           Cancel
         </Button>
 
         <Button
           variant="success"
-          className="btn-ad-approve"
-          onClick={onApprove}
+          onClick={handleApproveClick}
+          disabled={loading}
         >
-          Approve
+          {loading ? "Processing..." : "Approve"}
         </Button>
 
         <Button
           variant="danger"
-          className="btn-ad-reject"
-          onClick={onReject}
+          onClick={handleRejectClick}
+          disabled={loading}
         >
-          Reject
+          {loading ? "Processing..." : "Reject"}
         </Button>
 
       </Modal.Footer>
