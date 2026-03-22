@@ -37,7 +37,7 @@ router.put("/update-product/:productId", imageUpload.array("productImages",3), O
 router.delete("/delete-product/:productId", OwnerController.deleteProduct);
 
 //Staff Operation 
-router.post("/add-staff", imageUpload.single("staffProfile"),OwnerController.addStaff);
+router.post("/add-staff/:ownerId", imageUpload.single("staffProfile"),OwnerController.addStaff);
 router.post("/staff-verify", OwnerController.staffOTPverify);
 router.put("/staff-update/:staffId", imageUpload.single("staffProfile"),OwnerController.updateStaff);
 router.delete("/staff-delete/:staffId", OwnerController.deleteStaff);

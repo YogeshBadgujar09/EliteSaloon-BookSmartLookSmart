@@ -116,7 +116,7 @@ const Staff = ({
               <div className="od-item-image">
                 {member.staffProfile ? (
                   <img
-                    src={`http://localhost:5000/${member.staffProfile}`}
+                    src={`http://localhost:5000/uploads/staffProfiles/${member.staffProfile}`}
                     alt={member.staffName}
                     style={{
                       width: "100%",

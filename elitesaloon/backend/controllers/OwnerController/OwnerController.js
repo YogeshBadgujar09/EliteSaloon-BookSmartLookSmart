@@ -38,10 +38,6 @@ exports.registerOwner = async (req, res) => {
                 return res.status(400).json({ message: "Images are required" });
             }
 
-            //Images add to request 
-            // req.body.ownerShopCertificate = req.files.ownerShopCertificate[0].path;
-            // req.body.shopFrontPhoto = req.files.shopFrontPhoto[0].path;
-            // req.body.shopInsidePhoto = req.files.shopInsidePhoto[0].path;
             req.body.ownerShopCertificate = req.files.ownerShopCertificate[0].filename;
             req.body.shopFrontPhoto = req.files.shopFrontPhoto[0].filename;
             req.body.shopInsidePhoto = req.files.shopInsidePhoto[0].filename;
@@ -663,6 +659,7 @@ exports.addStaff = async (req, res) => {
     try {
 
         const { staffEmail } = req.body;
+        const ownerId = req.params;
 
         console.log("Request Data :", req.body);
 
@@ -684,9 +681,8 @@ exports.addStaff = async (req, res) => {
 
             const staff = new StaffModel(req.body);
 
-                req.body.staffProfile = req.file.path;
+            staff.staffProfile = req.file.filename;
             
-
             // Generate OTP
             let otp = await generateOTP();
 
