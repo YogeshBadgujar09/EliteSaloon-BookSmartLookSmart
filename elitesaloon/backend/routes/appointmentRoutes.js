@@ -1,8 +1,8 @@
-// const express = require("express");
-// const router = express.Router();
+const express = require("express");
+const router = express.Router();
 
-// const { bookAppointment } = require("../controllers/appointmentController");
+const appointmentController  = require("../controllers/AppointmentController/appointmentController");
 
-// router.post("/book-appointment", bookAppointment);
+router.post("/book-appointment", appointmentController.bookAppointment );
 
-// module.exports = router;
+module.exports = router;
