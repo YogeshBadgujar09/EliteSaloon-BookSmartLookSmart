@@ -174,9 +174,11 @@ const Service = ({
                   alt={service.serviceName}
                   style={{
                     width: "100%",
-                    height: "150px",
+                    height: "200px", // Fixed height screenshot match karne ke liye
                     objectFit: "cover",
-                    borderRadius: "10px",
+                    display: "block",
+                    borderTopLeftRadius: "15px", // Card ke corners ke hisaab se
+                    borderTopRightRadius: "15px",
                   }}
                 />
               ) : (

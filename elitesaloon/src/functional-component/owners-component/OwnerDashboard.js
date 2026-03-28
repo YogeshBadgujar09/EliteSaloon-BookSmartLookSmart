@@ -192,7 +192,7 @@ const OwnerDashboard = () => {
     }
 
     try {
-      if (editingService) {
+     if (editingService && editingService._id) {
         await axios.put(`http://localhost:5000/owner/update-service/${editingService._id}`, formData);
         Swal.fire("Success", "Service updated successfully", "success");
       } else {
