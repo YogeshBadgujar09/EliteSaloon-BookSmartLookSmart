@@ -17,7 +17,7 @@ exports.approveOwner = async (req, res) =>{
             if (ownerApprovedStatus === "APPROVE") {
 
                 wishesh = "Congratulations ... ";
-                status = ownerApprovedStatus;
+                status = ownerApprovedStatus + "\n\n For login first time, Please reset password ...!!!";
 
                 owner.ownerApprovedStatus = ownerApprovedStatus;
                 owner.ownerAccountStatus = "ACTIVE";
@@ -36,7 +36,7 @@ exports.approveOwner = async (req, res) =>{
             }
 
             let message = `${wishesh}...!!!\n\nYour request has been reviewed by ADMIN.\n\n` +
-                        `You are ${status} by ADMIN.\n\n` +
+                        `You are ${status}` +
                         `Thank You\nEliteSaloon`;
 
             res.status(200).json({

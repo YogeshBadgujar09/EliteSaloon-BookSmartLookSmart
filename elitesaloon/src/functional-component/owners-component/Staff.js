@@ -16,7 +16,7 @@ const Staff = ({
   deleteStaff,
 }) => {
   const fileInputRef = useRef(null);
-  const navigate = useNavigate(); // ✅ ADD
+  const navigate = useNavigate(); // ADD
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [preview, setPreview] = useState("/images/defaultProfile.png");
@@ -98,7 +98,7 @@ const Staff = ({
     closeStaffModal();
   };
 
-  // ================= SUBMIT (🔥 UPDATED) =================
+// ================= SUBMIT (🔥 UPDATED) =================
   const handleSubmit = (e) => {
     e.preventDefault();
 
