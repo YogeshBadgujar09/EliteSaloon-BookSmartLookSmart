@@ -125,7 +125,7 @@ const OwnerDashboard = () => {
 
       const staffRes = await axios.get(`http://localhost:5000/owner/staff-list/${ownerId}`);     
       console.log("Staff List :", staffRes.data);
-      const staffData = Array.isArray(staffRes.data) 
+      const staffData = Array.isArray(staffRes.data.staff) 
       ? staffRes.data.staff : [];
       
       setStaff(staffData);
@@ -225,6 +225,7 @@ const OwnerDashboard = () => {
       }
     });
   };
+
   const openEditService = (service) => {
     setEditingService(service);
     setServiceForm(service);
@@ -335,7 +336,16 @@ const OwnerDashboard = () => {
 
         Swal.fire("Success", "Staff updated successfully", "success");
       } else {
-        await axios.post(`http://localhost:5000/api/staff`, formData);
+
+        const res = await axios.post(`http://localhost:5000/owner/add-staff/${owner._id}`, formData);
+        const email = res.data.staffEmail ;
+        // console.log("Staff Receive :", res.data.staffEmail);
+
+        // if(res.ok)
+        // {
+        //      navigate("/staffotpverify",
+        //      {state: { staffEmail: email }} );
+        // }
 
         Swal.fire("Success", "Staff added successfully", "success");
       }

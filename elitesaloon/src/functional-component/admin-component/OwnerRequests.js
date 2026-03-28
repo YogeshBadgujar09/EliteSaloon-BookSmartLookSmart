@@ -18,7 +18,6 @@ const OwnerRequests = () => {
       setLoading(true);
 
       const res = await axios.get("http://localhost:5000/admin/owner-request");
-      console.log("Requests :", res.data);
 
       setOwners(res.data.data);
     } catch (error) {
@@ -40,15 +39,13 @@ const OwnerRequests = () => {
   //  APPROVE
   const handleApprove = async () => {
     try {
-      // 🔥 console me check
-      // console.log("APPROVE DATA:", selectedOwner);
 
-      // setownerApprovedStatus("APPROVE");
       ownerApprovedStatus = "APPROVE";
       console.log("Approve Status", ownerApprovedStatus);
+
       await axios.put(
         `http://localhost:5000/admin/approve/${selectedOwner._id}`,
-        ownerApprovedStatus,
+        { ownerApprovedStatus }
       );
 
       Swal.fire("Approved!", "Owner request approved", "success");
@@ -63,12 +60,10 @@ const OwnerRequests = () => {
   // REJECT
   const handleReject = async () => {
     try {
-      // 🔥 console me check
-      // console.log("REJECT DATA:", selectedOwner);
-      ownerApprovedStatus = "Reject";
+      ownerApprovedStatus = "REJECT";
       await axios.put(
-        `http://localhost:5000/owner-requests/reject/${selectedOwner._id}`,
-        ownerApprovedStatus,
+        `http://localhost:5000/admin/approve/${selectedOwner._id}`,
+        { ownerApprovedStatus }
       );
 
       Swal.fire("Rejected!", "Owner request rejected", "error");
