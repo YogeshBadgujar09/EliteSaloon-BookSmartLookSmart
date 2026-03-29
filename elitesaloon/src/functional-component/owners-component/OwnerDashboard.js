@@ -83,10 +83,8 @@ const owner =location.state?.owner || JSON.parse(localStorage.getItem("owner"));
     staffName: "",
     staffEmail: "",
     staffPhone: "",
-    staffGender: "male",
-    staffRole: "stylist",
-    staffSpecialization: "",
-    staffExperience: "",
+    staffAddress:"",
+   
   });
 
   const fetchDashboardData = useCallback(async () => {
@@ -361,7 +359,7 @@ if (callback) {
         //      {state: { staffEmail: email }} );
         // }
 
-        Swal.fire("Success", "Staff added successfully", "success");
+        Swal.fire("Success", "OTP sent successfully", "success");
       }
 
       fetchDashboardData();
@@ -555,12 +553,7 @@ if (callback) {
                             <img
                               src={`http://localhost:5000/uploads/serviceImages/${service.serviceImages[0]}`}
                               alt="service"
-                              style={{
-                                width: "100%",
-                                height: "150px",
-                                objectFit: "cover",
-                                borderRadius: "10px",
-                              }}
+                             
                               onError={(e) => {
                                 console.log(
                                   "Image load error:",

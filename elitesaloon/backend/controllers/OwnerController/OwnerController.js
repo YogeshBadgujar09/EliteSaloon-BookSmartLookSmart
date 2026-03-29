@@ -659,7 +659,7 @@ exports.addStaff = async (req, res) => {
     try {
 
         const { staffEmail } = req.body;
-        const ownerId = req.params;
+        const {ownerId} = req.params;
 
         console.log("Request Data :", req.body);
 
@@ -681,8 +681,16 @@ exports.addStaff = async (req, res) => {
 
             const staff = new StaffModel(req.body);
 
-            staff.staffProfile = req.file.filename;
-            
+
+
+            // staff.staffProfile = req.file.filename;
+            if (req.file) {
+                 staff.staffProfile = req.file.filename;
+            } else {
+                staff.staffProfile = "defaultProfile.png"; 
+            }
+           
+
             // Generate OTP
             let otp = await generateOTP();
 
@@ -734,7 +742,7 @@ exports.addStaff = async (req, res) => {
 
     }
 
-};
+}; 
 
 exports.staffOTPverify = async (req, res) => {
   try {

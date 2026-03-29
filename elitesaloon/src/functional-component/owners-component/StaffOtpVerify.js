@@ -53,7 +53,7 @@ const StaffOtpVerify = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/staff/verifyotp", {
+      const response = await fetch("http://localhost:5000/owner/staff-verify", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
