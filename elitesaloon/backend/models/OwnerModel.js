@@ -74,6 +74,9 @@ const ownerSchema = new mongoose.Schema({
     },
     ownerUpdatedAt: {
         type: Date, default: Date.now   
+    },
+    ownerProfileImage: {
+        type: String, required: true
     }
 
 });

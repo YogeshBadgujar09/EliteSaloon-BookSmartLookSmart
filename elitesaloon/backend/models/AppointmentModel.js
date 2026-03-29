@@ -22,42 +22,30 @@ const AppointmentSchema = new mongoose.Schema({
 
     services: [
         {
-            serviceId: { type: mongoose.Schema.Types.ObjectId, ref: "Service" },
+            serviceId: mongoose.Schema.Types.ObjectId,
             serviceName: String,
-            servicePrice: Number,
-            serviceDuration: Number
+            duration: Number,
+            price: Number
         }
     ],
 
-    totalDuration: Number,
-    totalAmount: Number,
-
     appointmentDate: {
-        type: String,
+        type: String, // "YYYY-MM-DD"
         required: true
     },
 
-    appointmentStartTime: {
-        type: String,
-        required: true
-    },
+    startTime: String,
+    endTime: String,
 
-    appointmentEndTime: {
-        type: String,
-        required: true
-    },
+    totalDuration: Number,
+    totalPrice: Number,
 
     appointmentStatus: {
         type: String,
         enum: ["PENDING", "CONFIRMED", "CANCELLED", "COMPLETED"],
         default: "PENDING"
-    },
-
-    createdAt: {
-        type: Date,
-        default: Date.now
     }
 
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model("Appointment", AppointmentSchema);

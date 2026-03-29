@@ -383,7 +383,7 @@ if (callback) {
       confirmButtonText: "Yes, delete",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await axios.delete(`/api/staff/${id}`);
+        await axios.delete(`http://localhost:5000/owner/staff-delete/${id}`);
         fetchDashboardData();
         Swal.fire("Deleted", "Staff deleted successfully", "success");
       }

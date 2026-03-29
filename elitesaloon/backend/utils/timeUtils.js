@@ -1,26 +1,33 @@
-function convertToMinutes(time) {
-    const [t, modifier] = time.split(" ");
-    let [hours, minutes] = t.split(":").map(Number);
-
-    if (modifier === "PM" && hours !== 12) hours += 12;
-    if (modifier === "AM" && hours === 12) hours = 0;
-
-    return hours * 60 + minutes;
-}
-
-function calculateEndTime(startTime, duration) {
-    let totalMinutes = convertToMinutes(startTime) + duration;
-
-    let hours = Math.floor(totalMinutes / 60);
-    let minutes = totalMinutes % 60;
-
-    let modifier = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12 || 12;
-
-    return `${hours}:${minutes.toString().padStart(2, "0")} ${modifier}`;
-}
-
-module.exports = {
-    convertToMinutes,
-    calculateEndTime
+// convert "10:30" → minutes
+const toMinutes = (time) => {
+    const [h, m] = time.split(":").map(Number);
+    return h * 60 + m;
 };
+
+// convert minutes → "HH:MM"
+const toTime = (mins) => {
+    const h = String(Math.floor(mins / 60)).padStart(2, "0");
+    const m = String(mins % 60).padStart(2, "0");
+    return `${h}:${m}`;
+};
+
+// generate slots
+const generateSlots = (start, end, duration) => {
+    let slots = [];
+
+    let startMins = toMinutes(start);
+    let endMins = toMinutes(end);
+
+    while (startMins + duration <= endMins) {
+        let slotStart = toTime(startMins);
+        let slotEnd = toTime(startMins + duration);
+
+        slots.push({ startTime: slotStart, endTime: slotEnd });
+
+        startMins += 15; // move by 15 mins
+    }
+
+    return slots;
+};
+
+module.exports = { toMinutes, toTime, generateSlots };

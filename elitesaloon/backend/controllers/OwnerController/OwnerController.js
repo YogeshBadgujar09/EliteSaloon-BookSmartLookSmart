@@ -16,8 +16,7 @@ exports.registerOwner = async (req, res) => {
 
         const { ownerEmail } = req.body;
         
-        console.log("Request data :", req.body );
-
+        // console.log("Request data :", req.body );
 
         let existingOwner = await OwnerModel.findOne({ ownerEmail });
 
@@ -41,12 +40,13 @@ exports.registerOwner = async (req, res) => {
             req.body.ownerShopCertificate = req.files.ownerShopCertificate[0].filename;
             req.body.shopFrontPhoto = req.files.shopFrontPhoto[0].filename;
             req.body.shopInsidePhoto = req.files.shopInsidePhoto[0].filename;
-
+            
             const owner = new OwnerModel( req.body );
 
             let tempPassword = passwordGenTemps();
             owner.ownerPassword = await bcrypt.hash( tempPassword.toString(), 10);
-
+            owner.ownerProfileImage = "backend\profiles\defaultProfile.png";
+            
             let otp = await generateOTP();
             message = message + otp ;
             

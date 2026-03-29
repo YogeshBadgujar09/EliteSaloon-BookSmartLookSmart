@@ -88,6 +88,8 @@ const OwnerProfile = ({ ownerProfile, setOwnerProfile }) => {
           onClick={handleImageClick}
           style={{ position: "relative", cursor: "pointer" }}
         >
+
+    
           <img
             src={
               ownerProfile.ownerProfileImage
