@@ -639,8 +639,9 @@ gap:10px;
 
 .od-item-meta {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column; /* stack email & phone vertically */
+  gap: 4px; /* optional spacing */
+  align-items: flex-start; /* align left */
 }
 
 .od-item-price {
@@ -807,6 +808,44 @@ gap:10px;
   border-radius: 50%;
   background: currentColor;
 }
+
+
+/* --- STAFF CARD FIX START --- */
+
+/* Card container ko fix height aur flex banayein */
+.od-item-card.od-staff-custom {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  min-height: 460px !important; /* Isse cards ek barabar dikhenge */
+  background: white;
+  border-radius: 16px;
+}
+
+/* Content area ko expand karein taaki buttons niche chale jayein */
+.od-item-card.od-staff-custom .od-item-content {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  padding: 20px;
+}
+
+/* Address aur details wala section */
+.od-item-card.od-staff-custom .od-item-meta {
+  flex: 1 !important; /* Ye bachi hui space le lega */
+  margin-bottom: 15px;
+}
+
+/* Buttons ko hamesha bottom par lock karein */
+.od-item-card.od-staff-custom .od-item-actions {
+  margin-top: auto !important; /* Ye sabse zaruri line hai */
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+  display: flex;
+  gap: 10px;
+}
+
+/* --- STAFF CARD FIX END --- */
 
 /* ===== PROFILE SECTION ===== */
 .od-profile-section {
