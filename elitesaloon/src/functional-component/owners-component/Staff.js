@@ -228,32 +228,39 @@ const Staff = ({
               </div>
 
               <div className="od-item-content">
-                <h3 className="od-item-name">{member.staffName}</h3>
+  {/* Staff Name */}
+  <h3 className="od-item-name">{member.staffName}</h3>
 
-                <p className="od-item-description">{member.staffAddress}</p>
+  {/* Staff Details with Labels */}
+  <div className="od-item-meta">
+    <div>
+      <strong>Email:</strong> {member.staffEmail}
+    </div>
+    <div>
+      <strong>Phone:</strong> {member.staffPhone}
+    </div>
+    <div>
+      <strong>Address:</strong> {member.staffAddress}
+    </div>
+  </div>
 
-                <div className="od-item-meta">
-                  <div>{member.staffEmail}</div>
-                
-                  <div>{member.staffPhone}</div>
-                </div>
+  {/* Action Buttons */}
+  <div className="od-item-actions">
+    <button
+      className="od-btn od-btn-edit"
+      onClick={() => openEditStaff(member)}
+    >
+      <FiEdit2 /> Edit
+    </button>
 
-                <div className="od-item-actions">
-                  <button
-                    className="od-btn od-btn-edit"
-                    onClick={() => openEditStaff(member)}
-                  >
-                    <FiEdit2 /> Edit
-                  </button>
-
-                  <button
-                    className="od-btn od-btn-delete"
-                    onClick={() => deleteStaff(member._id)}
-                  >
-                    <FiTrash2 /> Delete
-                  </button>
-                </div>
-              </div>
+    <button
+      className="od-btn od-btn-delete"
+      onClick={() => deleteStaff(member._id)}
+    >
+      <FiTrash2 /> Delete
+    </button>
+  </div>
+</div>
             </div>
           ))
         )}
