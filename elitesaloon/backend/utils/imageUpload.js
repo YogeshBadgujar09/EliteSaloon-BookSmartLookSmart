@@ -26,6 +26,8 @@ const storage = multer.diskStorage({
              uploadPath = "C:/uploadEliteSaloonImages/productImages";
         }if(file.fieldname === "staffProfile"){
               uploadPath = "C:/uploadEliteSaloonImages/staffProfiles";
+        }if (file.fieldname === "ownerProfileImage") {
+            uploadPath = "C:/uploadEliteSaloonImages/ownerProfile";
         }
 
 

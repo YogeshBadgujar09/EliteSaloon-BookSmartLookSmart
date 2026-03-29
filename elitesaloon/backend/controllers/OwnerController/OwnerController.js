@@ -15,8 +15,6 @@ exports.registerOwner = async (req, res) => {
     try {
 
         const { ownerEmail } = req.body;
-        
-        // console.log("Request data :", req.body );
 
         let existingOwner = await OwnerModel.findOne({ ownerEmail });
 
@@ -45,8 +43,14 @@ exports.registerOwner = async (req, res) => {
 
             let tempPassword = passwordGenTemps();
             owner.ownerPassword = await bcrypt.hash( tempPassword.toString(), 10);
-            owner.ownerProfileImage = "backend\profiles\defaultProfile.png";
+            // owner.ownerProfileImage = "backend\profiles\defaultProfile.png";
             
+            if (req.file) {
+                owner.ownerProfileImage = req.file.filename;
+            } else {
+                owner.ownerProfileImage = "defaultProfile.png";
+            }
+
             let otp = await generateOTP();
             message = message + otp ;
             
@@ -58,7 +62,6 @@ exports.registerOwner = async (req, res) => {
             
             if (generatedOTP) {
               // Check if OTP generation and email sending was successful
-
                 owner.ownerOTP = otp; // Generate OTP and store it in the customer's record in the database
                
                 // Save Owner BEFORE sending response to ensure that the OTP is stored in the database and can be verified later
@@ -659,7 +662,7 @@ exports.addStaff = async (req, res) => {
     try {
 
         const { staffEmail } = req.body;
-        const ownerId = req.params;
+        const {ownerId} = req.params;
 
         console.log("Request Data :", req.body);
 
@@ -681,8 +684,14 @@ exports.addStaff = async (req, res) => {
 
             const staff = new StaffModel(req.body);
 
-            staff.staffProfile = req.file.filename;
-            
+            // staff.staffProfile = req.file.filename;
+            if (req.file) {
+                 staff.staffProfile = req.file.filename;
+            } else {
+                staff.staffProfile = "defaultProfile.png"; 
+            }
+           
+
             // Generate OTP
             let otp = await generateOTP();
 
@@ -734,7 +743,7 @@ exports.addStaff = async (req, res) => {
 
     }
 
-};
+}; 
 
 exports.staffOTPverify = async (req, res) => {
   try {
@@ -799,7 +808,7 @@ exports.updateStaff = async (req, res) => {
 
         // Update profile image if new file uploaded
         if (req.file) {
-            staff.staffProfile = req.file.path;
+            staff.staffProfile = req.file.filename;
         }
 
         await staff.save();

@@ -83,22 +83,20 @@ const owner =location.state?.owner || JSON.parse(localStorage.getItem("owner"));
     staffName: "",
     staffEmail: "",
     staffPhone: "",
-    staffGender: "male",
-    staffRole: "stylist",
-    staffSpecialization: "",
-    staffExperience: "",
+    staffAddress:"",
   });
 
   const fetchDashboardData = useCallback(async () => {
     try {
-      // if (!ownerId) {
+
+       // if (!ownerId) {
       //   navigate("/"); // agar ownerId nahi hai to redirect
       //   return;
       // }
 
       const ownerRes = owner;
       setOwnerProfile(ownerRes || {});
-
+      
       const ownerId = ownerRes._id;
 
       // 🔹 Fetch other dashboard data
@@ -338,7 +336,7 @@ const owner =location.state?.owner || JSON.parse(localStorage.getItem("owner"));
 
       if (editingStaff) {
         await axios.put(
-          `http://localhost:5000/api/staff/${editingStaff._id}`,
+          `http://localhost:5000/owner/staff-update/${editingStaff._id}`,
           formData,
         );
 
@@ -361,7 +359,7 @@ if (callback) {
         //      {state: { staffEmail: email }} );
         // }
 
-        Swal.fire("Success", "Staff added successfully", "success");
+        Swal.fire("Success", "OTP sent successfully", "success");
       }
 
       fetchDashboardData();
@@ -393,7 +391,7 @@ if (callback) {
     setEditingStaff(member);
     setStaffForm({
       ...member,
-      staffSpecialization: member.staffSpecialization.join(", "),
+      // staffSpecialization: member.staffSpecialization.join(", "),
     });
     setShowStaffModal(true);
   };
@@ -405,10 +403,10 @@ if (callback) {
       staffName: "",
       staffEmail: "",
       staffMobile: "",
-      staffGender: "MALE",
-      staffRole: "stylist",
-      staffSpecialization: "",
-      staffExperience: "",
+      // staffGender: "MALE",
+      // staffRole: "stylist",
+      // staffSpecialization: "",
+      // staffExperience: "",
     });
   };
 
@@ -482,7 +480,13 @@ if (callback) {
             </button>
             <div className="od-profile-dropdown">
               <img
-                src="https://via.placeholder.com/45"
+                // src="https://via.placeholder.com/45"
+                // src= {`http://localhost:5000/uploads/ownerProfile/${owner.ownerProfileImage}`} 
+                 src={
+                        owner.ownerProfileImage === "defaultProfile.png"
+                          ? "http://localhost:5000/uploads/default/defaultProfile.png"
+                          : `http://localhost:5000/uploads/ownerProfile/${owner.ownerProfileImage}`
+                }
                 alt="Profile"
                 className="od-profile-img"
               />
@@ -555,12 +559,7 @@ if (callback) {
                             <img
                               src={`http://localhost:5000/uploads/serviceImages/${service.serviceImages[0]}`}
                               alt="service"
-                              style={{
-                                width: "100%",
-                                height: "150px",
-                                objectFit: "cover",
-                                borderRadius: "10px",
-                              }}
+                             
                               onError={(e) => {
                                 console.log(
                                   "Image load error:",

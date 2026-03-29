@@ -468,23 +468,134 @@ gap:10px;
 .od-item-card:hover {
   transform: translateY(-8px);
   box-shadow: var(--shadow-lg);
-}.od-item-image {
+}
+
+.od-item-image {
   width: 100%;
-  height: 200px;   /* थोड़ा height बढ़ाओ */
+  height: 220px;   /* thoda height badhao */
   overflow: hidden;
-  border-radius: 16px 16px 0 0;
-  position: relative;
+  background: #f8f8f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .od-item-image img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: center 30%;   /* 🔥 BEST VALUE */
+  object-fit: cover;
+  object-position: center;
 }
+
+
 .od-item-content {
   padding: 20px;
 }
+
+
+/* General styling for both (Keep this) */
+.od-item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Default for Services */
+}
+
+/* Specific styling ONLY for Products */
+.od-product-card .od-item-image img {
+  object-fit: contain; 
+  padding: 15px; /* Gives the bottle some space */
+  background-color: #fcfcfc; /* Optional: slightly different bg for products */
+}
+
+/* Ensure the container height is consistent */
+.od-product-card .od-item-image {
+  height: 220px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* ===== STAFF CARD CUSTOM FIX ===== */
+
+.od-staff-card-custom {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* IMAGE SECTION */
+.od-staff-card-custom .od-item-image {
+  height: 130px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f8f8f8;
+}
+
+.od-staff-card-custom .od-item-image img {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #d4af37;
+}
+
+/* CONTENT */
+.od-staff-card-custom .od-item-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 15px;
+}
+
+/* NAME */
+.od-staff-card-custom .od-item-name {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+/* ADDRESS */
+.od-staff-card-custom .od-item-description {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 10px;
+  word-break: break-word;
+}
+
+/* EMAIL + PHONE */
+.od-staff-card-custom .od-item-meta {
+  display: flex;
+  flex-direction: column;   /* 🔥 FIX */
+  align-items: flex-start;
+  gap: 4px;
+  font-size: 13px;
+  color: #444;
+  word-break: break-word;
+}
+
+/* BUTTONS FIXED AT BOTTOM */
+.od-staff-card-custom .od-item-actions {
+  margin-top: auto;   /* 🔥 MAGIC */
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+/* BUTTON SIZE FIX */
+.od-staff-card-custom .od-btn {
+  flex: 1;
+  justify-content: center;
+  padding: 8px;
+  font-size: 13px;
+}
+
+
+
 
 .od-item-category {
   display: inline-block;
@@ -507,7 +618,7 @@ gap:10px;
   color: var(--rose-gold);
 }
 
-.od-item-category.unisex {
+.od-item-category.both {
   background: rgba(212, 175, 55, 0.15);
   color: var(--primary-gold);
 }
@@ -528,8 +639,9 @@ gap:10px;
 
 .od-item-meta {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column; /* stack email & phone vertically */
+  gap: 4px; /* optional spacing */
+  align-items: flex-start; /* align left */
 }
 
 .od-item-price {
@@ -696,6 +808,44 @@ gap:10px;
   border-radius: 50%;
   background: currentColor;
 }
+
+
+/* --- STAFF CARD FIX START --- */
+
+/* Card container ko fix height aur flex banayein */
+.od-item-card.od-staff-custom {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  min-height: 460px !important; /* Isse cards ek barabar dikhenge */
+  background: white;
+  border-radius: 16px;
+}
+
+/* Content area ko expand karein taaki buttons niche chale jayein */
+.od-item-card.od-staff-custom .od-item-content {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  padding: 20px;
+}
+
+/* Address aur details wala section */
+.od-item-card.od-staff-custom .od-item-meta {
+  flex: 1 !important; /* Ye bachi hui space le lega */
+  margin-bottom: 15px;
+}
+
+/* Buttons ko hamesha bottom par lock karein */
+.od-item-card.od-staff-custom .od-item-actions {
+  margin-top: auto !important; /* Ye sabse zaruri line hai */
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+  display: flex;
+  gap: 10px;
+}
+
+/* --- STAFF CARD FIX END --- */
 
 /* ===== PROFILE SECTION ===== */
 .od-profile-section {

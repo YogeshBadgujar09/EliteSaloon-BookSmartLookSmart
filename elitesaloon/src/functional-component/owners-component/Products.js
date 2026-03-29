@@ -107,14 +107,14 @@ const Products = ({
       {/* PRODUCT LIST */}
       <div className="od-card-grid">
         {filteredProducts.map((product) => (
-          <div key={product._id} className="od-item-card">
+     <div key={product._id} className="od-item-card od-product-card">
             <div className="od-item-image">
               {product.productImages && product.productImages.length > 0 ? (
-                <img
-                  src={`http://localhost:5000/uploads/productImages/${product.productImages[0]}`}
-                  alt={product.productName}
-                  style={{ width: "100%", height: "120px", objectFit: "cover" }}
-                />
+               <img
+  src={`http://localhost:5000/uploads/productImages/${product.productImages[0]}`}
+  alt={product.productName}
+  className="od-product-img" 
+/>
               ) : (
                 <FiShoppingBag />
               )}
@@ -255,7 +255,7 @@ const Products = ({
                   >
                     <option value="MALE">Male</option>
                     <option value="FEMALE">Female</option>
-                    <option value="BOTH">Unisex</option>
+                    <option value="BOTH">Both</option>
                   </select>
                 </div>
 

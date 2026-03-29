@@ -159,7 +159,7 @@ const Service = ({
           className={`od-category-tab ${serviceCategory === "BOTH" ? "active" : ""}`}
           onClick={() => setServiceCategory("BOTH")}
         >
-          Unisex
+          Both
         </div>
       </div>
 
@@ -172,14 +172,14 @@ const Service = ({
                 <img
                   src={`http://localhost:5000/uploads/serviceImages/${service.serviceImages[0]}`}
                   alt={service.serviceName}
-                  style={{
-                    width: "100%",
-                    objectFit: "cover",
-                    objectPosition: "top",
-                    display: "block",
-                    borderTopLeftRadius: "15px",
-                    borderTopRightRadius: "15px",
-                  }}
+                  // style={{
+                  //   width: "100%",
+                  //   objectFit: "cover",
+                  //   objectPosition: "top",
+                  //   display: "block",
+                  //   borderTopLeftRadius: "15px",
+                  //   borderTopRightRadius: "15px",
+                  // }}
                 />
               ) : (
                 <FiScissors />

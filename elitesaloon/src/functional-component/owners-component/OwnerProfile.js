@@ -91,12 +91,10 @@ const OwnerProfile = ({ ownerProfile, setOwnerProfile }) => {
 
     
           <img
-            src={
-              ownerProfile.ownerProfileImage
-                ? ownerProfile.ownerProfileImage.includes("http")
-                  ? ownerProfile.ownerProfileImage
-                  : `http://localhost:5000/${ownerProfile.ownerProfileImage}`
-                : "https://via.placeholder.com/120"
+           src={
+                ownerProfile.ownerProfileImage === "defaultProfile.png"
+                ? "http://localhost:5000/uploads/default/defaultProfile.png"
+                : `http://localhost:5000/uploads/ownerProfile/${ownerProfile.ownerProfileImage}`
             }
             alt="Profile"
             className="od-profile-avatar"

@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import Swal from "sweetalert2";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 import { FiPlus, FiX, FiEdit2, FiTrash2 } from "react-icons/fi";
-import { useNavigate } from "react-router-dom"; // ✅ ADD
+import { useNavigate } from "react-router-dom";
 
 const Staff = ({
   staff,
@@ -15,6 +17,7 @@ const Staff = ({
   openEditStaff,
   deleteStaff,
 }) => {
+  const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
   const navigate = useNavigate(); // ADD
 
@@ -22,27 +25,27 @@ const Staff = ({
   const [preview, setPreview] = useState("/images/defaultProfile.png");
 
   // ================= EDIT MODE IMAGE LOAD =================
- // ================= EDIT MODE IMAGE LOAD =================
-useEffect(() => {
-  if (editingStaff && editingStaff.staffProfile) {
-    setPreview(
-      `http://localhost:5000/uploads/staffProfiles/${editingStaff.staffProfile}`
-    );
-  } else {
-    setPreview("/images/defaultProfile.png");
-  }
-
-  setSelectedImage(null);
-}, [editingStaff, showStaffModal]);
-
-// ✅ ADD THIS BELOW
-useEffect(() => {
-  return () => {
-    if (preview && preview.startsWith("blob:")) {
-      URL.revokeObjectURL(preview);
+  // ================= EDIT MODE IMAGE LOAD =================
+  useEffect(() => {
+    if (editingStaff && editingStaff.staffProfile) {
+      setPreview(
+        `http://localhost:5000/uploads/staffProfiles/${editingStaff.staffProfile}`,
+      );
+    } else {
+      setPreview("/images/defaultProfile.png");
     }
-  };
-}, [preview]);
+
+    setSelectedImage(null);
+  }, [editingStaff, showStaffModal]);
+
+  // ✅ ADD THIS BELOW
+  useEffect(() => {
+    return () => {
+      if (preview && preview.startsWith("blob:")) {
+        URL.revokeObjectURL(preview);
+      }
+    };
+  }, [preview]);
 
   // ================= VALIDATION =================
   const validateStaffForm = () => {
@@ -66,8 +69,8 @@ useEffect(() => {
       return false;
     }
 
-    if (staffForm.staffPhone.length !== 10) {
-      Swal.fire("Validation Error", "Phone must be 10 digits", "error");
+    if (!staffForm.staffPhone || staffForm.staffPhone.length < 12) {
+      Swal.fire("Validation Error", "Enter valid phone number", "error");
       return false;
     }
 
@@ -84,46 +87,46 @@ useEffect(() => {
     fileInputRef.current.click();
   };
 
- const handleImageChange = (e) => {
-  const file = e.target.files[0];
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
 
-  if (!file) return;
+    if (!file) return;
 
-  // ✅ File type check
-  const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
-  if (!allowedTypes.includes(file.type)) {
-    Swal.fire("Invalid Image", "Only JPG, PNG, WEBP allowed", "error");
-    return;
-  }
-
-  // ✅ File size check (2MB)
-  const maxSize = 2 * 1024 * 1024;
-  if (file.size > maxSize) {
-    Swal.fire("File Too Large", "Image must be less than 2MB", "error");
-    return;
-  }
-
-  // ✅ Image preview + dimension check
-  const img = new Image();
-  const imageUrl = URL.createObjectURL(file);
-
-  img.src = imageUrl;
-
-  img.onload = () => {
-    if (img.width < 100 || img.height < 100) {
-      Swal.fire(
-        "Small Image",
-        "Image must be at least 100x100 pixels",
-        "error"
-      );
+    // ✅ File type check
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      Swal.fire("Invalid Image", "Only JPG, PNG, WEBP allowed", "error");
       return;
     }
 
-    // ✅ set state
-    setSelectedImage(file);
-    setPreview(imageUrl);
+    // ✅ File size check (2MB)
+    const maxSize = 2 * 1024 * 1024;
+    if (file.size > maxSize) {
+      Swal.fire("File Too Large", "Image must be less than 2MB", "error");
+      return;
+    }
+
+    // ✅ Image preview + dimension check
+    const img = new Image();
+    const imageUrl = URL.createObjectURL(file);
+
+    img.src = imageUrl;
+
+    img.onload = () => {
+      if (img.width < 100 || img.height < 100) {
+        Swal.fire(
+          "Small Image",
+          "Image must be at least 100x100 pixels",
+          "error",
+        );
+        return;
+      }
+
+      // ✅ set state
+      setSelectedImage(file);
+      setPreview(imageUrl);
+    };
   };
-};
 
   // ================= CLOSE =================
   const handleClose = () => {
@@ -140,33 +143,44 @@ useEffect(() => {
     closeStaffModal();
   };
 
-// ================= SUBMIT (🔥 UPDATED) =================
-  const handleSubmit = (e) => {
+  // ================= SUBMIT (🔥 UPDATED) =================
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateStaffForm()) return;
 
-    const formData = new FormData();
+    setLoading(true);
 
-    formData.append("staffName", staffForm.staffName);
-    formData.append("staffEmail", staffForm.staffEmail);
-    formData.append("staffPhone", staffForm.staffPhone);
-    formData.append("staffAddress", staffForm.staffAddress);
+    try {
+      const formData = new FormData();
 
-    if (selectedImage) {
-      formData.append("staffProfile", selectedImage);
-    } else if (editingStaff?.staffProfile) {
-      formData.append("existingProfile", editingStaff.staffProfile);
-    }
+      formData.append("staffName", staffForm.staffName);
+      formData.append("staffEmail", staffForm.staffEmail);
+      formData.append("staffPhone", staffForm.staffPhone);
+      formData.append("staffAddress", staffForm.staffAddress);
 
-    //   IMPORTANT CHANGE (OTP FLOW)
-    handleStaffSubmit(formData, (email) => {
-      navigate("/staffotpverify", {
-        state: { staffEmail: email },
+      if (selectedImage) {
+        formData.append("staffProfile", selectedImage);
+      } else if (editingStaff?.staffProfile) {
+        formData.append("existingProfile", editingStaff.staffProfile);
+      }
+
+      await handleStaffSubmit(formData, (email) => {
+        navigate("/staffotpverify", {
+          state: { staffEmail: email },
+        });
       });
-    });
 
-    setSelectedImage(null);
+      setSelectedImage(null);
+    } catch (error) {
+      console.log(error);
+      console.log("FULL ERROR:", error);
+      console.log("BACKEND ERROR:", error.response); // optional but useful
+
+      Swal.fire("Error", error.response?.data?.error || error.message, "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -195,52 +209,58 @@ useEffect(() => {
           </p>
         ) : (
           staff.map((member) => (
-            <div key={member._id} className="od-item-card">
+           <div key={member._id} className="od-item-card od-staff-custom">
               <div className="od-item-image">
                 <img
                   src={
-                    member.staffProfile
-                      ? `http://localhost:5000/uploads/staffProfiles/${member.staffProfile}`
-                      : "/images/defaultProfile.png"
+                    member.staffProfile === "defaultProfile.png"
+                      ? "/images/defaultProfile.png"
+                      : `http://localhost:5000/uploads/staffProfiles/${member.staffProfile}`
                   }
                   alt={member.staffName}
-                  style={{
-                    width: "120px",
-                    height: "120px",
-                    objectFit: "cover",
-                    borderRadius: "50%",
-                  }}
+                  // style={{
+                  //   width: "120px",
+                  //   height: "120px",
+                  //   objectFit: "cover",
+                  //   borderRadius: "50%",
+                  // }}
                 />
               </div>
 
               <div className="od-item-content">
-                <h3 className="od-item-name">{member.staffName}</h3>
+  {/* Staff Name */}
+  <h3 className="od-item-name">{member.staffName}</h3>
 
-                <p className="od-item-description">
-                  {member.staffAddress}
-                </p>
+  {/* Staff Details with Labels */}
+  <div className="od-item-meta">
+    <div>
+      <strong>Email:</strong> {member.staffEmail}
+    </div>
+    <div>
+      <strong>Phone:</strong> {member.staffPhone}
+    </div>
+    <div>
+      <strong>Address:</strong> {member.staffAddress}
+    </div>
+  </div>
 
-                <div className="od-item-meta">
-                  <div>{member.staffEmail}</div>
-                  <div>{member.staffPhone}</div>
-                </div>
+  {/* Action Buttons */}
+  <div className="od-item-actions">
+    <button
+      className="od-btn od-btn-edit"
+      onClick={() => openEditStaff(member)}
+    >
+      <FiEdit2 /> Edit
+    </button>
 
-                <div className="od-item-actions">
-                  <button
-                    className="od-btn od-btn-edit"
-                    onClick={() => openEditStaff(member)}
-                  >
-                    <FiEdit2 /> Edit
-                  </button>
-
-                  <button
-                    className="od-btn od-btn-delete"
-                    onClick={() => deleteStaff(member._id)}
-                  >
-                    <FiTrash2 /> Delete
-                  </button>
-                </div>
-              </div>
+    <button
+      className="od-btn od-btn-delete"
+      onClick={() => deleteStaff(member._id)}
+    >
+      <FiTrash2 /> Delete
+    </button>
+  </div>
+</div>
             </div>
           ))
         )}
@@ -260,7 +280,6 @@ useEffect(() => {
 
             <form onSubmit={handleSubmit}>
               <div className="od-modal-body">
-
                 {/* IMAGE */}
                 <div style={{ textAlign: "center", marginBottom: "15px" }}>
                   <div
@@ -327,15 +346,16 @@ useEffect(() => {
 
                 <div className="od-form-group">
                   <label>Phone</label>
-                  <input
-                    type="text"
-                    value={staffForm.staffPhone || ""}
-                    onChange={(e) =>
-                      setStaffForm({
-                        ...staffForm,
-                        staffPhone: e.target.value,
-                      })
+                  <PhoneInput
+                    country={"in"} // default India
+                    value={staffForm.staffPhone}
+                    onChange={(phone) =>
+                      setStaffForm({ ...staffForm, staffPhone: phone })
                     }
+                    inputStyle={{
+                      width: "100%",
+                    }}
+                    enableSearch={true}
                   />
                 </div>
 
@@ -352,7 +372,6 @@ useEffect(() => {
                     }
                   />
                 </div>
-
               </div>
 
               <div className="od-modal-footer">
@@ -364,8 +383,16 @@ useEffect(() => {
                   Cancel
                 </button>
 
-                <button type="submit" className="od-btn-save">
-                  {editingStaff ? "Update" : "Send OTP"} {/* 🔥 better text */}
+                <button
+                  type="submit"
+                  className="od-btn-save"
+                  disabled={loading}
+                >
+                  {loading
+                    ? "Processing..."
+                    : editingStaff
+                      ? "Update"
+                      : "Send OTP"}
                 </button>
               </div>
             </form>
