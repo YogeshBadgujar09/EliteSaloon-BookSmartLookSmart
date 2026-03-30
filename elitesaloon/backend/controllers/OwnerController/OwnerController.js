@@ -195,6 +195,49 @@ exports.verifyOTP = async (req, res) => {
   }
 };
 
+exports.updateOwnerProfile = async (req, res) => {
+     try {
+    const ownerId = req.params.id;
+
+    const { ownerName, ownerMobile, ownerShopName } = req.body;
+
+    const owner = await OwnerModel.findById(ownerId);
+
+    if (!owner) {
+      return res.status(404).json({
+        success: false,
+        message: "Owner not found"
+      });
+    }
+
+    // Update fields
+    if (ownerName) owner.ownerName = ownerName;
+    if (ownerMobile) owner.ownerMobile = ownerMobile;
+    if (ownerShopName) owner.ownerShopName = ownerShopName;
+
+    // Profile Image Update
+    if (req.file) {
+      owner.ownerProfileImage = req.file.filename;
+    }
+
+    owner.ownerUpdatedAt = Date.now();
+
+    await owner.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Owner profile updated successfully",
+      data: owner
+    });
+
+  } catch (error) {
+    console.error("Update Owner Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+}
 
 exports.forgotPassword = async (req, res) => {
   const { ownerEmail } = req.body;
@@ -247,6 +290,8 @@ exports.resetPassword = async (req, res) => {
     });
   }
 };
+
+
 
 exports.addService = async (req, res) => {
 

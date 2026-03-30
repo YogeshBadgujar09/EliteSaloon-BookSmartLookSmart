@@ -2,11 +2,12 @@ const express = require("express");
 const routes = express.Router();
 
 const { getAvailableSlots, bookAppointment,
-    appointmentResult
+    appointmentResult, getSalons
  } = require("../controllers/AppointmentController/appointmentController");
 
 routes.post("/slots", getAvailableSlots);
 routes.post("/book", bookAppointment);
 routes.put("/appointment-result", appointmentResult);
+routes.get("/get-salon", getSalons);
 
 module.exports = routes;

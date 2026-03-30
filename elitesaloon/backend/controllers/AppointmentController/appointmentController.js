@@ -2,10 +2,13 @@ const AppointmentModel = require("../../models/AppointmentModel");
 const StaffModel = require("../../models/StaffModel");
 const ServiceModel = require("../../models/ServiceModel");
 const { generateSlots } = require("../../utils/timeUtils");
+const emailSendOptimizeCode = require("../../utils/emailSendOptimizeCode");
+const OwnerModel = require("../../models/OwnerModel");
 
 
 exports.bookAppointment = async (req, res) => {
     try {
+        
         const {
             customerId,
             ownerId,
@@ -108,9 +111,6 @@ exports.getAvailableSlots = async (req, res) => {
 
 exports.appointmentResult = async (req,res) => {
 
-      const subject = "Mail for Appointment Status";
-      let message = "Please enter OTP for Owner registration in Elite Saloon\n\n Your OTP is :";
-
        try {
         const { appointmentId, status } = req.body;
 
@@ -138,7 +138,6 @@ exports.appointmentResult = async (req,res) => {
             });
         }
 
-        
         const email = appointment.customerId.customerEmail;
         console.log(email);
 
@@ -147,6 +146,12 @@ exports.appointmentResult = async (req,res) => {
         }else{
              console.log("Procede to send Mail for cancel");
         }
+
+        const subject = "Mail for Appointment Status";
+        let message = `Your booking on ${appointment.appointmentDate} at ${appointment.startTime} has been 
+                    ${status === "CONFIRMED" ? "successfully confirmed" : "cancelled" }.\n\nThank you for choosing our service!`;
+
+        emailSendOptimizeCode(email, subject, message);
 
         appointment.appointmentStatus = status;
         await appointment.save();
@@ -160,9 +165,47 @@ exports.appointmentResult = async (req,res) => {
         res.status(500).json({
             error: error.message
         });
-    
+    }
 
 }
 
-}
+exports.getSalons = async (req, res) => {
+  try {
+
+    const { pincode } = req.body; // or req.query
+
+    if (!pincode) {
+      return res.status(400).json({
+        success: false,
+        message: "Pincode is required"
+      });
+    }
+
+    const salons = await OwnerModel.find({
+      ownerShopPincode: pincode,
+      ownerApprovedStatus: "APPROVE",   // only approved shops
+      ownerAccountStatus: "ACTIVE"     // only active shops
+    }).select("-ownerPassword -ownerOTP"); // remove sensitive data
+
+    if (salons.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No salons found in this area"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Salons fetched successfully",
+      data: salons
+    });
+
+  } catch (error) {
+    console.error("Error fetching salons:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+};
 

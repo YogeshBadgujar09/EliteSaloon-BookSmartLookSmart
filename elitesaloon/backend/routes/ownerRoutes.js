@@ -19,6 +19,11 @@ router.post("/verifyotp", OwnerController.verifyOTP );
 router.post("/forgotpassword", OwnerController.forgotPassword);
 router.post("/resetpassword", OwnerController.resetPassword);
 
+router.put("/update-owner/:id",imageUpload.single("ownerProfileImage"), 
+          OwnerController.updateOwnerProfile
+);
+
+
 //Services Operation
 router.post("/add-service", imageUpload.array("serviceImages", 3), OwnerController.addService);
 router.put("/update-service/:serviceId", imageUpload.array("serviceImages", 3), OwnerController.updateService);
