@@ -1,14 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const CustomerProfile = ({ customer, setCustomer }) => {
+
   // ================= STATE =================
   const [formData, setFormData] = useState({
-    name: customer.name || "",
-    email: customer.email || "",
-    phone: customer.phone || "",
-    avatar: customer.avatar || "",
+    name: customer.customerName || "",
+    email: customer.customerEmail || "",
+    phone: customer.customerMobile || "",
+    avatar: customer.customerProfileImage || "",
+
+    street: customer.customerStreet || "",
+    pincode: customer.customerPincode || "",
+    block: customer.customerBlock || "",
+    city: customer.customerCity || "",
+    district: customer.customerDistrict || "",
+    state: customer.customerState || "",
   });
+
+  useEffect(() => {
+    if (customer) {
+      setFormData({
+        name: customer.customerName || "",
+        email: customer.customerEmail || "",
+        phone: customer.customerMobile || "",
+        avatar: customer.customerProfileImage || "",
+
+        street: customer.customerStreet || "",
+        pincode: customer.customerPincode || "",
+        block: customer.customerBlock || "",
+        city: customer.customerCity || "",
+        district: customer.customerDistrict || "",
+        state: customer.customerState || "",
+      });
+    }
+  }, [customer]);
 
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -40,11 +66,11 @@ const CustomerProfile = ({ customer, setCustomer }) => {
     if (!file) return;
 
     const formDataImg = new FormData();
-    formDataImg.append("avatar", file);
+    formDataImg.append("customerProfileImage", file);
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/customer/upload-avatar",
+        "http://localhost:5000/customer/uploadprofile",
         formDataImg,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -54,9 +80,11 @@ const CustomerProfile = ({ customer, setCustomer }) => {
       if (res.status === 200) {
         const imageUrl = res.data.avatar;
 
-        // update UI instantly
         setFormData((prev) => ({ ...prev, avatar: imageUrl }));
-        setCustomer((prev) => ({ ...prev, avatar: imageUrl }));
+        setCustomer((prev) => ({
+          ...prev,
+          customerProfileImage: imageUrl,
+        }));
       }
     } catch (error) {
       console.log(error);
@@ -81,8 +109,6 @@ const CustomerProfile = ({ customer, setCustomer }) => {
 
       if (res.status === 200) {
         alert("Profile updated successfully");
-
-        // dashboard update
         setCustomer(res.data);
       }
     } catch (error) {
@@ -132,12 +158,13 @@ const CustomerProfile = ({ customer, setCustomer }) => {
       <div className="profile-section">
         {/* PROFILE CARD */}
         <div className="profile-card">
+
           <div className="profile-header">
             <img
               src={
                 formData.avatar
-                  ? `http://localhost:5000/uploads/${formData.avatar}`
-                  : "/images/defaultProfile.png"
+                  ? `http://localhost:5000/uploads/customerProfile/${formData.avatar}?t=${Date.now()}`
+                  : "http://localhost:5000/uploads/default/defaultProfile.png"
               }
               alt="profile"
               className="profile-avatar"
@@ -155,6 +182,10 @@ const CustomerProfile = ({ customer, setCustomer }) => {
           </div>
 
           <form className="profile-form" onSubmit={handleSubmit}>
+
+            {/* PERSONAL DETAILS */}
+            <h3 className="section-title">Personal Details</h3>
+
             <div className="form-row">
               <div className="form-group">
                 <label>Full Name</label>
@@ -187,13 +218,50 @@ const CustomerProfile = ({ customer, setCustomer }) => {
                   onChange={handleChange}
                 />
               </div>
+            </div>
 
+            {/* ADDRESS */}
+            <h3 className="section-title">Address</h3>
+
+            <div className="form-row">
               <div className="form-group">
-                <label>Member Since</label>
-                <input type="text" value={customer.memberSince} disabled />
+                <label>Street</label>
+                <input name="street" value={formData.street} onChange={handleChange}/>
               </div>
             </div>
 
+            <div className="form-row">
+              <div className="form-group">
+                <label>Pincode</label>
+                <input name="pincode" value={formData.pincode} onChange={handleChange}/>
+              </div>
+
+              <div className="form-group">
+                <label>Block</label>
+                <input name="block" value={formData.block} onChange={handleChange}/>
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>City</label>
+                <input name="city" value={formData.city} onChange={handleChange}/>
+              </div>
+
+              <div className="form-group">
+                <label>District</label>
+                <input name="district" value={formData.district} onChange={handleChange}/>
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>State</label>
+                <input name="state" value={formData.state} onChange={handleChange}/>
+              </div>
+            </div>
+
+            {/* BUTTONS */}
             <div className="form-actions">
               <button type="submit" className="btn-primary" disabled={loading}>
                 {loading ? "Saving..." : "Save Changes"}
@@ -202,47 +270,47 @@ const CustomerProfile = ({ customer, setCustomer }) => {
               <button
                 type="button"
                 className="btn-outline"
-                onClick={() => setFormData(customer)}
+                onClick={() =>
+                  setFormData({
+                    name: customer.customerName || "",
+                    email: customer.customerEmail || "",
+                    phone: customer.customerMobile || "",
+                    avatar: customer.customerProfileImage || "",
+
+                    street: customer.customerStreet || "",
+                    pincode: customer.customerPincode || "",
+                    block: customer.customerBlock || "",
+                    city: customer.customerCity || "",
+                    district: customer.customerDistrict || "",
+                    state: customer.customerState || "",
+                  })
+                }
               >
                 Cancel
               </button>
             </div>
+
           </form>
         </div>
 
-        {/* PASSWORD CARD */}
+        {/* PASSWORD */}
         <div className="profile-card">
           <h3>Change Password</h3>
 
           <form className="password-form" onSubmit={handlePasswordSubmit}>
             <div className="form-group">
               <label>Current Password</label>
-              <input
-                type="password"
-                name="currentPassword"
-                value={passwordData.currentPassword}
-                onChange={handlePasswordChange}
-              />
+              <input type="password" name="currentPassword" value={passwordData.currentPassword} onChange={handlePasswordChange}/>
             </div>
 
             <div className="form-group">
               <label>New Password</label>
-              <input
-                type="password"
-                name="newPassword"
-                value={passwordData.newPassword}
-                onChange={handlePasswordChange}
-              />
+              <input type="password" name="newPassword" value={passwordData.newPassword} onChange={handlePasswordChange}/>
             </div>
 
             <div className="form-group">
               <label>Confirm New Password</label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={passwordData.confirmPassword}
-                onChange={handlePasswordChange}
-              />
+              <input type="password" name="confirmPassword" value={passwordData.confirmPassword} onChange={handlePasswordChange}/>
             </div>
 
             <button type="submit" className="btn-primary">
@@ -250,6 +318,7 @@ const CustomerProfile = ({ customer, setCustomer }) => {
             </button>
           </form>
         </div>
+
       </div>
     </div>
   );

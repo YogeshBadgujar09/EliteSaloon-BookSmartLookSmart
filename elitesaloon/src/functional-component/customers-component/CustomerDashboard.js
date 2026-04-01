@@ -23,35 +23,34 @@ const CustomerDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  
   const [activeSection, setActiveSection] = useState("overview");
   //   const [showEditProfile, setShowEditProfile] = useState(false);
 
-//  const [customer, setCustomer] = useState({
-//   name: "Priya Sharma",
-//   email: "priya.sharma@email.com",
-//   phone: "+91 98765 43210",
-//   memberSince: "January 2023",
-//   avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80",
-// });
+  //  const [customer, setCustomer] = useState({
+  //   name: "Priya Sharma",
+  //   email: "priya.sharma@email.com",
+  //   phone: "+91 98765 43210",
+  //   memberSince: "January 2023",
+  //   avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80",
+  // });
 
-const [customer, setCustomer] = useState(location.state?.customer || {});
+  const [customer, setCustomer] = useState(location.state?.customer || {});
 
-const [appointments, setAppointments] = useState([]);
-useEffect(() => {
-  const fetchAppointments = async () => {
-    try {
-      const res = await fetch("http://localhost:5000/appointment/my"); // 👈 apni API
-      const data = await res.json();
-      setAppointments(data);
-    } catch (error) {
-      console.error("Error fetching appointments:", error);
-    }
-  };
+  const [appointments, setAppointments] = useState([]);
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/appointment/my"); // 👈 apni API
+        const data = await res.json();
+        setAppointments(data);
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+      }
+    };
 
-  fetchAppointments();
-}, []);
-   const getStatusLabel = (status) => {
+    fetchAppointments();
+  }, []);
+  const getStatusLabel = (status) => {
     switch (status) {
       case "CONFIRMED":
         return "Upcoming";
@@ -63,7 +62,6 @@ useEffect(() => {
         return status;
     }
   };
-
 
   // Mock saved services
   const savedServices = [
@@ -111,25 +109,28 @@ useEffect(() => {
     },
   ];
 
-  const renderSidebar = () => (
+const renderSidebar = () => {
+  // ✅ console.log JSX ke bahar
+  console.log("IMAGE:", customer.customerProfileImage);
+
+  return (
     <div className="dashboard-sidebar">
       <div className="sidebar-header">
         <div className="customer-avatar">
-          {/* <img src={customer.avatar} alt={customer.name} /> */}
-           <img
-           src={
-                customer?.customerProfileImage?.startsWith("data:")
-                  ? customer.customerProfileImage
-                  : customer?.customerProfileImage === "defaultProfile.png" || !customer?.customerProfileImage
-                    ? "http://localhost:5000/uploads/default/defaultProfile.png"
-                    : `http://localhost:5000/uploads/customerProfile/${customer.customerProfileImage}`
-           }
-        
-           />
+          
+          <img
+            src={
+              !customer?.customerProfileImage ||
+              customer.customerProfileImage === "defaultProfile.png"
+                ? "http://localhost:5000/uploads/default/defaultProfile.png"
+                : `http://localhost:5000/uploads/customerProfile/${customer.customerProfileImage}?t=${Date.now()}`
+            }
+            alt={customer.customerName}
+          />
         </div>
+
         <h3>{customer.customerName}</h3>
         <p>{customer.customerEmail}</p>
-       
       </div>
 
       <nav className="sidebar-nav">
@@ -139,30 +140,35 @@ useEffect(() => {
         >
           <FaUser /> Overview
         </button>
+
         <button
           className={`nav-item ${activeSection === "appointments" ? "active" : ""}`}
           onClick={() => setActiveSection("appointments")}
         >
           <FaCalendarAlt /> My Appointments
         </button>
+
         <button
           className={`nav-item ${activeSection === "saved-services" ? "active" : ""}`}
           onClick={() => setActiveSection("saved-services")}
         >
           <FaHeart /> Saved Services
         </button>
+
         <button
           className={`nav-item ${activeSection === "wishlist" ? "active" : ""}`}
           onClick={() => setActiveSection("wishlist")}
         >
           <FaShoppingBag /> Wishlist
         </button>
+
         <button
           className={`nav-item ${activeSection === "feedback" ? "active" : ""}`}
           onClick={() => setActiveSection("feedback")}
         >
           <FaStar /> My Reviews
         </button>
+
         <button
           className={`nav-item ${activeSection === "profile" ? "active" : ""}`}
           onClick={() => setActiveSection("profile")}
@@ -178,6 +184,7 @@ useEffect(() => {
       </div>
     </div>
   );
+};
 
   const renderOverview = () => (
     <div className="dashboard-content">
@@ -265,9 +272,11 @@ useEffect(() => {
                 </div>
                 <div className="appointment-actions">
                   <span className="appointment-price">₹{apt.totalPrice}</span>
-                <span className={`status-badge ${apt.appointmentStatus.toLowerCase()}`}>
- {getStatusLabel(apt.appointmentStatus)}
-</span>
+                  <span
+                    className={`status-badge ${apt.appointmentStatus.toLowerCase()}`}
+                  >
+                    {getStatusLabel(apt.appointmentStatus)}
+                  </span>
                 </div>
               </div>
             ))}
@@ -429,24 +438,22 @@ useEffect(() => {
     </div>
   );
 
-
-
   const renderContent = () => {
     switch (activeSection) {
       case "overview":
         return renderOverview();
       case "appointments":
-        return (
-         <AppointmentBook />
-        );
+        return <AppointmentBook />;
       case "saved-services":
         return renderSavedServices();
       case "wishlist":
         return renderWishlist();
       case "feedback":
         return renderFeedback();
-    case "profile":
-  return <CustomerProfile customer={customer} setCustomer={setCustomer} />
+      case "profile":
+        return (
+          <CustomerProfile customer={customer} setCustomer={setCustomer} />
+        );
       default:
         return renderOverview();
     }
