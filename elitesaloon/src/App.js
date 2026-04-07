@@ -20,11 +20,17 @@ import CustomerOtpVerify from "./functional-component/customers-component/Custom
 import CustomerProfileSetup from "./functional-component/customers-component/CustomerProfileSetup";
 import ResetPassword from "./functional-component/customers-component/ResetPassword";
 import CustomerDashboard from "./functional-component/customers-component/CustomerDashboard";
+import CustomerBookingForm from "./functional-component/customers-component/CustomerBookingForm";
+ 
 
 import ForgotPassword from "./functional-component/customers-component/ForgotPassword";
 import ResetOtp from "./functional-component/customers-component/ResetOtp";
 
 import OtpVerify from "./components/OtpVerify";
+
+
+//customer service
+import SelectServices from "./functional-component/customers-component/SelectServices";
 
 // Owner
 import OwnerRegistration from "./functional-component/owners-component/OwnerRegistration";
@@ -56,7 +62,7 @@ function AppContent() {
     "/customerdashboard",
     "/OtpVerify",
     "/forgotpassword",
-    "/resetotp",
+    "/resetOtp",
     "/resetpassword",
     "/ownerregister",
     "/ownerotpverify",
@@ -68,6 +74,8 @@ function AppContent() {
     "/ownerresetotp",
     "/staffotpveryfy",
     "/ownerresetpassword",
+    "bookappointment",
+    "/selectservices"
   ];
 
   const showNavbar = !hideNavbarRoutes.includes(location.pathname);
@@ -90,8 +98,11 @@ function AppContent() {
         <Route path="/customerotpverify" element={<CustomerOtpVerify />} />
         <Route path="/profilesetup" element={<CustomerProfileSetup />} />
         <Route path="/customerdashboard" element={<CustomerDashboard />} />
+        <Route path="/bookappointment" element={<CustomerBookingForm />} />
 
         <Route path="/OtpVerify" element={<OtpVerify />} />
+
+        <Route path="/selectservices" element={<SelectServices />} />
 
         {/* FORGOT PASSWORD */}
         <Route path="/forgotpassword" element={<ForgotPassword />} />

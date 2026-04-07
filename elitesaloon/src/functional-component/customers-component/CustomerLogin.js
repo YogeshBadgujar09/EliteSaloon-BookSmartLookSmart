@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Swal from "sweetalert2";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -8,7 +7,6 @@ import useLoader from "../../hooks/useLoader";
 import CommonLoader from "../../components/CommonLoader";
 
 const CustomerLogin = () => {
-
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -22,7 +20,6 @@ const CustomerLogin = () => {
   const { loading, startLoading, stopLoading } = useLoader();
 
   const validate = () => {
-
     let err = {};
 
     if (!form.customerUsername) {
@@ -36,116 +33,93 @@ const CustomerLogin = () => {
     setErrors(err);
 
     return Object.keys(err).length === 0;
-
   };
 
-
   const handleChange = (e) => {
-
     const { name, value } = e.target;
 
     setForm({
       ...form,
-      [name]: value
+      [name]: value,
     });
-
   };
 
-
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
     if (!validate()) {
-
       Swal.fire({
         icon: "error",
         title: "Login Failed",
-        text: "Please fix the errors"
+        text: "Please fix the errors",
       });
 
       return;
-
     }
 
     try {
-
       startLoading();
 
-      const response = await fetch(
-        "http://localhost:5000/customer/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            customerUsername: form.customerUsername,
-            customerPassword: form.customerPassword,
-          })
-        }
-      );
+      const response = await fetch("http://localhost:5000/customer/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          customerUsername: form.customerUsername,
+          customerPassword: form.customerPassword,
+        }),
+      });
 
       const data = await response.json();
       const customer = data.customer;
+      console.log("Customer Data:", customer);
 
       // console.log("Find customer :", data.message);
 
       if (response.ok) {
-
+               localStorage.setItem("isLoggedIn", "true"); 
+        localStorage.setItem("customerId", customer._id);
+ 
+     localStorage.setItem("customer", JSON.stringify(customer));
         Swal.fire({
           icon: "success",
           title: "Login Successful 🎉",
-          text: "Welcome " + customer.customerUsername
+          text: "Welcome " + customer.customerUsername,
         });
 
         console.log("Login Success:", data.customer);
 
         navigate("/customerdashboard", { state: { customer } });
-
       } else {
-
         Swal.fire({
           icon: "error",
           title: "Login Failed",
-          text: data.message || "Invalid credentials"
+          text: data.message || "Invalid credentials",
         });
-
       }
-
     } catch (error) {
-
       Swal.fire({
         icon: "error",
         title: "Server Error",
-        text: "Unable to connect to server"
+        text: "Unable to connect to server",
       });
-
     } finally {
-
       stopLoading();
-
     }
-
   };
 
-
   return (
-
     <div className="form-wrapper login-wrapper">
-
       <CommonLoader loading={loading} />
 
       <h2>EliteSalon Login</h2>
 
       <form onSubmit={handleSubmit}>
-
         <div className="form-section">
-
           <h3>Account Login</h3>
 
           <div className="form-group">
-
             <input
               type="text"
               name="customerUsername"
@@ -154,15 +128,10 @@ const CustomerLogin = () => {
               onChange={handleChange}
             />
 
-            <small className="error-text">
-              {errors.customerUsername}
-            </small>
-
+            <small className="error-text">{errors.customerUsername}</small>
           </div>
 
-
           <div className="form-group password-field">
-
             <input
               type={showPwd ? "text" : "password"}
               name="customerPassword"
@@ -175,47 +144,27 @@ const CustomerLogin = () => {
               {showPwd ? <FaEyeSlash /> : <FaEye />}
             </span>
 
-            <small className="error-text">
-              {errors.customerPassword}
-            </small>
-
+            <small className="error-text">{errors.customerPassword}</small>
           </div>
 
-
           <div className="forgot-link">
-
             <span onClick={() => navigate("/forgotpassword")}>
               Forgot Password?
             </span>
-
           </div>
-
         </div>
 
-
         <button className="submit-btn" disabled={loading}>
-
           {loading ? "Logging in..." : "Login"}
-
         </button>
-
       </form>
 
-
       <div className="form-links">
-
         Don’t have an account?{" "}
-
-        <span onClick={() => navigate("/customerregister")}>
-          Register
-        </span>
-
+        <span onClick={() => navigate("/customerregister")}>Register</span>
       </div>
-
     </div>
-
   );
-
 };
 
 export default CustomerLogin;

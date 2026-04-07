@@ -1203,3 +1203,108 @@ border:1px solid #ccc;
 .swal2-container {
   z-index: 20000 !important;
 }
+
+
+
+/* owner appoinment  list */
+/* Container and Background */
+.od-content {
+    padding: 40px;
+    background-color: #fafafa;
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Header Text */
+.od-section-header {
+    margin-bottom: 30px;
+}
+
+.od-section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    color: #333;
+    position: relative;
+    padding-left: 20px;
+}
+
+.od-section-title::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, #d4af37, #b76e79); /* Gold to Rose Gold gradient */
+    border-radius: 2px;
+}
+
+/* White Card Wrapper */
+.appointment-list-wrapper {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); /* Soft shadow like image */
+    padding: 10px;
+}
+
+/* Table Styling */
+.custom-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.custom-table th {
+    color: #666;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 20px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.custom-table td {
+    padding: 20px 15px;
+    vertical-align: middle;
+    border-bottom: 1px solid #f8f8f8;
+    color: #444;
+    font-size: 14px;
+}
+
+/* Table Row Hover */
+.table-row:hover {
+    background-color: #fcfcfc;
+}
+
+/* View/Action Button Style - Exactly like your "VIEW" button */
+.btn-action-view {
+    background: #f8f9fa;
+    color: #444;
+    border: 1px solid #ddd;
+    padding: 10px 40px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-action-view:hover {
+    background: #ffffff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+
+/* Icons and Tags */
+.icon-gold {
+    color: #d4af37;
+    margin-right: 8px;
+}
+
+.tag-service {
+    font-weight: 500;
+    color: #333;
+}
