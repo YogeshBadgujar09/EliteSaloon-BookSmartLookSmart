@@ -25,9 +25,11 @@ const CustomerBookingForm = () => {
     time: "",
   });
 
-  // 🔥 Customer pincode (fallback bhi diya)
-  const customerPincode = "395010";
-  //    const customerPincode = "";
+
+const customer = JSON.parse(localStorage.getItem("customer"));
+const customerPincode = customer?.customerPincode;
+
+console.log("Customer Pincode:", customerPincode);
 
   //serive
 useEffect(() => {
@@ -203,7 +205,7 @@ const handleSubmit = async (e) => {
     customerId: customerId,
     ownerId: form.salonId,
     staffId: form.staffId,
-    serviceIds: selectedServices.map((s) => s._id), // only IDs, backend calculates duration & price
+    serviceIds: selectedServices.map((s) => s._id), 
     date: form.date,
     startTime: form.time,
   };

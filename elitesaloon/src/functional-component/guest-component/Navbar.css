@@ -390,3 +390,48 @@
     font-size: 14px;
   }
 }
+
+
+/* ===== ACCOUNT DROPDOWN ===== */
+.account-wrapper {
+  position: relative;
+}
+
+.account-dropdown {
+  position: absolute;
+  top: 120%;
+  right: 0;
+  background: var(--text-light);
+  min-width: 180px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 10px 0;
+  z-index: 1000;
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: var(--transition);
+}
+
+/* SHOW DROPDOWN */
+.account-wrapper:hover .account-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* LINKS */
+.account-dropdown a {
+  display: block;
+  padding: 10px 15px;
+  text-decoration: none;
+  color: var(--text-dark);
+  font-size: 14px;
+  transition: var(--transition-fast);
+}
+
+.account-dropdown a:hover {
+  background: var(--soft-gray);
+  color: var(--burgundy);
+}

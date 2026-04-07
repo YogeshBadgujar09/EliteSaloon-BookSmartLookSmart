@@ -1,15 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react"; // 🔥 NEW
 import { Link, useLocation } from "react-router-dom";
-import "./Navbar.css";
-import {
-  FaSearch,
-  FaUser,
-  // FaHeart,
-  // FaShoppingCart,
-  FaBars,
-  FaTimes,
 
-} from "react-icons/fa";
+import "./Navbar.css";
+import { FaSearch, FaUser, FaBars, FaTimes } from "react-icons/fa";
 
 const Navbar = () => {
   const [showServices, setShowServices] = useState(false);
@@ -18,6 +11,22 @@ const Navbar = () => {
 
   const isActive = (path) => location.pathname === path;
 
+  const [showAccountMenu, setShowAccountMenu] = useState(false);
+
+  const accountRef = useRef(); // 🔥 NEW
+
+  // 🔥 NEW → outside click close
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (accountRef.current && !accountRef.current.contains(event.target)) {
+        setShowAccountMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <>
       {/* ===== TOP STRIP ===== */}
@@ -25,7 +34,7 @@ const Navbar = () => {
         <div className="top-strip-content">
           <span>Welcome To EliteSalon </span>
           <div className="top-strip-contact">
-           <p>elitesaloon18@gmail.com</p>
+            <p>elitesaloon18@gmail.com</p>
           </div>
         </div>
       </div>
@@ -93,17 +102,9 @@ const Navbar = () => {
             <Link to="/shop">Shop</Link>
           </li>
 
-          {/* <li className={isActive("/salon-locator") ? "active" : ""}>
-            <Link to="/salon-locator">Salon Locator</Link>
-          </li> */}
-
           <li className={isActive("/offers") ? "active" : ""}>
             <Link to="/offers">Offers</Link>
           </li>
-
-          {/* <li className={isActive("/content") ? "active" : ""}>
-            <Link to="/content">Content Hub</Link>
-          </li> */}
         </ul>
 
         {/* RIGHT SECTION */}
@@ -112,21 +113,22 @@ const Navbar = () => {
             <FaSearch />
           </Link>
 
-          <Link to="/customerlogin" className="icon-link" title="Account">
-            <FaUser />
-          </Link>
+          {/* 🔥 UPDATED ACCOUNT DROPDOWN */}
+          <div className="account-wrapper" ref={accountRef}>
+            <div
+              className="icon-link"
+              onClick={() => setShowAccountMenu(!showAccountMenu)}
+            >
+              <FaUser />
+            </div>
 
-          {/* <Link to="/wishlist" className="icon-link" title="Wishlist">
-            <FaHeart />
-          </Link> */}
-
-          {/* <Link to="/cart" className="icon-link" title="Cart">
-            <FaShoppingCart />
-          </Link> */}
-
-          {/* <Link to="/booking" className="book-btn">
-            BOOK NOW
-          </Link> */}
+            {showAccountMenu && (
+              <div className="account-dropdown">
+                <Link to="/customerlogin">Customer Login</Link>
+                <Link to="/ownerlogin">Owner Login</Link>
+              </div>
+            )}
+          </div>
 
           {/* Mobile Menu Toggle */}
           <button

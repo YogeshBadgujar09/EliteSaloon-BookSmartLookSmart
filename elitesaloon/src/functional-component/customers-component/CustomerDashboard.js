@@ -328,7 +328,13 @@ const CustomerDashboard = () => {
         <div className="quick-actions">
           <button
             className="action-btn-primary"
-            onClick={() => navigate("/bookappointment")}
+            onClick={() =>
+              navigate("/bookappointment", {
+                state: {
+                  customerPincode: customer?.customerPincode || "",
+                },
+              })
+            }
           >
             <FaPlus /> Book New Appointment
           </button>
