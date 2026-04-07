@@ -1,163 +1,159 @@
 const OwnerModel = require("../../models/OwnerModel");
 const bcrypt = require("bcrypt");
 const emailSendOptimizeCode = require("../../utils/emailSendOptimizeCode");
-const generateOTP  = require("../../utils/generateOTP");
+const generateOTP = require("../../utils/generateOTP");
 const ServiceModel = require("../../models/ServiceModel");
 const ProductModel = require("../../models/ProductModel");
 const StaffModel = require("../../models/StaffModel");
 
 exports.registerOwner = async (req, res) => {
+  const subject = "Mail for Register Owner in Elite Saloon";
+  let message =
+    "Please enter OTP for Owner registration in Elite Saloon\n\n Your OTP is :";
 
-    const subject = "Mail for Register Owner in Elite Saloon";
-    let message = "Please enter OTP for Owner registration in Elite Saloon\n\n Your OTP is :";
+  try {
+    const { ownerEmail } = req.body;
 
+    let existingOwner = await OwnerModel.findOne({ ownerEmail });
 
-    try {
+    console.log("Data :", existingOwner);
 
-        const { ownerEmail } = req.body;
-
-        let existingOwner = await OwnerModel.findOne({ ownerEmail });
-
-        console.log("Data :" ,existingOwner);
-
-        if(existingOwner != null && !existingOwner.ownerVerified 
-             && existingOwner.ownerAccountStatus === "DEACTIVE")
-        {
-            console.log("Delete unverified Recorde .... !!! ");
-            await OwnerModel.deleteOne({ownerEmail});
-            existingOwner = null;
-        }
-        
-        if(existingOwner === null)    {
-
-            //check images are not null
-            if (!req.files) {
-                return res.status(400).json({ message: "Images are required" });
-            }
-
-            req.body.ownerShopCertificate = req.files.ownerShopCertificate[0].filename;
-            req.body.shopFrontPhoto = req.files.shopFrontPhoto[0].filename;
-            req.body.shopInsidePhoto = req.files.shopInsidePhoto[0].filename;
-            
-            const owner = new OwnerModel( req.body );
-
-            let tempPassword = passwordGenTemps();
-            owner.ownerPassword = await bcrypt.hash( tempPassword.toString(), 10);
-            // owner.ownerProfileImage = "backend\profiles\defaultProfile.png";
-            
-            if (req.file) {
-                owner.ownerProfileImage = req.file.filename;
-            } else {
-                owner.ownerProfileImage = "defaultProfile.png";
-            }
-
-            let otp = await generateOTP();
-            message = message + otp ;
-            
-            const generatedOTP = await emailSendOptimizeCode(
-                    owner.ownerEmail,
-                    subject,
-                    message,
-            );
-            
-            if (generatedOTP) {
-              // Check if OTP generation and email sending was successful
-                owner.ownerOTP = otp; // Generate OTP and store it in the customer's record in the database
-               
-                // Save Owner BEFORE sending response to ensure that the OTP is stored in the database and can be verified later
-                await owner.save();
-
-                res.status(201).json({ 
-                        message: "Redirect To Verification Otp Page", 
-                        ownerEmail : owner.ownerEmail
-                });
-
-            } else {
-                res.status(500).json({
-                message: "Failed to send OTP to customer email",
-                });
-            }
-
-        }else{
-            
-            if(existingOwner.ownerAccountStatus == "DEACTIVE" && existingOwner.ownerApprovedStatus == "PENDING"){
-                return res.status(409).json({
-                    success: false,
-                    message: "Your application is in process with this Email"
-                });
-            }else{
-                  return res.status(409).json({
-                    success: false,
-                    message: "Email already exists"
-                  });  
-            }
-
-         }
-       
-    } catch (error) {
-        res.status(500).json({ message: "Error registering owner", error: error.message });
+    if (
+      existingOwner != null &&
+      !existingOwner.ownerVerified &&
+      existingOwner.ownerAccountStatus === "DEACTIVE"
+    ) {
+      console.log("Delete unverified Recorde .... !!! ");
+      await OwnerModel.deleteOne({ ownerEmail });
+      existingOwner = null;
     }
-};
 
-function passwordGenTemps(){
-      return Math.floor(100000 + Math.random() * 900000).toString();
-}
+    if (existingOwner === null) {
+      //check images are not null
+      if (!req.files) {
+        return res.status(400).json({ message: "Images are required" });
+      }
 
+      req.body.ownerShopCertificate =
+        req.files.ownerShopCertificate[0].filename;
+      req.body.shopFrontPhoto = req.files.shopFrontPhoto[0].filename;
+      req.body.shopInsidePhoto = req.files.shopInsidePhoto[0].filename;
 
-exports.loginOwner = async(req, res) => {
-    
-    const { ownerEmail, ownerPassword } = req.body;
+      const owner = new OwnerModel(req.body);
 
-    const owner = await OwnerModel.findOne({ownerEmail});
+      let tempPassword = passwordGenTemps();
+      owner.ownerPassword = await bcrypt.hash(tempPassword.toString(), 10);
+      // owner.ownerProfileImage = "backend\profiles\defaultProfile.png";
 
-    // console.log(owner);
+      if (req.file) {
+        owner.ownerProfileImage = req.file.filename;
+      } else {
+        owner.ownerProfileImage = "defaultProfile.png";
+      }
 
-    if(owner != null && owner.ownerVerified && 
-      owner.ownerAccountStatus === "ACTIVE" &&
-      owner.ownerApprovedStatus === "APPROVE" 
-    ){
-        const isMatch = await bcrypt.compare(
-                ownerPassword,
-                owner.ownerPassword);
+      let otp = await generateOTP();
+      message = message + otp;
 
-        if(isMatch){
-          res.status(200).json({
-            message: "Owner Login Successful",
-            owner : owner.toObject()
-          });
-        }else{
-          res.status(401).json({
-            message : "Password is invalid ... !!!"
-          });
-        }
+      const generatedOTP = await emailSendOptimizeCode(
+        owner.ownerEmail,
+        subject,
+        message,
+      );
 
-    }else{
+      if (generatedOTP) {
+        // Check if OTP generation and email sending was successful
+        owner.ownerOTP = otp; // Generate OTP and store it in the customer's record in the database
 
-      if(owner == null ){
-        res.status(401).json({
-          message: "Email does not exist",
+        // Save Owner BEFORE sending response to ensure that the OTP is stored in the database and can be verified later
+        await owner.save();
+
+        res.status(201).json({
+          message: "Redirect To Verification Otp Page",
+          ownerEmail: owner.ownerEmail,
         });
-      }else if( owner.ownerAccountStatus !== "ACTIVE" && owner.ownerApprovedStatus !== "APPROVE") {
-        res.status(401).json({
-          message: "You are not APPROVED By admin",
-        });
-      }else{
-          res.status(401).json({
-          message: "You are temprory Deactivated By ADMIN",
+      } else {
+        res.status(500).json({
+          message: "Failed to send OTP to customer email",
         });
       }
-      
+    } else {
+      if (
+        existingOwner.ownerAccountStatus == "DEACTIVE" &&
+        existingOwner.ownerApprovedStatus == "PENDING"
+      ) {
+        return res.status(409).json({
+          success: false,
+          message: "Your application is in process with this Email",
+        });
+      } else {
+        return res.status(409).json({
+          success: false,
+          message: "Email already exists",
+        });
+      }
     }
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error registering owner", error: error.message });
+  }
 };
 
+function passwordGenTemps() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+exports.loginOwner = async (req, res) => {
+  const { ownerEmail, ownerPassword } = req.body;
+
+  const owner = await OwnerModel.findOne({ ownerEmail });
+
+  // console.log(owner);
+
+  if (
+    owner != null &&
+    owner.ownerVerified &&
+    owner.ownerAccountStatus === "ACTIVE" &&
+    owner.ownerApprovedStatus === "APPROVE"
+  ) {
+    const isMatch = await bcrypt.compare(ownerPassword, owner.ownerPassword);
+
+    if (isMatch) {
+      res.status(200).json({
+        message: "Owner Login Successful",
+        owner: owner.toObject(),
+      });
+    } else {
+      res.status(401).json({
+        message: "Password is invalid ... !!!",
+      });
+    }
+  } else {
+    if (owner == null) {
+      res.status(401).json({
+        message: "Email does not exist",
+      });
+    } else if (
+      owner.ownerAccountStatus !== "ACTIVE" &&
+      owner.ownerApprovedStatus !== "APPROVE"
+    ) {
+      res.status(401).json({
+        message: "You are not APPROVED By admin",
+      });
+    } else {
+      res.status(401).json({
+        message: "You are temprory Deactivated By ADMIN",
+      });
+    }
+  }
+};
 
 exports.verifyOTP = async (req, res) => {
-   
-    try {
+  try {
     const { ownerEmail, otp } = req.body;
     console.log("OTP received from owner :" + otp);
 
-    const owner =  await OwnerModel.findOne({ ownerEmail });
+    const owner = await OwnerModel.findOne({ ownerEmail });
 
     if (owner != null) {
       if (owner.ownerOTP === otp) {
@@ -165,20 +161,21 @@ exports.verifyOTP = async (req, res) => {
         owner.ownerOTP = null; // Clear the OTP after successful verification
         owner.ownerUpdatedAt = Date.now();
         await owner.save();
-        
+
         res.status(200).json({
-          message: "OTP verification successfull .... Wait for approvals"
+          message: "OTP verification successfull .... Wait for approvals",
         });
 
         const shopName = owner.ownerShopName;
 
         let subject = `Application Status for ${shopName}`;
-        let message = "We receive your application for " + shopName +"." +
-                       "We will review your application, verify it and then send you mail.\n\nPlease check regular mail.";
-        
+        let message =
+          "We receive your application for " +
+          shopName +
+          "." +
+          "We will review your application, verify it and then send you mail.\n\nPlease check regular mail.";
+
         emailSendOptimizeCode(ownerEmail, subject, message);
-
-
       } else {
         res.status(400).json({ message: "enter valid OTP" });
       }
@@ -196,7 +193,7 @@ exports.verifyOTP = async (req, res) => {
 };
 
 exports.updateOwnerProfile = async (req, res) => {
-     try {
+  try {
     const ownerId = req.params.id;
 
     const { ownerName, ownerMobile, ownerShopName } = req.body;
@@ -206,7 +203,7 @@ exports.updateOwnerProfile = async (req, res) => {
     if (!owner) {
       return res.status(404).json({
         success: false,
-        message: "Owner not found"
+        message: "Owner not found",
       });
     }
 
@@ -227,28 +224,28 @@ exports.updateOwnerProfile = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Owner profile updated successfully",
-      data: owner
+      data: owner,
     });
-
   } catch (error) {
     console.error("Update Owner Error:", error);
     res.status(500).json({
       success: false,
-      message: "Server error"
+      message: "Server error",
     });
   }
-}
+};
 
 exports.forgotPassword = async (req, res) => {
   const { ownerEmail } = req.body;
-  const owner = await OwnerModel.findOne({ownerEmail});
+  const owner = await OwnerModel.findOne({ ownerEmail });
 
   if (owner != null) {
     let subject = "Mail for Reset Password in Elite Saloon";
-    let message = "Please enter OTP for reset password in Elite Saloon\n\n Your OTP is :";
+    let message =
+      "Please enter OTP for reset password in Elite Saloon\n\n Your OTP is :";
     let otp = await generateOTP();
-    
-    message = message + otp ;
+
+    message = message + otp;
 
     const generatedOTP = await emailSendOptimizeCode(
       ownerEmail,
@@ -262,8 +259,8 @@ exports.forgotPassword = async (req, res) => {
 
       res.status(200).json({
         message:
-        "OTP sent successfully to owner email ... redirect to OTP verification page for reset password",
-        ownerEmail : owner.ownerEmail,
+          "OTP sent successfully to owner email ... redirect to OTP verification page for reset password",
+        ownerEmail: owner.ownerEmail,
       });
     } else {
       res.status(500).json({
@@ -279,7 +276,7 @@ exports.forgotPassword = async (req, res) => {
 
 exports.resetPassword = async (req, res) => {
   const { ownerEmail, newPassword } = req.body;
-  const owner = await OwnerModel.findOne({ownerEmail});
+  const owner = await OwnerModel.findOne({ ownerEmail });
   if (owner != null) {
     owner.ownerPassword = bcrypt.hashSync(newPassword, 10); // Hash the new password before saving
     owner.ownerOTP = null;
@@ -291,178 +288,146 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
-
-
 exports.addService = async (req, res) => {
+  try {
+    const serviceImages = req.files.map((file) => file.filename);
 
-    try {
-        const serviceImages = req.files.map(file => file.filename);
+    const ownerId = req.body.ownerId; // if using auth middleware
 
-        const ownerId = req.body.ownerId;   // if using auth middleware
+    // Create service
+    const service = new ServiceModel({
+      ...req.body,
+      ownerId: ownerId,
+      serviceImages: serviceImages,
+    });
 
-        // Create service
-        const service = new ServiceModel({
-            ...req.body,
-            ownerId: ownerId,
-            serviceImages: serviceImages
-        });
+    await service.save();
 
-        await service.save();
-
-        res.status(201).json({
-            success: true,
-            message: "Service Added Successfully",
-            service
-        });
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: "Error Adding Service",
-            error: error.message
-        });
-
-    }
-
+    res.status(201).json({
+      success: true,
+      message: "Service Added Successfully",
+      service,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error Adding Service",
+      error: error.message,
+    });
+  }
 };
 
 exports.updateService = async (req, res) => {
+  try {
+    const { serviceId } = req.params;
+    // const { ownerId } = req.body;
 
-    try {
+    // console.log("Service Id:", serviceId);
+    // console.log("Owner Id:", ownerId);
+    // console.log("Body:", req.body);
 
-        const { serviceId } = req.params;
-        // const { ownerId } = req.body;
+    // Find service with owner check
+    const service = await ServiceModel.findOne({
+      _id: serviceId,
+      // ownerId: ownerId
+    });
 
-        // console.log("Service Id:", serviceId);
-        // console.log("Owner Id:", ownerId);
-        // console.log("Body:", req.body);
-
-        // Find service with owner check
-        const service = await ServiceModel.findOne({
-            _id: serviceId,
-            // ownerId: ownerId
-        });
-
-        if (!service) {
-            return res.status(404).json({
-                success: false,
-                message: "Service Not Found or Unauthorized"
-            });
-        }
-
-        // Update fields
-        Object.assign(service, req.body);
-
-        // Handle images
-        if (req.files && req.files.length > 0) {
-            const serviceImages = req.files.map(file => file.filename);
-            service.serviceImages = serviceImages;
-        }
-
-        await service.save();
-
-        res.status(200).json({
-            success: true,
-            message: "Service Updated Successfully",
-            service
-        });
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: "Error Updating Service",
-            error: error.message
-        });
-
+    if (!service) {
+      return res.status(404).json({
+        success: false,
+        message: "Service Not Found or Unauthorized",
+      });
     }
 
+    // Update fields
+    Object.assign(service, req.body);
+
+    // Handle images
+    if (req.files && req.files.length > 0) {
+      const serviceImages = req.files.map((file) => file.filename);
+      service.serviceImages = serviceImages;
+    }
+
+    await service.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Service Updated Successfully",
+      service,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error Updating Service",
+      error: error.message,
+    });
+  }
 };
 
 exports.searchServices = async (req, res) => {
+  try {
+    const { serviceId } = req.params;
+    const { ownerId } = req.bod; // send ownerId in query
 
-   try {
+    console.log("Service Id:", serviceId);
+    console.log("Owner Id:", ownerId);
 
-        const { serviceId } = req.params;
-        const { ownerId } = req.bod;   // send ownerId in query
+    const service = await ServiceModel.findOne({
+      _id: serviceId,
+      ownerId: ownerId,
+    });
 
-        console.log("Service Id:", serviceId);
-        console.log("Owner Id:", ownerId);
+    if (!service) {
+      return res.status(404).json({
+        success: false,
+        message: "Service Not Found",
+      });
+    }
 
-        const service = await ServiceModel.findOne({
-            _id: serviceId,
-            ownerId: ownerId
-        });
-
-        if (!service) {
-            return res.status(404).json({
-                success: false,
-                message: "Service Not Found"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Service Fetched Successfully",
-            service
-        });
-
-   } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: "Error Searching Service",
-            error: error.message
-        });
-   }
-
-
+    res.status(200).json({
+      success: true,
+      message: "Service Fetched Successfully",
+      service,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error Searching Service",
+      error: error.message,
+    });
+  }
 };
 
 exports.searchServicesByOwnerId = async (req, res) => {
+  try {
+    // const { serviceId } =
+    const { ownerId } = req.params; // send ownerId in query
+    console.log("Owner Id:", ownerId);
 
-    try {
+    const services = await ServiceModel.find({
+      ownerId: ownerId,
+    });
 
-        // const { serviceId } = 
-        const { ownerId } = req.params; // send ownerId in query
-        console.log("Owner Id:", ownerId);
-
-        const services = await ServiceModel.find({
-            ownerId: ownerId
-        });
-
-        if (!services) {
-            return res.status(404).json({
-                success: false,
-                message: "Service Not Found"
-            });
-        }else{
-            res.status(200).json({
-            // success: true,
-            // message: "Service Fetched Successfully",
-            // services : services
-
-            success: true,
-            totalServices: services.length,
-            message: "Owner services fetched successfully",
-            services: services || []   // always array
-
-          });
-        }
-
-        
-
-   } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: "Error Searching Service",
-            error: error.message
-        });
-
-   }
- 
+    if (!services) {
+      return res.status(404).json({
+        success: false,
+        message: "Service Not Found",
+      });
+    } else {
+      res.status(200).json({
+        success: true,
+        totalServices: services.length,
+        message: "Owner services fetched successfully",
+        services: services || [], // always array
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error Searching Service",
+      error: error.message,
+    });
+  }
 };
 
 // exports.viewAllServices = async (req, res) => {
@@ -493,318 +458,266 @@ exports.searchServicesByOwnerId = async (req, res) => {
 // };
 
 exports.deleteService = async (req, res) => {
+  try {
+    const { serviceId } = req.params;
+    // const { ownerId } = req.body;
 
-    try {
+    console.log("Service Id:", serviceId);
+    // console.log("Owner Id:", ownerId);
 
-        const { serviceId } = req.params;
-        // const { ownerId } = req.body;
+    const service = await ServiceModel.findOneAndDelete({
+      _id: serviceId,
+      // ownerId: ownerId
+    });
 
-        console.log("Service Id:", serviceId);
-        // console.log("Owner Id:", ownerId);
-
-        const service = await ServiceModel.findOneAndDelete({
-            _id: serviceId,
-            // ownerId: ownerId
-        });
-
-        if (!service) {
-            return res.status(404).json({
-                success: false,
-                message: "Service Not Found or Unauthorized"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Service Deleted Successfully"
-        });
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: "Error Deleting Service",
-            error: error.message
-        });
-
+    if (!service) {
+      return res.status(404).json({
+        success: false,
+        message: "Service Not Found or Unauthorized",
+      });
     }
 
+    res.status(200).json({
+      success: true,
+      message: "Service Deleted Successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error Deleting Service",
+      error: error.message,
+    });
+  }
 };
 
 exports.addProduct = async (req, res) => {
-    try {
+  try {
+    const productImages = req.files.map((file) => file.filename);
 
-        const productImages = req.files.map(file => file.filename);
+    const product = new ProductModel(req.body);
 
-        const product = new ProductModel(req.body);
+    product.productImages = productImages;
 
-        product.productImages = productImages;
+    await product.save();
 
-        await product.save();
-
-        res.status(201).json({
-            success: true,
-            message: "Product Added Successfully",
-            product
-        });
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: "Error Adding Product",
-            error: error.message
-        });
-
-    }
+    res.status(201).json({
+      success: true,
+      message: "Product Added Successfully",
+      product,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error Adding Product",
+      error: error.message,
+    });
+  }
 };
 
 exports.viewAllProductsByOwnerId = async (req, res) => {
+  try {
+    const { ownerId } = req.params;
 
-    try {
+    const products = await ProductModel.find({ ownerId: ownerId });
 
-        const { ownerId } = req.params;
-
-        const products = await ProductModel.find({ ownerId: ownerId });
-
-        res.status(200).json({
-            success: true,
-            totalProducts: products.length,
-            products : products
-        });
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: "Error Fetching Products",
-            error: error.message
-        });
-
-    }
-
+    res.status(200).json({
+      success: true,
+      totalProducts: products.length,
+      products: products,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error Fetching Products",
+      error: error.message,
+    });
+  }
 };
 
 exports.searchProduct = async (req, res) => {
+  try {
+    const { productId } = req.params;
 
-    try {
+    const product = await ProductModel.findOne({
+      _id: productId,
+      ownerId: req.body.ownerId,
+    });
 
-        const { productId } = req.params;
-
-        const product = await ProductModel.findOne({
-            _id: productId,
-            ownerId: req.body.ownerId
-        });
-
-        if (!product) {
-            return res.status(404).json({
-                success: false,
-                message: "Product Not Found or Unauthorized"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            product
-        });
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: "Error Fetching Product",
-            error: error.message
-        });
-
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product Not Found or Unauthorized",
+      });
     }
 
+    res.status(200).json({
+      success: true,
+      product,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error Fetching Product",
+      error: error.message,
+    });
+  }
 };
 
 exports.updateProduct = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    console.log("Product Id", productId);
+    const updateData = req.body;
+    console.log("Data :", updateData);
 
-    try {
-
-        const { productId } = req.params;
-        console.log("Product Id",productId);
-        const updateData = req.body;
-        console.log("Data :", updateData);
-
-        if (req.files && req.files.length > 0) {
-            updateData.productImages = req.files.map(file => file.filename);
-        }
-
-        const product = await ProductModel.findOneAndUpdate(
-            { _id: productId, ownerId: req.body.ownerId },  // added owner check
-            updateData,
-            { new: true }
-        );
-
-        if (!product) {
-            return res.status(404).json({
-                success: false,
-                message: "Product Not Found or Unauthorized"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Product Updated Successfully",
-            product
-        });
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: "Error Updating Product",
-            error: error.message
-        });
-
+    if (req.files && req.files.length > 0) {
+      updateData.productImages = req.files.map((file) => file.filename);
     }
 
+    const product = await ProductModel.findOneAndUpdate(
+      { _id: productId, ownerId: req.body.ownerId }, // added owner check
+      updateData,
+      { new: true },
+    );
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product Not Found or Unauthorized",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Product Updated Successfully",
+      product,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error Updating Product",
+      error: error.message,
+    });
+  }
 };
 
 exports.deleteProduct = async (req, res) => {
+  try {
+    const { productId } = req.params;
 
-    try {
+    const product = await ProductModel.findOneAndDelete({
+      _id: productId,
+      // ownerId: req.body.ownerId
+    });
 
-        const { productId } = req.params;
-
-        const product = await ProductModel.findOneAndDelete({
-            _id: productId,
-            // ownerId: req.body.ownerId
-        });
-
-        if (!product) {
-            return res.status(404).json({
-                success: false,
-                message: "Product Not Found or Unauthorized"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Product Deleted Successfully"
-        });
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: "Error Deleting Product",
-            error: error.message
-        });
-
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product Not Found or Unauthorized",
+      });
     }
 
+    res.status(200).json({
+      success: true,
+      message: "Product Deleted Successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error Deleting Product",
+      error: error.message,
+    });
+  }
 };
 
 exports.addStaff = async (req, res) => {
+  const subject = "Staff Registration in Elite Saloon";
+  let message =
+    "Please enter OTP for Staff Verification in Elite Saloon\n\n Your OTP is : ";
 
-    const subject = "Staff Registration in Elite Saloon";
-    let message = "Please enter OTP for Staff Verification in Elite Saloon\n\n Your OTP is : ";
+  try {
+    const { staffEmail } = req.body;
+    const { ownerId } = req.params;
 
-    try {
+    console.log("Request Data :", req.body);
 
-        const { staffEmail } = req.body;
-        const {ownerId} = req.params;
+    let existingStaff = await StaffModel.findOne({ staffEmail });
 
-        console.log("Request Data :", req.body);
+    console.log("Existing Staff :", existingStaff);
 
-        let existingStaff = await StaffModel.findOne({ staffEmail });
-
-        console.log("Existing Staff :", existingStaff);
-
-        // Delete old unverified staff
-        if (
-            existingStaff !== null &&
-            !existingStaff.isVerified
-        ) {
-            console.log("Deleting old unverified staff...");
-            await StaffModel.deleteOne({ staffEmail });
-            existingStaff = null;
-        }
-
-        if (existingStaff === null) {
-
-            const staff = new StaffModel(req.body);
-
-            // staff.staffProfile = req.file.filename;
-            if (req.file) {
-                 staff.staffProfile = req.file.filename;
-            } else {
-                staff.staffProfile = "defaultProfile.png"; 
-            }
-           
-
-            // Generate OTP
-            let otp = await generateOTP();
-
-            message = message + otp;
-
-            const generatedOTP = await emailSendOptimizeCode(
-                staff.staffEmail,
-                subject,
-                message
-            );
-
-            if (generatedOTP) {
-
-                staff.staffOTP = otp;
-
-                await staff.save();
-
-                res.status(201).json({
-                    success: true,
-                    message: "Redirect To Staff OTP Verification Page",
-                    staffEmail: staff.staffEmail
-                });
-
-            } else {
-
-                res.status(500).json({
-                    success: false,
-                    message: "Failed to send OTP to staff email"
-                });
-
-            }
-
-        } else {
-
-            return res.status(409).json({
-                success: false,
-                message: "Staff Email Already Exists"
-            });
-
-        }
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: "Error Adding Staff",
-            error: error.message
-        });
-
+    // Delete old unverified staff
+    if (existingStaff !== null && !existingStaff.isVerified) {
+      console.log("Deleting old unverified staff...");
+      await StaffModel.deleteOne({ staffEmail });
+      existingStaff = null;
     }
 
-}; 
+    if (existingStaff === null) {
+      const staff = new StaffModel(req.body);
+
+      // staff.staffProfile = req.file.filename;
+      if (req.file) {
+        staff.staffProfile = req.file.filename;
+      } else {
+        staff.staffProfile = "defaultProfile.png";
+      }
+
+      // Generate OTP
+      let otp = await generateOTP();
+
+      message = message + otp;
+
+      const generatedOTP = await emailSendOptimizeCode(
+        staff.staffEmail,
+        subject,
+        message,
+      );
+
+      if (generatedOTP) {
+        staff.staffOTP = otp;
+
+        await staff.save();
+
+        res.status(201).json({
+          success: true,
+          message: "Redirect To Staff OTP Verification Page",
+          staffEmail: staff.staffEmail,
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          message: "Failed to send OTP to staff email",
+        });
+      }
+    } else {
+      return res.status(409).json({
+        success: false,
+        message: "Staff Email Already Exists",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error Adding Staff",
+      error: error.message,
+    });
+  }
+};
 
 exports.staffOTPverify = async (req, res) => {
   try {
     const { staffEmail, otp } = req.body;
-    const staff = await StaffModel.findOne({staffEmail});
+    const staff = await StaffModel.findOne({ staffEmail });
 
     if (staff != null) {
       if (staff.staffOTP == otp) {
+        staff.isVerified = true;
+        staff.staffOTP = null;
 
-        staff.isVerified = true ;
-        staff.staffOTP = null ;
-        
         await staff.save();
 
         res.status(200).json({
-          message: "OTP verification successfull ... !!!"
+          message: "OTP verification successfull ... !!!",
         });
       } else {
         res.status(400).json({ message: "enter valid OTP" });
@@ -821,124 +734,106 @@ exports.staffOTPverify = async (req, res) => {
 };
 
 exports.updateStaff = async (req, res) => {
+  try {
+    const { staffId } = req.params;
 
-    try {
+    console.log("Staff ID :", staffId);
+    console.log("Body Data :", req.body);
 
-        const { staffId } = req.params;
+    const staff = await StaffModel.findById(staffId);
 
-        console.log("Staff ID :", staffId);
-        console.log("Body Data :", req.body);
-
-        const staff = await StaffModel.findById(staffId);
-
-        if (!staff) {
-            return res.status(404).json({
-                success: false,
-                message: "Staff not found"
-            });
-        }
-
-        // Update fields
-        if (req.body.staffName) {
-            staff.staffName = req.body.staffName;
-        }
-
-        if (req.body.staffPhone) {
-            staff.staffPhone = req.body.staffPhone;
-        }
-
-        if (req.body.staffAddress) {
-            staff.staffAddress = req.body.staffAddress;
-        }
-
-        // Update profile image if new file uploaded
-        if (req.file) {
-            staff.staffProfile = req.file.filename;
-        }
-
-        await staff.save();
-
-        res.status(200).json({
-            success: true,
-            message: "Staff updated successfully",
-            staff
-        });
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: "Error updating staff",
-            error: error.message
-        });
-
+    if (!staff) {
+      return res.status(404).json({
+        success: false,
+        message: "Staff not found",
+      });
     }
 
+    // Update fields
+    if (req.body.staffName) {
+      staff.staffName = req.body.staffName;
+    }
+
+    if (req.body.staffPhone) {
+      staff.staffPhone = req.body.staffPhone;
+    }
+
+    if (req.body.staffAddress) {
+      staff.staffAddress = req.body.staffAddress;
+    }
+
+    // Update profile image if new file uploaded
+    if (req.file) {
+      staff.staffProfile = req.file.filename;
+    }
+
+    await staff.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Staff updated successfully",
+      staff,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error updating staff",
+      error: error.message,
+    });
+  }
 };
 
 exports.deleteStaff = async (req, res) => {
+  try {
+    const { staffId } = req.params;
 
-    try {
+    console.log("Deleting Staff ID :", staffId);
 
-        const { staffId } = req.params;
+    const staff = await StaffModel.findById(staffId);
 
-        console.log("Deleting Staff ID :", staffId);
-
-        const staff = await StaffModel.findById(staffId);
-
-        if (!staff) {
-            return res.status(404).json({
-                success: false,
-                message: "Staff not found"
-            });
-        }
-
-        await StaffModel.findByIdAndDelete(staffId);
-
-        res.status(200).json({
-            success: true,
-            message: "Staff deleted successfully"
-        });
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: "Error deleting staff",
-            error: error.message
-        });
-
+    if (!staff) {
+      return res.status(404).json({
+        success: false,
+        message: "Staff not found",
+      });
     }
 
+    await StaffModel.findByIdAndDelete(staffId);
+
+    res.status(200).json({
+      success: true,
+      message: "Staff deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error deleting staff",
+      error: error.message,
+    });
+  }
 };
 
 exports.getOwnerStaff = async (req, res) => {
+  try {
+    const { ownerId } = req.params;
 
-    try {
+    console.log("Owner ID :", ownerId);
 
-        const { ownerId } = req.params;
+    const staffList = await StaffModel.find({
+      ownerId: ownerId,
+      isVerified: true,
+    });
 
-        console.log("Owner ID :", ownerId);
-
-        const staffList = await StaffModel.find({
-            ownerId: ownerId,
-            isVerified: true
-        });
-
-        res.status(200).json({
-            success: true,
-            totalStaff: staffList.length,
-            staff: staffList
-        });
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: "Error fetching staff list",
-            error: error.message
-        });
-
-    }
-
+    res.status(200).json({
+      success: true,
+      totalStaff: staffList.length,
+      staff: staffList,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error fetching staff list",
+      error: error.message,
+    });
+  }
 };

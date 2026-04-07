@@ -1060,3 +1060,374 @@
     text-align: center;
   }
 }
+
+
+/*  appoinmetnt book form*/
+/* ===== BOOKING MODAL ===== *//* ===== BOOKING MODAL (Overlay) ===== */
+.booking-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+/* ===== BOOKING CARD (Increased Width) ===== */
+.booking-card {
+  background: #ffffff;
+  padding: 35px;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 800px; /* 👈 Width increased for a spacious look */
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: fadeInUp 0.4s ease-out;
+  max-height: 94vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* Header & Back Arrow Styling */
+.card-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.back-arrow {
+  position: absolute;
+  left: 0;
+  background: none;
+  border: none;
+  color: #4a5568;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s;
+  padding: 5px;
+}
+
+.back-arrow:hover {
+  color: #800020; /* Burgundy on hover */
+}
+
+.booking-card h2 {
+  margin: 0;
+  color: #800020;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+/* ===== FORM LAYOUT (Spaced Rows) ===== */
+.grid-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 10px;
+  font-weight: 700;
+  color: #2d3748;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ===== INPUTS & SELECTS ===== */
+.form-group select,
+.custom-datepicker {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #edf2f7;
+  border-radius: 14px;
+  font-size: 15px;
+  background-color: #f7fafc;
+  transition: all 0.2s ease;
+  color: #1a202c;
+}
+
+.form-group select:focus,
+.custom-datepicker:focus {
+  outline: none;
+  border-color: #800020;
+  background-color: #fff;
+  box-shadow: 0 0 0 4px rgba(128, 0, 32, 0.05);
+}
+
+/* ===== SERVICE SELECTION SUMMARY ===== */
+.btn-outline {
+  width: 100%;
+  background: #fff;
+  border: 2px dashed #cbd5e0;
+  color: #4a5568;
+  padding: 15px;
+  border-radius: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.selected-services-summary {
+  margin-top: 15px;
+  padding: 20px;
+  background: #fff5f5;
+  border-radius: 16px;
+  border: 1px solid #fed7d7;
+}
+
+.selected-item {
+  display: inline-flex;
+  align-items: center;
+  background: #800020;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 25px;
+  font-size: 13px;
+  margin: 5px;
+  font-weight: 500;
+}
+
+.total {
+  margin-top: 15px;
+  font-weight: 800;
+  color: #800020;
+  font-size: 18px;
+  text-align: right;
+  border-top: 2px solid rgba(128, 0, 32, 0.1);
+  padding-top: 12px;
+}
+
+/* ===== ACTION BUTTONS ===== */
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+button.btn-primary:not([type="button"]) {
+  background: #800020;
+  color: white;
+  box-shadow: 0 4px 12px rgba(128, 0, 32, 0.2);
+}
+
+button.btn-primary:not([type="button"]):hover {
+  transform: translateY(-2px);
+  background: #600018;
+}
+
+button[type="button"].btn-primary {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+/* Scrollbar styling */
+.booking-card::-webkit-scrollbar {
+  width: 6px;
+}
+.booking-card::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive Fix */
+@media (max-width: 600px) {
+  .booking-card { padding: 25px; }
+  .back-arrow span { display: none; } /* Mobile pe sirf arrow dikhega */
+}
+
+
+
+/* =========================================
+   ELITE SALOON MODERN TABLE CSS - UPDATED
+   ========================================= */
+
+/* 1. Main Wrapper */
+.appointment-list-wrapper {
+  background: transparent;
+  padding: 10px 20px;
+  margin-top: 20px;
+}
+
+/* 2. Table Layout */
+.custom-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 12px;
+}
+
+/* 3. Table Headers */
+.custom-table th {
+  text-align: left;
+  padding: 10px 25px;
+  color: #99abb4;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  border: none;
+}
+
+/* 4. Row Styling (Card Look) */
+.table-row {
+  background: #ffffff !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s ease;
+  border-radius: 12px;
+}
+
+.table-row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+/* 5. Table Cells */
+.custom-table td {
+  padding: 22px 25px;
+  vertical-align: middle;
+  background: #ffffff;
+  border: none;
+  font-size: 14px;
+  color: #455a64;
+}
+
+.table-row td:first-child {
+  border-radius: 12px 0 0 12px;
+  font-weight: 700;
+  color: #cfa15a;
+}
+
+.table-row td:last-child {
+  border-radius: 0 12px 12px 0;
+}
+
+/* 6. Date & Time */
+.td-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.main-text {
+  font-weight: 600;
+  color: #2d3436;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sub-text {
+  color: #636e72;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.info-icon {
+  font-size: 15px;
+  color: #2d3436;
+}
+
+/* 7. Service Tags (Optimized for 5+ Services) */
+.service-tags {
+  display: flex;
+  flex-wrap: wrap;    /* Services zyada hone par niche line mein jayengi */
+  gap: 6px;
+  max-width: 300px;   /* Column ko bahut zyada choda hone se rokega */
+}
+
+.tag {
+  background: #f1f3f5;
+  color: #748892;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid #e9ecef;
+  white-space: nowrap; /* Tag ke andar ka text break nahi hoga */
+}
+
+/* 8. Price & Status */
+.price-text {
+  font-weight: 700;
+  font-size: 15px;
+  color: #2d3436;
+}
+
+.status-pill {
+  padding: 6px 18px;
+  border-radius: 50px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  display: inline-block;
+  min-width: 100px;
+  text-align: center;
+}
+
+.status-pill.confirmed { background: #e6fcf5; color: #0ca678; }
+.status-pill.pending { background: #fff9db; color: #f08c00; }
+.status-pill.cancelled { background: #fff5f5; color: #fa5252; }
+
+/* 9. Action Buttons */
+.cancel-action-btn {
+  background: #fff5f5;
+  border: 1px solid #ffc9c9;
+  padding: 8px 20px;
+  border-radius: 30px;
+  color: #fa5252;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+}
+
+.cancel-action-btn:hover {
+  background: #fa5252;
+  color: white;
+  border-color: #fa5252;
+}
+
+.cancelled-text {
+  font-size: 12px;
+  color: #adb5bd;
+  font-style: italic;
+}

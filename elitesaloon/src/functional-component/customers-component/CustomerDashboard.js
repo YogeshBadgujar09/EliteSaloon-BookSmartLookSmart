@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "./CustomerDashboard.css";
-import AppointmentBook from "./AppointmentBook";
+
 import CustomerProfile from "./CustomerProfile";
+import CustomerAppointments from "./CustomerAppointments";
+
 import { useNavigate, useLocation } from "react-router-dom";
 
 import {
@@ -24,32 +26,53 @@ const CustomerDashboard = () => {
   const location = useLocation();
 
   const [activeSection, setActiveSection] = useState("overview");
-  //   const [showEditProfile, setShowEditProfile] = useState(false);
 
-  //  const [customer, setCustomer] = useState({
-  //   name: "Priya Sharma",
-  //   email: "priya.sharma@email.com",
-  //   phone: "+91 98765 43210",
-  //   memberSince: "January 2023",
-  //   avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80",
-  // });
+  const [customer, setCustomer] = useState(() => {
+    const stored = localStorage.getItem("customer");
+    return location.state?.customer || (stored ? JSON.parse(stored) : {});
+  });
 
-  const [customer, setCustomer] = useState(location.state?.customer || {});
+  console.log("FINAL CUSTOMER:", customer);
 
-  const [appointments, setAppointments] = useState([]);
+  //  useEffect(() => {
+  //   const storedCustomer = {
+  //     customerName: localStorage.getItem("customerName"),
+  //     customerEmail: localStorage.getItem("customerEmail"),
+  //     customerProfileImage: localStorage.getItem("customerImage"),
+  //   };
+
+  //   if (storedCustomer.customerName) {
+  //     setCustomer(storedCustomer);
+  //   }
+  // }, []);
+
+  const [appointments] = useState([]);
+
+  //session
   useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/appointment/my"); // 👈 apni API
-        const data = await res.json();
-        setAppointments(data);
-      } catch (error) {
-        console.error("Error fetching appointments:", error);
-      }
-    };
+    // 1. Check karein ki kya user logged in hai?
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    const customerId = localStorage.getItem("customerId");
 
-    fetchAppointments();
-  }, []);
+    if (!isLoggedIn || !customerId) {
+      // Agar data nahi hai, toh login page par bhej do
+      navigate("/customerlogin");
+    }
+  }, [navigate]);
+
+  // useEffect(() => {
+  //   const fetchAppointments = async () => {
+  //     try {
+  //       const res = await fetch("http://localhost:5000/appointment/my"); // 👈 apni API
+  //       const data = await res.json();
+  //       setAppointments(data);
+  //     } catch (error) {
+  //       console.error("Error fetching appointments:", error);
+  //     }
+  //   };
+
+  //   fetchAppointments();
+  // }, []);
   const getStatusLabel = (status) => {
     switch (status) {
       case "CONFIRMED":
@@ -109,82 +132,92 @@ const CustomerDashboard = () => {
     },
   ];
 
-const renderSidebar = () => {
-  // ✅ console.log JSX ke bahar
-  console.log("IMAGE:", customer.customerProfileImage);
+  const renderSidebar = () => {
+    // ✅ console.log JSX ke bahar
+    console.log("IMAGE:", customer.customerProfileImage);
 
-  return (
-    <div className="dashboard-sidebar">
-      <div className="sidebar-header">
-        <div className="customer-avatar">
-          
-          <img
-            src={
-              !customer?.customerProfileImage ||
-              customer.customerProfileImage === "defaultProfile.png"
-                ? "http://localhost:5000/uploads/default/defaultProfile.png"
-                : `http://localhost:5000/uploads/customerProfile/${customer.customerProfileImage}?t=${Date.now()}`
-            }
-            alt={customer.customerName}
-          />
+    return (
+      <div className="dashboard-sidebar">
+        <div className="sidebar-header">
+          <div className="customer-avatar">
+            <img
+              src={
+                !customer?.customerProfileImage ||
+                customer.customerProfileImage === "defaultProfile.png"
+                  ? "http://localhost:5000/uploads/default/defaultProfile.png"
+                  : `http://localhost:5000/uploads/customerProfile/${customer.customerProfileImage}?t=${Date.now()}`
+              }
+              alt={customer.customerName}
+            />
+          </div>
+
+          <h3>{customer.customerName}</h3>
+          <p>{customer.customerEmail}</p>
         </div>
 
-        <h3>{customer.customerName}</h3>
-        <p>{customer.customerEmail}</p>
+        <nav className="sidebar-nav">
+          <button
+            className={`nav-item ${activeSection === "overview" ? "active" : ""}`}
+            onClick={() => setActiveSection("overview")}
+          >
+            <FaUser /> Overview
+          </button>
+          <button
+            className={`nav-item ${activeSection === "bookappointments" ? "active" : ""}`}
+            onClick={() => setActiveSection("bookappointments")}
+          >
+            <FaCalendarAlt /> My Bookings
+          </button>
+          {/* <button
+            className={`nav-item ${activeSection === "appointments" ? "active" : ""}`}
+            onClick={() => setActiveSection("appointments")}
+          >
+            <FaCalendarAlt /> My Appointments
+          </button> */}
+
+          <button
+            className={`nav-item ${activeSection === "saved-services" ? "active" : ""}`}
+            onClick={() => setActiveSection("saved-services")}
+          >
+            <FaHeart /> Saved Services
+          </button>
+
+          <button
+            className={`nav-item ${activeSection === "wishlist" ? "active" : ""}`}
+            onClick={() => setActiveSection("wishlist")}
+          >
+            <FaShoppingBag /> Wishlist
+          </button>
+
+          <button
+            className={`nav-item ${activeSection === "feedback" ? "active" : ""}`}
+            onClick={() => setActiveSection("feedback")}
+          >
+            <FaStar /> My Reviews
+          </button>
+
+          <button
+            className={`nav-item ${activeSection === "profile" ? "active" : ""}`}
+            onClick={() => setActiveSection("profile")}
+          >
+            <FaCog /> Profile Settings
+          </button>
+        </nav>
+
+        <div className="sidebar-footer">
+          <button
+            className="logout-btn"
+            onClick={() => {
+              localStorage.clear(); // Saara session data delete
+              navigate("/customerlogin"); // Login page par redirect
+            }}
+          >
+            <FaSignOutAlt /> Logout
+          </button>
+        </div>
       </div>
-
-      <nav className="sidebar-nav">
-        <button
-          className={`nav-item ${activeSection === "overview" ? "active" : ""}`}
-          onClick={() => setActiveSection("overview")}
-        >
-          <FaUser /> Overview
-        </button>
-
-        <button
-          className={`nav-item ${activeSection === "appointments" ? "active" : ""}`}
-          onClick={() => setActiveSection("appointments")}
-        >
-          <FaCalendarAlt /> My Appointments
-        </button>
-
-        <button
-          className={`nav-item ${activeSection === "saved-services" ? "active" : ""}`}
-          onClick={() => setActiveSection("saved-services")}
-        >
-          <FaHeart /> Saved Services
-        </button>
-
-        <button
-          className={`nav-item ${activeSection === "wishlist" ? "active" : ""}`}
-          onClick={() => setActiveSection("wishlist")}
-        >
-          <FaShoppingBag /> Wishlist
-        </button>
-
-        <button
-          className={`nav-item ${activeSection === "feedback" ? "active" : ""}`}
-          onClick={() => setActiveSection("feedback")}
-        >
-          <FaStar /> My Reviews
-        </button>
-
-        <button
-          className={`nav-item ${activeSection === "profile" ? "active" : ""}`}
-          onClick={() => setActiveSection("profile")}
-        >
-          <FaCog /> Profile Settings
-        </button>
-      </nav>
-
-      <div className="sidebar-footer">
-        <button className="logout-btn" onClick={() => navigate("/")}>
-          <FaSignOutAlt /> Logout
-        </button>
-      </div>
-    </div>
-  );
-};
+    );
+  };
 
   const renderOverview = () => (
     <div className="dashboard-content">
@@ -295,7 +328,7 @@ const renderSidebar = () => {
         <div className="quick-actions">
           <button
             className="action-btn-primary"
-            onClick={() => navigate("/booking")}
+            onClick={() => navigate("/bookappointment")}
           >
             <FaPlus /> Book New Appointment
           </button>
@@ -442,8 +475,10 @@ const renderSidebar = () => {
     switch (activeSection) {
       case "overview":
         return renderOverview();
-      case "appointments":
-        return <AppointmentBook />;
+      case "bookappointments":
+        return <CustomerAppointments />;
+      // case "appointments":
+      //   return <AppointmentBook />;
       case "saved-services":
         return renderSavedServices();
       case "wishlist":
@@ -463,6 +498,11 @@ const renderSidebar = () => {
     <div className="customer-dashboard">
       {renderSidebar()}
       <div className="dashboard-main">{renderContent()}</div>
+
+      {/* 🔥 Booking Form Popup */}
+      {/* {showBooking && (
+        <CustomerBookingForm onClose={() => setShowBooking(false)} />
+      )} */}
     </div>
   );
 };

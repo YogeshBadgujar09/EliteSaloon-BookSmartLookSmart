@@ -28,17 +28,27 @@ const OwnerOtpVerify = () => {
 
     const newOtp = [...otp];
     newOtp[index] = value;
-
     setOtp(newOtp);
 
     // Move forward
     if (value && index < 5) {
       inputsRef.current[index + 1].focus();
     }
+  };
 
-    // Move backward on delete
-    if (!value && index > 0) {
-      inputsRef.current[index - 1].focus();
+  /* ================= BACKSPACE FIX ================= */
+
+  const handleKeyDown = (e, index) => {
+    if (e.key === "Backspace") {
+      if (otp[index] === "") {
+        if (index > 0) {
+          inputsRef.current[index - 1].focus();
+        }
+      } else {
+        const newOtp = [...otp];
+        newOtp[index] = "";
+        setOtp(newOtp);
+      }
     }
   };
 
@@ -97,7 +107,7 @@ const OwnerOtpVerify = () => {
     }
   };
 
-  /* ================= RESEND OTP ================= */
+  /* ================= RESEND OTP (UNCHANGED) ================= */
 
   const handleResendOtp = async () => {
     console.log("Resend OTP clicked");
@@ -152,6 +162,7 @@ const OwnerOtpVerify = () => {
               maxLength="1"
               value={digit}
               onChange={(e) => handleChange(e.target.value, index)}
+              onKeyDown={(e) => handleKeyDown(e, index)} // ✅ FIX ADDED
               ref={(el) => (inputsRef.current[index] = el)}
               className="otp-box"
             />

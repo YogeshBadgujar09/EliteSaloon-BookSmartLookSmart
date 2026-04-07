@@ -8,6 +8,7 @@ import Services from "./Services";
 import Products from "./Products";
 import Staff from "./Staff";
 import OwnerProfile from "./OwnerProfile";
+import OwnerAppointments from "./OwnerAppointments";
 
 import {
   FiGrid,
@@ -23,6 +24,7 @@ import {
   FiDollarSign,
   FiClock,
   FiStar,
+  FiCalendar,
 } from "react-icons/fi";
 
 const OwnerDashboard = () => {
@@ -32,10 +34,26 @@ const OwnerDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [loading, setLoading] = useState(true);
 
-  const owner =
-    location.state?.owner || JSON.parse(localStorage.getItem("owner"));
+  const owner =location.state?.owner || JSON.parse(localStorage.getItem("owner"));
   // console.log("Owner Print at Dashboard :", owner);
   
+
+//session
+// Dashboard ke andar ye change karein
+useEffect(() => {
+    const isAuth = localStorage.getItem("isOwnerAuthenticated");
+    const ownerData = localStorage.getItem("owner");
+
+    if (isAuth !== "true" || !ownerData) {
+        // Clear storage just in case
+        localStorage.removeItem("isOwnerAuthenticated");
+        localStorage.removeItem("owner");
+        navigate("/ownerlogin", { replace: true }); 
+    } else {
+        setLoading(false); 
+    }
+}, [navigate]);
+
   const [ownerProfile, setOwnerProfile] = useState({
     ownerName: "",
     ownerEmail: "",
@@ -89,55 +107,62 @@ const OwnerDashboard = () => {
     staffAddress: "",
   });
 
-  const fetchDashboardData = useCallback(async () => {
-    try {
-      // if (!ownerId) {
-      //   navigate("/"); // agar ownerId nahi hai to redirect
-      //   return;
-      // }
-
-      const ownerRes = owner;
-      setOwnerProfile(ownerRes || {});
-
-      const ownerId = ownerRes._id;
-
-      // 🔹 Fetch other dashboard data
-      const serviceRes = await axios.get(
-        `http://localhost:5000/owner/allservices/${ownerId}`,
-      );
-
-      // console.log("Services after Login :",serviceRes.data );
-      const serviceData = Array.isArray(serviceRes.data.services)
-        ? serviceRes.data.services
-        : [];
-      setServices(serviceData);
-
-      const productRes = await axios.get(
-        `http://localhost:5000/owner/viewall-products/${ownerId}`,
-      );
-
-      // console.log("Product Resonese :", productRes.data);
-      const productData = Array.isArray(productRes.data.products)
-        ? productRes.data.products
-        : [];
-
-      setProducts(productData);
-
-      const staffRes = await axios.get(
-        `http://localhost:5000/owner/staff-list/${ownerId}`,
-      );
-      console.log("Staff List :", staffRes.data);
-      const staffData = Array.isArray(staffRes.data.staff)
-        ? staffRes.data.staff
-        : [];
-
-      setStaff(staffData);
-    } catch (error) {
-      console.error("Dashboard Load Error:", error);
-    } finally {
-      setLoading(false);
+ const fetchDashboardData = useCallback(async () => {
+  try {
+    // 1. Pehle check karein ki owner data available hai ya nahi
+    // Note: ownerId ko define karne se pehle use nahi kar sakte, isliye owner._id use kiya hai
+    if (!owner || !owner._id) {
+      console.log("Owner ID missing, redirecting to home...");
+      navigate("/"); 
+      return;
     }
-  }, [navigate]);
+
+    const ownerRes = owner;
+    setOwnerProfile(ownerRes || {});
+
+    // ownerId ko yahan define kiya taaki niche use ho sake
+    const ownerId = ownerRes._id;
+    console.log("Fetching data for Owner ID:", ownerId);
+
+    // 🔹 Fetch Services
+    const serviceRes = await axios.get(
+      `http://localhost:5000/owner/allservices/${ownerId}`
+    );
+    
+    // console.log("Services after Login :", serviceRes.data);
+    const serviceData = Array.isArray(serviceRes.data.services)
+      ? serviceRes.data.services
+      : [];
+    setServices(serviceData);
+
+    // 🔹 Fetch Products
+    const productRes = await axios.get(
+      `http://localhost:5000/owner/viewall-products/${ownerId}`
+    );
+
+    // console.log("Product Resonese :", productRes.data);
+    const productData = Array.isArray(productRes.data.products)
+      ? productRes.data.products
+      : [];
+    setProducts(productData);
+
+    // 🔹 Fetch Staff
+    const staffRes = await axios.get(
+      `http://localhost:5000/owner/staff-list/${ownerId}`
+    );
+    
+    console.log("Staff List :", staffRes.data);
+    const staffData = Array.isArray(staffRes.data.staff)
+      ? staffRes.data.staff
+      : [];
+    setStaff(staffData);
+
+  } catch (error) {
+    console.error("Dashboard Load Error:", error);
+  } finally {
+    setLoading(false);
+  }
+}, [navigate, owner]); 
 
   useEffect(() => {
     fetchDashboardData();
@@ -171,6 +196,26 @@ const OwnerDashboard = () => {
     }
   };
 
+  //logout
+
+ const handleLogout = () => {
+  Swal.fire({
+    title: "Logout?",
+    text: "Are you sure you want to logout?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#800020",
+    confirmButtonText: "Yes, Logout",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      
+      localStorage.clear(); 
+      
+      
+      navigate("/ownerlogin", { replace: true }); 
+    }
+  });
+};
   ///services handlesubmit
   const handleServiceSubmit = async (e) => {
     e.preventDefault();
@@ -414,6 +459,7 @@ const OwnerDashboard = () => {
 
   const menuItems = [
     { id: "dashboard", icon: <FiGrid />, label: "Dashboard" },
+    { id: "appointments", icon: <FiCalendar />, label: "Appointments" },
     { id: "profile", icon: <FiUser />, label: "My Profile" },
     { id: "services", icon: <FiScissors />, label: "Services" },
     { id: "products", icon: <FiShoppingBag />, label: "Products" },
@@ -461,10 +507,10 @@ const OwnerDashboard = () => {
               <span>{item.label}</span>
             </div>
           ))}
-          <div className="od-menu-item" onClick={() => navigate("/")}>
-            <FiLogOut />
-            <span>Logout</span>
-          </div>
+         <div className="od-menu-item" onClick={handleLogout}>
+  <FiLogOut />
+  <span>Logout</span>
+</div>
         </nav>
       </aside>
 
@@ -621,6 +667,10 @@ const OwnerDashboard = () => {
             />
           )}
 
+{/* APPOINTMENTS TAB */}
+{activeTab === "appointments" && (
+  <OwnerAppointments ownerId={owner?._id} /> 
+)}
           {/* SERVICES */}
           {activeTab === "services" && (
             <Services
