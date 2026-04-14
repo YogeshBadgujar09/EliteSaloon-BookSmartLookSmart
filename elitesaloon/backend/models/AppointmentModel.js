@@ -20,6 +20,25 @@ const AppointmentSchema = new mongoose.Schema({
         required: true
     },
 
+    //Updated by Yogesh Deore
+    paymentId: {
+    type: String,
+    default: null
+    },
+
+    orderId: {
+        type: String,
+        default: null
+    },
+
+    paymentStatus: {
+        type: String,
+        enum: ["PENDING", "SUCCESS", "FAILED"],
+        default: "PENDING"
+    },
+// ------------------------------------------------------------------
+
+
     services: [
         {
             serviceId: mongoose.Schema.Types.ObjectId,

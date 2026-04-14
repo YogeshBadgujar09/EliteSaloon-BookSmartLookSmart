@@ -4,6 +4,9 @@ const ServiceModel = require("../../models/ServiceModel");
 const { generateSlots, toMinutes } = require("../../utils/timeUtils");
 const emailSendOptimizeCode = require("../../utils/emailSendOptimizeCode");
 const OwnerModel = require("../../models/OwnerModel");
+// const Appointment = require("../models/AppointmentModel");
+const razorpay = require("../../config/razorpay");
+
 
 exports.bookAppointment = async (req, res) => {
   try {
@@ -166,7 +169,8 @@ exports.getAvailableSlots = async (req, res) => {
 
 exports.appointmentResult = async (req, res) => {
   try {
-    const { appointmentId, status } = req.body;
+
+    const { appointmentId, paymentId, status } = req.body;
 
     // Validate status
     if (!["CONFIRMED", "CANCELLED"].includes(status)) {
@@ -193,6 +197,19 @@ exports.appointmentResult = async (req, res) => {
         message: "Cannot update completed appointment",
       });
     }
+
+    //change by yogesh deore
+     if (status === "CONFIRMED") {
+
+      appointment.paymentId = paymentId;
+      appointment.paymentStatus = "SUCCESS";
+
+    } else {
+
+      appointment.paymentStatus = "FAILED";
+
+    }
+// --------------------------------------------------
 
     const email = appointment.customerId.customerEmail;
     console.log(email);
@@ -260,3 +277,89 @@ exports.getSalons = async (req, res) => {
     });
   }
 };
+
+
+// Updated by Yogesh Deore
+
+// exports.createAppointment = async (req, res) => {
+
+//     try {
+
+//     const {
+//       customerId,
+//       ownerId,
+//       staffId,
+//       services,
+//       appointmentDate,
+//       startTime,
+//       endTime
+//     } = req.body;
+
+//     let totalPrice = 0;
+//     let totalDuration = 0;
+
+//     services.forEach(s => {
+//       totalPrice += s.price;
+//       totalDuration += s.duration;
+//     });
+
+//     const appointment = new Appointment({
+//       customerId,
+//       ownerId,
+//       staffId,
+//       services,
+//       appointmentDate,
+//       startTime,
+//       endTime,
+//       totalPrice,
+//       totalDuration,
+//       appointmentStatus: "PENDING",
+//       paymentStatus: "PENDING"
+//     });
+
+//     await appointment.save();
+
+//     res.json(appointment);
+
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).send("Booking error");
+//   }
+
+// };
+// -------------------------------------------------------
+
+
+
+// created Yogesh deore
+
+exports.createOrder = async (req, res) => {
+
+  try {
+
+    const { appointmentId } = req.body;
+
+    const appointment = await AppointmentModel.findById(appointmentId);
+
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    const order = await razorpay.orders.create({
+      amount: appointment.totalPrice * 100,
+      currency: "INR"
+    });
+
+    // save order id
+    appointment.orderId = order.id;
+    await appointment.save();
+
+    res.json(order);
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Order error");
+  }
+
+};
+// -------------------------------------------------------
