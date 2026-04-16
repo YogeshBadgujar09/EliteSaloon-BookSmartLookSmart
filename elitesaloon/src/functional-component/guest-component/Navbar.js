@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react"; // 🔥 NEW
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import "./Navbar.css";
 import { FaSearch, FaUser, FaBars, FaTimes } from "react-icons/fa";
@@ -8,7 +8,7 @@ const Navbar = () => {
   const [showServices, setShowServices] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
-
+  const navigate = useNavigate();
   const isActive = (path) => location.pathname === path;
 
   const [showAccountMenu, setShowAccountMenu] = useState(false);
@@ -50,7 +50,14 @@ const Navbar = () => {
 
         {/* CENTER MENU */}
         <ul className={`menu ${mobileMenuOpen ? "menu-open" : ""}`}>
-          <li className={isActive("/") ? "active" : ""}>
+          <li
+            className={isActive("/") ? "active" : ""}
+            onClick={() => {
+              navigate("/", {
+                state: { scrollTo: "home" },
+              });
+            }}
+          >
             <Link to="/">Home</Link>
           </li>
 
@@ -59,8 +66,16 @@ const Navbar = () => {
             onMouseEnter={() => setShowServices(true)}
             onMouseLeave={() => setShowServices(false)}
           >
-            <span className="menu-link">
-              Services <span className="dropdown-arrow">▾</span>
+            <span
+              className="menu-link"
+              style={{ cursor: "pointer" }}
+              onClick={() => {
+                navigate("/", {
+                  state: { scrollTo: "services" },
+                });
+              }}
+            >
+              Services
             </span>
 
             {showServices && (

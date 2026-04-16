@@ -13,7 +13,6 @@ import {
   FaHeart,
   FaStar,
   FaEdit,
-  FaTrash,
   FaPlus,
   FaSignOutAlt,
   FaClock,
@@ -34,45 +33,23 @@ const CustomerDashboard = () => {
 
   console.log("FINAL CUSTOMER:", customer);
 
-  //  useEffect(() => {
-  //   const storedCustomer = {
-  //     customerName: localStorage.getItem("customerName"),
-  //     customerEmail: localStorage.getItem("customerEmail"),
-  //     customerProfileImage: localStorage.getItem("customerImage"),
-  //   };
-
-  //   if (storedCustomer.customerName) {
-  //     setCustomer(storedCustomer);
-  //   }
-  // }, []);
+ 
 
   const [appointments] = useState([]);
 
   //session
   useEffect(() => {
-    // 1. Check karein ki kya user logged in hai?
+ 
     const isLoggedIn = localStorage.getItem("isLoggedIn");
     const customerId = localStorage.getItem("customerId");
 
     if (!isLoggedIn || !customerId) {
-      // Agar data nahi hai, toh login page par bhej do
+   
       navigate("/customerlogin");
     }
   }, [navigate]);
 
-  // useEffect(() => {
-  //   const fetchAppointments = async () => {
-  //     try {
-  //       const res = await fetch("http://localhost:5000/appointment/my"); // 👈 apni API
-  //       const data = await res.json();
-  //       setAppointments(data);
-  //     } catch (error) {
-  //       console.error("Error fetching appointments:", error);
-  //     }
-  //   };
 
-  //   fetchAppointments();
-  // }, []);
   const getStatusLabel = (status) => {
     switch (status) {
       case "CONFIRMED":
@@ -86,41 +63,6 @@ const CustomerDashboard = () => {
     }
   };
 
-  // Mock saved services
-  const savedServices = [
-    { id: 1, name: "Hair Spa", category: "Hair", price: "₹800 - ₹2000" },
-    {
-      id: 2,
-      name: "Facial Treatment",
-      category: "Skin",
-      price: "₹800 - ₹3500",
-    },
-    {
-      id: 3,
-      name: "Manicure & Pedicure",
-      category: "Nails",
-      price: "₹400 - ₹1500",
-    },
-  ];
-
-  // Mock wishlist products
-  const wishlistProducts = [
-    {
-      id: 1,
-      name: "Luxe Hair Serum",
-      price: "₹450",
-      image:
-        "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?auto=format&fit=crop&w=150&q=80",
-    },
-    {
-      id: 5,
-      name: "Beard Oil",
-      price: "₹299",
-      image:
-        "https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=150&q=80",
-    },
-  ];
-
   // Mock feedback
   const feedbacks = [
     {
@@ -133,7 +75,7 @@ const CustomerDashboard = () => {
   ];
 
   const renderSidebar = () => {
-    // ✅ console.log JSX ke bahar
+   
     console.log("IMAGE:", customer.customerProfileImage);
 
     return (
@@ -168,26 +110,21 @@ const CustomerDashboard = () => {
           >
             <FaCalendarAlt /> My Bookings
           </button>
-          {/* <button
-            className={`nav-item ${activeSection === "appointments" ? "active" : ""}`}
-            onClick={() => setActiveSection("appointments")}
-          >
-            <FaCalendarAlt /> My Appointments
-          </button> */}
+         
+<button
+  className={`nav-item ${activeSection === "services" ? "active" : ""}`}
+  onClick={() => setActiveSection("services")}
+>
+  <FaShoppingBag /> Services
+</button>
 
-          <button
-            className={`nav-item ${activeSection === "saved-services" ? "active" : ""}`}
-            onClick={() => setActiveSection("saved-services")}
-          >
-            <FaHeart /> Saved Services
-          </button>
-
-          <button
-            className={`nav-item ${activeSection === "wishlist" ? "active" : ""}`}
-            onClick={() => setActiveSection("wishlist")}
-          >
-            <FaShoppingBag /> Wishlist
-          </button>
+<button
+  className={`nav-item ${activeSection === "products" ? "active" : ""}`}
+  onClick={() => setActiveSection("products")}
+>
+  <FaShoppingBag /> Products
+</button>
+         
 
           <button
             className={`nav-item ${activeSection === "feedback" ? "active" : ""}`}
@@ -208,8 +145,8 @@ const CustomerDashboard = () => {
           <button
             className="logout-btn"
             onClick={() => {
-              localStorage.clear(); // Saara session data delete
-              navigate("/customerlogin"); // Login page par redirect
+              localStorage.clear(); 
+              navigate("/customerlogin"); 
             }}
           >
             <FaSignOutAlt /> Logout
@@ -260,10 +197,7 @@ const CustomerDashboard = () => {
           <div className="stat-icon saved">
             <FaHeart />
           </div>
-          <div className="stat-info">
-            <span className="stat-value">{savedServices.length}</span>
-            <span className="stat-label">Saved Services</span>
-          </div>
+        
         </div>
         <div className="stat-card">
           <div className="stat-icon points">
@@ -358,28 +292,7 @@ const CustomerDashboard = () => {
         </button>
       </div>
 
-      <div className="saved-services-grid">
-        {savedServices.map((service) => (
-          <div key={service.id} className="saved-service-card">
-            <div className="service-info">
-              <h4>{service.name}</h4>
-              <span className="service-category">{service.category}</span>
-              <span className="service-price">{service.price}</span>
-            </div>
-            <div className="service-actions">
-              <button
-                className="btn-primary"
-                onClick={() => navigate("/booking")}
-              >
-                Book Now
-              </button>
-              <button className="btn-icon">
-                <FaTrash />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+    
     </div>
   );
 
@@ -392,23 +305,7 @@ const CustomerDashboard = () => {
         </button>
       </div>
 
-      <div className="wishlist-grid">
-        {wishlistProducts.map((product) => (
-          <div key={product.id} className="wishlist-product-card">
-            <img src={product.image} alt={product.name} />
-            <div className="product-info">
-              <h4>{product.name}</h4>
-              <span className="product-price">{product.price}</span>
-            </div>
-            <div className="product-actions">
-              <button className="btn-primary">Add to Cart</button>
-              <button className="btn-icon">
-                <FaTrash />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+    
     </div>
   );
 

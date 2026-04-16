@@ -337,6 +337,7 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
+
 /**
  * add image controller
  * @param {*} req
@@ -366,11 +367,116 @@ exports.uploadProfileImage = async (req, res) => {
 
     res.status(200).json({
       message: "Profile image updated successfully",
+       customerProfileImage: customer.customerProfileImage,
     });
   } catch (error) {
     res.status(500).json({
       error: "Error uploading profile image",
       details: error.message,
+    });
+  }
+};
+
+
+exports.updateCustomerProfile = async (req, res) => {
+  try {
+    const customerId = req.params.id;
+
+    const {
+      customerName,
+      customerMobile,
+      customerStreet,
+      customerPincode,
+      customerBlock,
+      customerCity,
+      customerDistrict,
+      customerState,
+    } = req.body;
+
+    const customer = await CustomerModel.findById(customerId);
+
+    if (!customer) {
+      return res.status(404).json({
+        success: false,
+        message: "Customer not found",
+      });
+    }
+
+    if (customerName) customer.customerName = customerName;
+    if (customerMobile) customer.customerMobile = customerMobile;
+    if (customerStreet) customer.customerStreet = customerStreet;
+    if (customerPincode) customer.customerPincode = customerPincode;
+    if (customerBlock) customer.customerBlock = customerBlock;
+    if (customerCity) customer.customerCity = customerCity;
+    if (customerDistrict) customer.customerDistrict = customerDistrict;
+    if (customerState) customer.customerState = customerState;
+
+  
+    if (req.file) {
+      customer.customerProfileImage = req.file.filename;
+    }
+
+    customer.customerUpdatedAt = Date.now();
+
+    await customer.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Customer profile updated successfully",
+      data: customer,
+    });
+  } catch (error) {
+    console.error("Update Customer Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+exports.changeCustomerPassword = async (req, res) => {
+  try {
+    const customerId = req.params.id;
+
+    const { currentPassword, newPassword } = req.body;
+
+    const customer = await CustomerModel.findById(customerId);
+
+    if (!customer) {
+      return res.status(404).json({
+        success: false,
+        message: "Customer not found",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(
+      currentPassword,
+      customer.customerPassword
+    );
+
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Current password is incorrect",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    customer.customerPassword = hashedPassword;
+    customer.customerUpdatedAt = Date.now();
+
+    await customer.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+    });
+  } catch (error) {
+    console.error("Change Password Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
     });
   }
 };

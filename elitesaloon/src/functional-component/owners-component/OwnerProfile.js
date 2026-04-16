@@ -4,6 +4,8 @@ import Swal from "sweetalert2";
 import axios from "axios";
 import { FiPlus } from "react-icons/fi";
 import "./OwnerDashboard.css";
+// import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 const OwnerProfile = ({ ownerProfile, setOwnerProfile }) => {
   const [loading, setLoading] = useState(false);
@@ -150,9 +152,9 @@ const OwnerProfile = ({ ownerProfile, setOwnerProfile }) => {
               type: "email",
               readOnly: true,
             },
-            { label: "Mobile", value: "ownerMobile" },
+            
             { label: "Shop Name", value: "ownerShopName" },
-            { label: "City", value: "ownerShopCity", readOnly: true },
+            { label: "City", value: "ownerShopCity", readOnly: true},
             { label: "State", value: "ownerShopState", readOnly: true },
           ].map((field) => (
             <div className="od-form-group" key={field.value}>

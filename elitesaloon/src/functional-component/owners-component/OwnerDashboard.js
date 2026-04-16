@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import Swal from "sweetalert2";
@@ -34,8 +34,11 @@ const OwnerDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [loading, setLoading] = useState(true);
 
-  const owner =location.state?.owner || JSON.parse(localStorage.getItem("owner"));
+  // const owner =location.state?.owner || JSON.parse(localStorage.getItem("owner"));
   // console.log("Owner Print at Dashboard :", owner);
+  const [owner] = useState(() => {
+  return location.state?.owner || JSON.parse(localStorage.getItem("owner"));
+});
   
 
 //session
@@ -107,51 +110,44 @@ useEffect(() => {
     staffAddress: "",
   });
 
- const fetchDashboardData = useCallback(async () => {
+const fetchDashboardData = async () => {
   try {
-    // 1. Pehle check karein ki owner data available hai ya nahi
-    // Note: ownerId ko define karne se pehle use nahi kar sakte, isliye owner._id use kiya hai
     if (!owner || !owner._id) {
       console.log("Owner ID missing, redirecting to home...");
-      navigate("/"); 
+      navigate("/");
       return;
     }
 
     const ownerRes = owner;
     setOwnerProfile(ownerRes || {});
 
-    // ownerId ko yahan define kiya taaki niche use ho sake
     const ownerId = ownerRes._id;
     console.log("Fetching data for Owner ID:", ownerId);
 
-    // 🔹 Fetch Services
     const serviceRes = await axios.get(
       `http://localhost:5000/owner/allservices/${ownerId}`
     );
-    
-    // console.log("Services after Login :", serviceRes.data);
+
     const serviceData = Array.isArray(serviceRes.data.services)
       ? serviceRes.data.services
       : [];
     setServices(serviceData);
 
-    // 🔹 Fetch Products
     const productRes = await axios.get(
       `http://localhost:5000/owner/viewall-products/${ownerId}`
     );
 
-    // console.log("Product Resonese :", productRes.data);
     const productData = Array.isArray(productRes.data.products)
       ? productRes.data.products
       : [];
     setProducts(productData);
 
-    // 🔹 Fetch Staff
     const staffRes = await axios.get(
       `http://localhost:5000/owner/staff-list/${ownerId}`
     );
-    
+
     console.log("Staff List :", staffRes.data);
+
     const staffData = Array.isArray(staffRes.data.staff)
       ? staffRes.data.staff
       : [];
@@ -162,11 +158,12 @@ useEffect(() => {
   } finally {
     setLoading(false);
   }
-}, [navigate, owner]); 
-
-  useEffect(() => {
+};
+useEffect(() => {
+  if (owner && owner._id) {
     fetchDashboardData();
-  }, [fetchDashboardData]);
+  }
+}, [owner]);  
   const filteredServices = Array.isArray(services)
     ? serviceCategory === "all"
       ? services
@@ -800,3 +797,4 @@ useEffect(() => {
 };
 
 export default OwnerDashboard;
+

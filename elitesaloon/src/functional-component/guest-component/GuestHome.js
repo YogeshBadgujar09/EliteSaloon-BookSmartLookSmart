@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./GuestHome.css";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import { useLocation } from "react-router-dom";
+
 import {
   FaStar,
   FaMapMarkerAlt,
@@ -13,7 +16,6 @@ import {
   FaRegHeart,
   FaClock,
   FaCheck,
-
 } from "react-icons/fa";
 import { femaleServices, maleServices } from "./ServicesData";
 import { products } from "./ProductsData";
@@ -29,7 +31,19 @@ const GuestHome = () => {
   const toggleFaq = (id) => {
     setOpenFaq(openFaq === id ? null : id);
   };
+  const heroRef = useRef(null);
+  const servicesRef = useRef(null);
+  const location = useLocation();
 
+  useEffect(() => {
+    if (location.state?.scrollTo === "services") {
+      servicesRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+
+    if (location.state?.scrollTo === "home") {
+      heroRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [location]);
   const filteredProducts =
     productFilter === "all"
       ? products.slice(0, showAllProducts ? products.length : 8)
@@ -52,10 +66,25 @@ const GuestHome = () => {
     ? filteredProducts
     : filteredProducts.slice(0, 8);
 
+  const handleProtectedNavigation = (path, state = {}) => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+
+    if (isLoggedIn === "true") {
+      navigate(path, { state });
+    } else {
+      Swal.fire({
+        icon: "warning",
+        title: "Login Required",
+        text: "Please login first",
+      }).then(() => {
+        navigate("/customerlogin");
+      });
+    }
+  };
   return (
     <div className="guest-home">
       {/* ================= HERO SECTION ================= */}
-      <section className="hero-section">
+      <section className="hero-section" ref={heroRef}>
         <div className="hero-overlay"></div>
         <div className="container">
           <div className="hero-content">
@@ -69,18 +98,27 @@ const GuestHome = () => {
             <div className="hero-buttons">
               <button
                 className="btn-primary"
-                onClick={() => navigate("/booking")}
+                onClick={() => handleProtectedNavigation("/bookappointment")}
               >
                 Book Appointment
               </button>
-              <button className="btn-secondary">View Services</button>
+              <button
+                className="btn-secondary"
+                onClick={() =>
+                  handleProtectedNavigation("/customerdashboard", {
+                    activeSection: "services",
+                  })
+                }
+              >
+                View Services
+              </button>
             </div>
           </div>
         </div>
       </section>
 
       {/* ================= SERVICES SECTION ================= */}
-      <section className="services-section">
+      <section className="services-section" ref={servicesRef}>
         <div className="container">
           <div className="section-header">
             <span className="section-subtitle">What We Offer</span>
@@ -134,7 +172,9 @@ const GuestHome = () => {
                       <span className="service-price">{service.price}</span>
                       <button
                         className="service-book-btn"
-                        onClick={() => navigate("/booking")}
+                        onClick={() =>
+                          handleProtectedNavigation("/bookappointment")
+                        }
                       >
                         Book Now
                       </button>
@@ -153,7 +193,6 @@ const GuestHome = () => {
           <div className="section-header">
             {/* <span className="section-subtitle">Take Home</span> */}
             <h2 className="section-title">Our Products</h2>
-           
           </div>
 
           {/* Product Filters */}
@@ -174,7 +213,7 @@ const GuestHome = () => {
                 setShowAllProducts(false);
               }}
             >
-              Unisex
+              Both
             </button>
             <button
               className={`filter-btn ${productFilter === "female" ? "active" : ""}`}

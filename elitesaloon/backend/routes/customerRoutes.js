@@ -14,7 +14,19 @@ routes.post('/forgotpassword', CustomerController.forgotPassword);
 routes.post('/resetpassword', CustomerController.resetPassword);
 
 //for imsge
-routes.post('/uploadprofile', imageUpload.single('customerProfileImage'), CustomerController.uploadProfileImage);
+routes.post('/uploadprofile', imageUpload.single('customerProfileImage'), CustomerController.uploadProfileImage);routes.put(
+  '/update-profile/:id',
+  imageUpload.single('customerProfileImage'), 
+  CustomerController.updateCustomerProfile
+);
+routes.post(
+  '/change-password/:id',
+  CustomerController.changeCustomerPassword
+);
+
+
+
+
 
 module.exports = routes;
 

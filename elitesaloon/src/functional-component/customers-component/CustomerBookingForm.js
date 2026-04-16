@@ -25,23 +25,22 @@ const CustomerBookingForm = () => {
     time: "",
   });
 
+  const customer = JSON.parse(localStorage.getItem("customer"));
+  const customerPincode = customer?.customerPincode;
 
-const customer = JSON.parse(localStorage.getItem("customer"));
-const customerPincode = customer?.customerPincode;
-
-console.log("Customer Pincode:", customerPincode);
+  console.log("Customer Pincode:", customerPincode);
 
   //serive
-useEffect(() => {
-  if (location.state?.selectedServices) {
-    setSelectedServices(location.state.selectedServices);
-  }
+  useEffect(() => {
+    if (location.state?.selectedServices) {
+      setSelectedServices(location.state.selectedServices);
+    }
 
-  if (location.state?.salonId) {
-    setForm((prev) => ({ ...prev, salonId: location.state.salonId }));
-    setPrevSalonId(location.state.salonId);
-  }
-}, [location.state?.selectedServices, location.state?.salonId]); // ✅ stable
+    if (location.state?.salonId) {
+      setForm((prev) => ({ ...prev, salonId: location.state.salonId }));
+      setPrevSalonId(location.state.salonId);
+    }
+  }, [location.state?.selectedServices, location.state?.salonId]); // ✅ stable
 
   // ===============================
   // ✅ FETCH SALONS
@@ -78,18 +77,22 @@ useEffect(() => {
   useEffect(() => {
     // ✅ Run only when salon actually changes
     if (form.salonId) {
-     // ✅ Reset only if salon really changed by user
-if (prevSalonId && form.salonId !== prevSalonId && selectedServices.length === 0) {
-  setServices([]);
-  setStaff([]);
-  setSelectedServices([]);
-  setForm((prev) => ({
-    ...prev,
-    serviceId: [],
-    staffId: "",
-    time: "",
-  }));
-}
+      // ✅ Reset only if salon really changed by user
+      if (
+        prevSalonId &&
+        form.salonId !== prevSalonId &&
+        selectedServices.length === 0
+      ) {
+        setServices([]);
+        setStaff([]);
+        setSelectedServices([]);
+        setForm((prev) => ({
+          ...prev,
+          serviceId: [],
+          staffId: "",
+          time: "",
+        }));
+      }
 
       console.log("Salon Id :", form.salonId);
 
@@ -123,10 +126,10 @@ if (prevSalonId && form.salonId !== prevSalonId && selectedServices.length === 0
 
       fetchData();
 
-      // ✅ Update previous salon
+      
       setPrevSalonId(form.salonId);
     }
-  }, [form.salonId]); // Dependency array mein prevSalonId hata diya loop se bachne ke liye
+  }, [form.salonId]); 
 
   //slote
   useEffect(() => {
@@ -166,85 +169,87 @@ if (prevSalonId && form.salonId !== prevSalonId && selectedServices.length === 0
   //     console.log("Enterd Data :", form);
   //   };
 
-// ===============================
-// BOOK APPOINTMENT
-// ===============================
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  // ===============================
+  // BOOK APPOINTMENT
+  // ===============================
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  //validation
-  if (
-    !form.salonId ||
-    !form.staffId ||
-    selectedServices.length === 0 ||
-    !form.date ||
-    !form.time
-  ) {
-    Swal.fire({
-      icon: "warning",
-      title: "Missing Fields",
-      text: "Please fill all fields and select at least one service",
-    });
-    return;
-  }
-
-  // 🔥 Customer ID fetch and safety check
-  const customerId = localStorage.getItem("customerId");
-
-  if (!customerId || customerId === "null" || customerId === "undefined") {
-    Swal.fire({
-      icon: "error",
-      title: "Login Required",
-      text: "Booking ke liye kripya login karein ya apna account check karein.",
-    });
-    return;
-  }
-
-  // ✅ Updated: Only send serviceIds array to backend
-  const appointmentDetails = {
-    customerId: customerId,
-    ownerId: form.salonId,
-    staffId: form.staffId,
-    serviceIds: selectedServices.map((s) => s._id), 
-    date: form.date,
-    startTime: form.time,
-  };
-
-  console.log("FINAL DATA TO SEND:", appointmentDetails);
-
-  try {
-    const res = await fetch("http://localhost:5000/appointment/book", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(appointmentDetails),
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
+    //validation
+    if (
+      !form.salonId ||
+      !form.staffId ||
+      selectedServices.length === 0 ||
+      !form.date ||
+      !form.time
+    ) {
       Swal.fire({
-        icon: "success",
-        title: "Appointment Booked 🎉",
-        text: "Your appointment has been successfully booked!",
-        confirmButtonText: "OK",
-      }).then(() => {
-        navigate("/customerdashboard", { state: { activeSection: "bookappointments" } });
+        icon: "warning",
+        title: "Missing Fields",
+        text: "Please fill all fields and select at least one service",
       });
-    } else {
+      return;
+    }
+
+    // 🔥 Customer ID fetch and safety check
+    const customerId = localStorage.getItem("customerId");
+
+    if (!customerId || customerId === "null" || customerId === "undefined") {
       Swal.fire({
         icon: "error",
-        title: "Booking Failed",
-        text: data.message || "Something went wrong, please try again.",
-        confirmButtonText: "OK",
+        title: "Login Required",
+        text: "Booking ke liye kripya login karein ya apna account check karein.",
       });
+      return;
     }
-  } catch (err) {
-    console.log(err);
-    alert("Server error");
-  }
-};
+
+    // ✅ Updated: Only send serviceIds array to backend
+    const appointmentDetails = {
+      customerId: customerId,
+      ownerId: form.salonId,
+      staffId: form.staffId,
+      serviceIds: selectedServices.map((s) => s._id),
+      date: form.date,
+      startTime: form.time,
+    };
+
+    console.log("FINAL DATA TO SEND:", appointmentDetails);
+
+    try {
+      const res = await fetch("http://localhost:5000/appointment/book", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(appointmentDetails),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        Swal.fire({
+          icon: "success",
+          title: "Appointment Booked 🎉",
+          text: "Your appointment has been successfully booked!",
+          confirmButtonText: "OK",
+        }).then(() => {
+          navigate("/customerdashboard", {
+            state: { activeSection: "bookappointments" },
+          });
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Booking Failed",
+          text: data.message || "Something went wrong, please try again.",
+          confirmButtonText: "OK",
+        });
+      }
+    } catch (err) {
+      console.log(err);
+      alert("Server error");
+    }
+  };
 
   return (
     <div className="booking-modal">
@@ -361,17 +366,17 @@ const handleSubmit = async (e) => {
             <DatePicker
               selected={selectedDate}
               onChange={(date) => {
-  if (!date) return;
+                if (!date) return;
 
-  // Local date banate hain jo backend expect kar raha hai
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const formattedDate = `${year}-${month}-${day}`; // Format: YYYY-MM-DD
+                // Local date banate hain jo backend expect kar raha hai
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, "0");
+                const day = String(date.getDate()).padStart(2, "0");
+                const formattedDate = `${year}-${month}-${day}`; // Format: YYYY-MM-DD
 
-  setSelectedDate(date);
-  setForm({ ...form, date: formattedDate, time: "" });
-}}
+                setSelectedDate(date);
+                setForm({ ...form, date: formattedDate, time: "" });
+              }}
               minDate={new Date()}
               placeholderText="Select Date"
               className="custom-datepicker"

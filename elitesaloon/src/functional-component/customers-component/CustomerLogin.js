@@ -78,10 +78,10 @@ const CustomerLogin = () => {
       // console.log("Find customer :", data.message);
 
       if (response.ok) {
-               localStorage.setItem("isLoggedIn", "true"); 
+        localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("customerId", customer._id);
- 
-     localStorage.setItem("customer", JSON.stringify(customer));
+
+        localStorage.setItem("customer", JSON.stringify(customer));
         Swal.fire({
           icon: "success",
           title: "Login Successful 🎉",
