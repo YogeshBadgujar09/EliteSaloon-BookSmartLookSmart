@@ -1308,3 +1308,87 @@ border:1px solid #ccc;
     font-weight: 500;
     color: #333;
 }
+
+/* APPOINTMENT DETAIL VIWE */
+/* ===== APPOINTMENT DETAILS SIMPLE DESIGN ===== */
+
+.od-appointment-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.od-appointment-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+/* INFO SECTION */
+.od-appointment-info {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.od-info-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.od-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.od-value {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* SERVICES */
+.od-appointment-section h4 {
+  margin-bottom: 10px;
+  color: var(--text-muted);
+}
+
+.od-service-list {
+  border: 1px solid #eee;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.od-service-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.od-service-item:last-child {
+  border-bottom: none;
+}
+
+.od-service-item .price {
+  color: var(--burgundy);
+  font-weight: 600;
+}
+
+/* TOTAL */
+.od-total-box {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  font-weight: 600;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+.od-total-box .total {
+  color: var(--burgundy);
+}
+
+/* BUTTON */
+.od-action {
+  text-align: right;
+}

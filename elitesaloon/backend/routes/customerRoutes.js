@@ -24,7 +24,7 @@ routes.post(
   CustomerController.changeCustomerPassword
 );
 
-
+routes.get("/get-services-for-customer",);
 
 
 
