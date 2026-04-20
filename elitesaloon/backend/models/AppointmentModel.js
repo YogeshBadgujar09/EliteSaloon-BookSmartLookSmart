@@ -20,6 +20,16 @@ const AppointmentSchema = new mongoose.Schema({
         required: true
     },
 
+    //yogesh Deore
+        paymentId: String,
+        orderId: String,
+
+        paymentStatus: {
+        type: String,
+        default: "PENDING"
+        },
+    // --------------------------------------------
+
     services: [
         {
             serviceId: mongoose.Schema.Types.ObjectId,
@@ -39,6 +49,8 @@ const AppointmentSchema = new mongoose.Schema({
 
     totalDuration: Number,
     totalPrice: Number,
+
+   
 
     appointmentStatus: {
         type: String,

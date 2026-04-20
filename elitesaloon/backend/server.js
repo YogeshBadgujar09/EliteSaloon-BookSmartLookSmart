@@ -2,6 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 
+//yogesh deore
+require("dotenv").config();
+// ------------------------------
 
 const app = express();
 
@@ -27,6 +30,8 @@ app.use('/owner',require('./routes/ownerRoutes'));
 app.use('/admin', require('./routes/adminRoutes'));
 
 app.use("/appointment", require("./routes/appointmentRoutes") );
+
+app.use("/payment", require("./routes/paymentRoutes"));
    
 app.listen(5000, () => {
     console.log('Server is running on port 5000');
