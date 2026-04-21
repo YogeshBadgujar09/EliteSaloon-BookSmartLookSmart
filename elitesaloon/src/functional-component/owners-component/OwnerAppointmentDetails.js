@@ -2,6 +2,7 @@ import React from "react";
 
 const OwnerAppointmentDetails = ({ data }) => {
   if (!data) return null;
+  
 
   return (
     <div className="od-appointment-wrapper">

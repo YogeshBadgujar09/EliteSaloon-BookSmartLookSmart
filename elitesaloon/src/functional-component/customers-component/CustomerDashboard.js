@@ -375,9 +375,9 @@ const CustomerDashboard = () => {
       case "bookappointments":
         return <CustomerAppointments />;
       case "services":
-        return <CustomerServices />;
+        return <CustomerServices customer={customer} />;
       case "products":
-        return <CustomerProducts />;
+        return <CustomerProducts customer={customer} />;
       case "saved-services":
         return renderSavedServices();
       case "wishlist":

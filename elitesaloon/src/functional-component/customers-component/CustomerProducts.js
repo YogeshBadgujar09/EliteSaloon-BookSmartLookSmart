@@ -2,55 +2,47 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-import { FaRupeeSign, FaMapMarkerAlt } from "react-icons/fa";
+import { FaRupeeSign } from "react-icons/fa";
 
-const CustomerProducts = () => {
+const CustomerProducts = ({ customer, isPreview }) => {
   const navigate = useNavigate();
+
+  const pincode = customer?.customerPincode
+    ? Number(customer.customerPincode)
+    : "";
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Dummy fallback
-  const dummyProducts = [
-    {
-      _id: "p1",
-      productName: "Hair Gel",
-      productDescription: "Strong hold hair styling gel",
-      productPrice: 250,
-      productImages: ["default.jpg"],
-      ownerId: {
-        _id: "o1",
-        ownerEmail: "rahul@gmail.com",
-        ownerShopName: "Elite Salon",
-        ownerShopStreet: "Navrangpura",
-        ownerShopState: "Gujarat",
-      },
-    },
-  ];
-
-  // 🔥 Fetch API
+  // 🔥 FETCH API
   useEffect(() => {
+    if (!pincode) {
+      setProducts([]);
+      setLoading(false);
+      return;
+    }
+
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/products");
+        setLoading(true);
 
-        if (res.data.products?.length) {
-          setProducts(res.data.products);
-        } else {
-          setProducts(dummyProducts);
-        }
+        const res = await axios.get(
+          `http://localhost:5000/customer/get-product-customer/${pincode}`
+        );
+
+        setProducts(res.data.data || []);
       } catch (err) {
-        console.log("API failed → using dummy products");
-        setProducts(dummyProducts);
+        console.log(err);
+        setProducts([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchProducts();
-  }, []);
+  }, [pincode]);
 
-  // 🔥 Buy Now
+  // 🔥 BUY NOW
   const handleBuyNow = (product) => {
     navigate("/productcheckout", {
       state: {
@@ -61,10 +53,15 @@ const CustomerProducts = () => {
         ownerId: product.ownerId?._id,
         shopName: product.ownerId?.ownerShopName,
         ownerEmail: product.ownerId?.ownerEmail,
-        address: `${product.ownerId?.ownerShopStreet}, ${product.ownerId?.ownerShopState}`,
+        address: `${product.ownerId?.ownerShopCity}, ${product.ownerId?.ownerShopPincode}`,
       },
     });
   };
+
+  // ⭐ PREVIEW MODE (ONLY 4 PRODUCTS)
+  const displayProducts = isPreview
+    ? products.slice(0, 4)
+    : products;
 
   if (loading) {
     return <p className="no-data">Loading products...</p>;
@@ -72,69 +69,88 @@ const CustomerProducts = () => {
 
   return (
     <div className="dashboard-content">
-      <div className="content-header">
-        <h2>Explore Products</h2>
-      </div>
 
-      <div className="customer-product-grid">
-        {products.map((product) => (
-          <div key={product._id} className="customer-product-card">
+    {!isPreview && (
+  <div className="content-header">
+    <h2>Our Products</h2>
+  </div>
+)}
 
-            {/* IMAGE */}
-            <img
-              src={
-                product.productImages?.[0] !== "default.jpg"
-                  ? `http://localhost:5000/uploads/products/${product.productImages[0]}`
-                  : "https://via.placeholder.com/300"
-              }
-              alt={product.productName}
-            />
+      {/* NO DATA */}
+      {displayProducts.length === 0 ? (
+        <p className="no-data">No products available in your area</p>
+      ) : (
+        <div className="customer-product-grid">
 
-            {/* BODY */}
-            <div className="product-body">
+          {displayProducts.map((product) => (
+            <div key={product._id} className="customer-product-card">
 
-              {/* SHOP NAME */}
-              <span className="shop-name">
-                {product.ownerId?.ownerShopName}
-              </span>
-
-              {/* EMAIL */}
-              <span className="owner-email">
-                {product.ownerId?.ownerEmail}
-              </span>
-
-              {/* ADDRESS */}
-              <span className="service-address">
-                <FaMapMarkerAlt />{" "}
-                {product.ownerId?.ownerShopStreet},{" "}
-                {product.ownerId?.ownerShopState}
-              </span>
-
-              <h3>{product.productName}</h3>
-
-              <p className="desc">{product.productDescription}</p>
-
-              {/* PRICE */}
-              <div className="product-meta">
-                <span>
-                  <FaRupeeSign /> {product.productPrice}
-                </span>
+              {/* IMAGE */}
+              <div className="product-image">
+                <img
+                  src={
+                    product.productImages?.length > 0
+                      ? `http://localhost:5000/uploads/productImages/${product.productImages[0]}`
+                      : "https://via.placeholder.com/300"
+                  }
+                  alt={product.productName}
+                />
               </div>
 
-              {/* BUTTON */}
-              <div className="service-actions">
-                <button
-                  className="book-btn"
-                  onClick={() => handleBuyNow(product)}
-                >
-                  Buy Now
-                </button>
-              </div>
+              {/* BODY */}
+              <div className="product-body">
 
+                <div className="product-content">
+                  <div className="shop-name">
+                    {product.ownerId?.ownerShopName}
+                  </div>
+
+                  <div className="owner-email">
+                    {product.ownerId?.ownerEmail}
+                  </div>
+
+                  <div className="service-address">
+                    📍 {product.ownerId?.ownerShopCity},{" "}
+                    {product.ownerId?.ownerShopPincode}
+                  </div>
+
+                  <h3>{product.productName}</h3>
+
+                  <p className="desc">{product.productDescription}</p>
+                </div>
+
+                <div className="product-footer">
+                  <div className="product-meta">
+                    <FaRupeeSign /> {product.productPrice}
+                  </div>
+
+                  <button
+                    className="buy-now-btn"
+                    onClick={() => handleBuyNow(product)}
+                  >
+                    Buy Now
+                  </button>
+                </div>
+
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+
+        </div>
+      )}
+
+      {/* SEE MORE (ONLY IN PREVIEW) */}
+      {isPreview && (
+        <div style={{ textAlign: "right", marginTop: "10px" }}>
+          <button
+            className="view-all-btn"
+            onClick={() => navigate("/shop")}
+          >
+            See More
+          </button>
+        </div>
+      )}
+
     </div>
   );
 };

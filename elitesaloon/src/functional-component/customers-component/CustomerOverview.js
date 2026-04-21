@@ -1,37 +1,83 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import CustomerServices from "./CustomerServices";
+
+import CustomerProducts from "./CustomerProducts";
 import {
   FaCalendarAlt,
   FaCheck,
   FaStar,
   FaPlus,
-  FaShoppingBag,
   FaClock,
 } from "react-icons/fa";
 
 const CustomerOverview = ({
   customer,
-  appointments,
   navigate,
   setActiveSection,
 }) => {
 
+  const [appointments, setAppointments] = useState([]);
+  
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const customerId = localStorage.getItem("customerId");
+
+        const res = await axios.get(
+          `http://localhost:5000/appointment/customer-appointments/${customerId}`
+        );
+
+        setAppointments(res.data.appointments || []);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchAppointments();
+  }, []);
+
   const upcoming = appointments.filter(
-    (a) => a.appointmentStatus === "CONFIRMED"
+    (a) => a.appointmentStatus?.toLowerCase() === "confirmed"
   );
 
   const completed = appointments.filter(
-    (a) => a.appointmentStatus === "COMPLETED"
+    (a) => a.appointmentStatus?.toLowerCase() === "completed"
   );
 
   return (
     <div className="dashboard-content">
 
-      {/* Header */}
-      <div className="content-header">
-        <h2>Welcome back, {customer?.customerName || "User"}!</h2>
-      </div>
+      {/* ✅ Header with Button */}
+     <div
+  className="content-header"
+  style={{
+    display: "flex",
+    flexDirection: "column",   // ✅ vertical layout
+    alignItems: "flex-start",
+    gap: "10px",               // ✅ spacing between text & button
+  }}
+>
+  <h2 style={{ margin: 0 }}>
+    Welcome back, {customer?.customerName || "User"}!
+  </h2>
 
-      {/* ✅ Stats */}
+  <button
+    className="action-btn-primary"
+    onClick={() =>
+      navigate("/bookappointment", {
+        state: {
+          customerPincode: customer?.customerPincode || "",
+        },
+      })
+    }
+  >
+    <FaPlus /> Book Appointment
+  </button>
+</div>
+
+      {/* Stats */}
       <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-icon upcoming">
@@ -66,7 +112,7 @@ const CustomerOverview = ({
         </div>
       </div>
 
-      {/* ✅ Upcoming Appointments */}
+      {/* Upcoming Appointments */}
       <div className="section-card">
         <div className="section-header">
           <h3>Upcoming Appointments</h3>
@@ -116,34 +162,41 @@ const CustomerOverview = ({
         </div>
       </div>
 
-      {/* ✅ Quick Actions */}
-      <div className="section-card">
-        <div className="section-header">
-          <h3>Quick Actions</h3>
-        </div>
+<div className="section-card">
+  <div className="section-header">
+    <h3>Popular Services</h3>
 
-        <div className="quick-actions">
-          <button
-            className="action-btn-primary"
-            onClick={() =>
-              navigate("/bookappointment", {
-                state: {
-                  customerPincode: customer?.customerPincode || "",
-                },
-              })
-            }
-          >
-            <FaPlus /> Book Appointment
-          </button>
+    <button
+      className="view-all-btn"
+      onClick={() => setActiveSection("services")}
+    >
+      See More
+    </button>
+  </div>
 
-          <button
-            className="action-btn-secondary"
-            onClick={() => navigate("/shop")}
-          >
-            <FaShoppingBag /> Browse Products
-          </button>
-        </div>
-      </div>
+  <CustomerServices
+    customer={customer}
+    isPreview={true}
+  />
+</div>
+{/* Products Preview */}
+<div className="section-card">
+  <div className="section-header">
+    <h3>Recommended Products</h3>
+
+    <button
+      className="view-all-btn"
+      onClick={() => navigate("/shop")}
+    >
+      See More
+    </button>
+  </div>
+
+  <CustomerProducts
+    customer={customer}
+    isPreview={true}
+  />
+</div>
 
     </div>
   );

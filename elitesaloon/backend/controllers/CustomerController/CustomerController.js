@@ -1,4 +1,7 @@
 const CustomerModel = require("../../models/CustomerModel");
+const OwnerModel = require("../../models/OwnerModel");
+const ProductModel = require("../../models/ProductModel");
+const ServiceModel = require("../../models/ServiceModel");
 const bcrypt = require("bcrypt");
 const { customerFindUsingEmail } = require("./CustomerOptimizeCode");
 const  emailSendOptimizeCode = require("../../utils/emailSendOptimizeCode");
@@ -482,6 +485,103 @@ exports.changeCustomerPassword = async (req, res) => {
 };
 
 
-// exports.getServiceForCustomerByPin = async (req,res)=>{
+exports.getServiceForCustomerByPin = async (req,res)=>{
+  try {
+   
+    const { customerPincode } = req.params;
 
-// }
+    if (!customerPincode) {
+      return res.status(400).json({
+        success: false,
+        message: "Customer pincode is required"
+      });
+    }
+
+    const owners = await OwnerModel.find({
+      ownerShopPincode: String(customerPincode),
+      ownerAccountStatus: "ACTIVE",  
+      ownerApprovedStatus: "APPROVE"
+    });
+    console.log("OWNERS FOUND:", owners); 
+
+    if (owners.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No salons found in this area"
+      });
+    }
+ 
+    const ownerIds = owners.map(owner => owner._id);
+
+    const services = await ServiceModel.find({
+      ownerId: { $in: ownerIds }
+    }).populate("ownerId", "ownerShopName ownerShopStreet ownerShopDistrict ownerShopCity ownerShopPincode ownerEmail")
+
+    res.status(200).json({
+      success: true,
+      totalOwners: owners.length,
+      totalServices: services.length,
+      data: services
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error"
+    });
+  }
+}
+
+exports.getProductsForCustomerByPin = async (req,res)=>{
+  try {
+   
+    const { customerPincode } = req.params;
+
+    if (!customerPincode) {
+      return res.status(400).json({
+        success: false,
+        message: "Customer pincode is required"
+      });
+    }
+    
+
+
+    const owners = await OwnerModel.find({
+      ownerShopPincode: customerPincode,
+      ownerAccountStatus: "ACTIVE",   
+      ownerApprovedStatus: "APPROVE" 
+    });
+
+    // console.log("Owners found for pincode " + customerPincode + " : " + owners.length + " owners" + owners);
+
+    if (owners.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No shops found in this area"
+      });
+    }
+
+    // Extract owner IDs
+    const ownerIds = owners.map(owner => owner._id);
+
+    const products = await ProductModel.find({
+      ownerId: { $in: ownerIds }
+    }).populate("ownerId", "ownerShopName ownerEmail ownerShopCity ownerShopPincode")
+    // .populate("ownerId", "ownerShopName ownerShopCity ownerShopPincode");
+    
+    res.status(200).json({
+      success: true,
+      totalOwners: owners.length,
+      totalProducts: products.length,
+      data: products
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error"
+    });
+  }
+}
