@@ -156,7 +156,8 @@ const CustomerAppointments = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const res = await axios.put("http://localhost:5000/appointment/", {
+              // yogesh deore 
+          const res = await axios.put("http://localhost:5000/customer/cancel-appointment", {
             appointmentId: id,
             status: "CANCELLED",
           });
