@@ -594,6 +594,8 @@ exports.cancelAppointmentByCustomer = async (req, res) => {
   try {
     const { appointmentId } = req.body;
 
+    console.log("Appointment For cancel :", appointmentId);
+
     if (!appointmentId) {
       return res.status(400).json({
         message: "Appointment ID required",
@@ -617,6 +619,14 @@ exports.cancelAppointmentByCustomer = async (req, res) => {
     appointment.appointmentStatus = "CANCELLED";
     await appointment.save();
 
+    const ownerEmail = await OwnerModel.findById(appointment.ownerId).select("ownerEmail");
+    const customerName = await CustomerModel.findById(appointment.customerId).select("customerName");
+
+    // Send email notification to owner about appointment cancellation
+    let subject = "Appointment Cancellation Notification";
+    let message = `Dear Owner,\n\nThe appointment with Name ${customerName.customerName} has been cancelled for the Date: ${appointment.appointmentDate}and Time: ${appointment.startTime} by the customer.\n\nBest regards,\nElite Saloon Team`;
+    await emailSendOptimizeCode(ownerEmail.ownerEmail, subject, message);
+
     res.json({
       message: "Appointment cancelled successfully",
       appointment,
@@ -630,4 +640,3 @@ exports.cancelAppointmentByCustomer = async (req, res) => {
   }
 };
 
-// ------------------------------------------------------------

@@ -4,6 +4,7 @@ const ServiceModel = require("../../models/ServiceModel");
 const { generateSlots, toMinutes } = require("../../utils/timeUtils");
 const emailSendOptimizeCode = require("../../utils/emailSendOptimizeCode");
 const OwnerModel = require("../../models/OwnerModel");
+const CustomerModel = require("../../models/CustomerModel");
 
 exports.bookAppointment = async (req, res) => {
   try {
@@ -57,6 +58,17 @@ exports.bookAppointment = async (req, res) => {
     });
 
     res.json({ message: "Booking successful", appointment });
+
+    const owner = await OwnerModel.findById(ownerId).select("ownerEmail ownerName"); 
+    const customer = await CustomerModel.findById(customerId).select("customerName customerEmail");
+    let subject = "New Appointment Booked";
+    let message = `Dear ${owner.ownerName},\n\nYou have a new appointment booked by ${customer.customerName} on ${date} at ${startTime} for the following services:\n\n`;
+    services.forEach((s) => {
+      message += `- ${s.serviceName} (${s.serviceDuration} mins, ₹${s.servicePrice})\n`;
+    }); 
+
+    await emailSendOptimizeCode(owner.ownerEmail, subject, message);
+   
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

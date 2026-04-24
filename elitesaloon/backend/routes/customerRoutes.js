@@ -27,6 +27,7 @@ routes.post(
 
 routes.get("/get-product-customer/:customerPincode", CustomerController.getProductsForCustomerByPin);
 routes.get("/get-service-customer/:customerPincode", CustomerController.getServiceForCustomerByPin);
+routes.put("/cancel-appointment", CustomerController.cancelAppointmentByCustomer);
 
 module.exports = routes;
 
