@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from "react";
 import "./CustomerDashboard.css";
-
+import CustomerOverview from "./CustomerOverview";
 import CustomerProfile from "./CustomerProfile";
 import CustomerAppointments from "./CustomerAppointments";
-
+import CustomerServices from "./CustomerServices";
+import CustomerProducts from "./CustomerProducts";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import {
   FaUser,
   FaCalendarAlt,
   FaShoppingBag,
-  FaHeart,
+
   FaStar,
   FaEdit,
-  FaPlus,
+
   FaSignOutAlt,
-  FaClock,
-  FaCheck,
+
   FaCog,
 } from "react-icons/fa";
 
@@ -37,29 +37,26 @@ const CustomerDashboard = () => {
 
   //session
   useEffect(() => {
- 
     const isLoggedIn = localStorage.getItem("isLoggedIn");
     const customerId = localStorage.getItem("customerId");
 
     if (!isLoggedIn || !customerId) {
-   
       navigate("/customerlogin");
     }
   }, [navigate]);
 
-
-  const getStatusLabel = (status) => {
-    switch (status) {
-      case "CONFIRMED":
-        return "Upcoming";
-      case "COMPLETED":
-        return "Completed";
-      case "CANCELLED":
-        return "Cancelled";
-      default:
-        return status;
-    }
-  };
+  // const getStatusLabel = (status) => {
+  //   switch (status) {
+  //     case "CONFIRMED":
+  //       return "Upcoming";
+  //     case "COMPLETED":
+  //       return "Completed";
+  //     case "CANCELLED":
+  //       return "Cancelled";
+  //     default:
+  //       return status;
+  //   }
+  // };
 
   // Mock feedback
   const feedbacks = [
@@ -73,7 +70,6 @@ const CustomerDashboard = () => {
   ];
 
   const renderSidebar = () => {
-   
     console.log("IMAGE:", customer.customerProfileImage);
 
     return (
@@ -108,21 +104,20 @@ const CustomerDashboard = () => {
           >
             <FaCalendarAlt /> My Bookings
           </button>
-         
-<button
-  className={`nav-item ${activeSection === "services" ? "active" : ""}`}
-  onClick={() => setActiveSection("services")}
->
-  <FaShoppingBag /> Services
-</button>
 
-<button
-  className={`nav-item ${activeSection === "products" ? "active" : ""}`}
-  onClick={() => setActiveSection("products")}
->
-  <FaShoppingBag /> Products
-</button>
-         
+          <button
+            className={`nav-item ${activeSection === "services" ? "active" : ""}`}
+            onClick={() => setActiveSection("services")}
+          >
+            <FaShoppingBag /> Services
+          </button>
+
+          <button
+            className={`nav-item ${activeSection === "products" ? "active" : ""}`}
+            onClick={() => setActiveSection("products")}
+          >
+            <FaShoppingBag /> Products
+          </button>
 
           <button
             className={`nav-item ${activeSection === "feedback" ? "active" : ""}`}
@@ -143,8 +138,8 @@ const CustomerDashboard = () => {
           <button
             className="logout-btn"
             onClick={() => {
-              localStorage.clear(); 
-              navigate("/customerlogin"); 
+              localStorage.clear();
+              navigate("/customerlogin");
             }}
           >
             <FaSignOutAlt /> Logout
@@ -154,132 +149,130 @@ const CustomerDashboard = () => {
     );
   };
 
-  const renderOverview = () => (
-    <div className="dashboard-content">
-      <div className="content-header">
-        <h2>Welcome back, {customer.customerName}!</h2>
-        <p>Here's what's happening with your account</p>
-      </div>
+  // const renderOverview = () => (
+  //   <div className="dashboard-content">
+  //     <div className="content-header">
+  //       <h2>Welcome back, {customer.customerName}!</h2>
+  //     </div>
 
-      {/* Stats Cards */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon upcoming">
-            <FaCalendarAlt />
-          </div>
-          <div className="stat-info">
-            <span className="stat-value">
-              {
-                appointments.filter((a) => a.appointmentStatus === "CONFIRMED")
-                  .length
-              }
-            </span>
-            <span className="stat-label">Upcoming Appointments</span>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon completed">
-            <FaCheck />
-          </div>
-          <div className="stat-info">
-            <span className="stat-value">
-              {
-                appointments.filter((a) => a.appointmentStatus === "COMPLETED")
-                  .length
-              }
-            </span>
-            <span className="stat-label">Completed Visits</span>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon saved">
-            <FaHeart />
-          </div>
-        
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon points">
-            <FaStar />
-          </div>
-          <div className="stat-info">
-            <span className="stat-value">{customer.loyaltyPoints}</span>
-            <span className="stat-label">Loyalty Points</span>
-          </div>
-        </div>
-      </div>
+  //     {/* Stats Cards */}
+  //     <div className="stats-grid">
+  //       <div className="stat-card">
+  //         <div className="stat-icon upcoming">
+  //           <FaCalendarAlt />
+  //         </div>
+  //         <div className="stat-info">
+  //           <span className="stat-value">
+  //             {
+  //               appointments.filter((a) => a.appointmentStatus === "CONFIRMED")
+  //                 .length
+  //             }
+  //           </span>
+  //           <span className="stat-label">Upcoming Appointments</span>
+  //         </div>
+  //       </div>
+  //       <div className="stat-card">
+  //         <div className="stat-icon completed">
+  //           <FaCheck />
+  //         </div>
+  //         <div className="stat-info">
+  //           <span className="stat-value">
+  //             {
+  //               appointments.filter((a) => a.appointmentStatus === "COMPLETED")
+  //                 .length
+  //             }
+  //           </span>
+  //           <span className="stat-label">Completed Visits</span>
+  //         </div>
+  //       </div>
+  //       <div className="stat-card">
+  //         <div className="stat-icon saved">
+  //           <FaHeart />
+  //         </div>
+  //       </div>
+  //       <div className="stat-card">
+  //         <div className="stat-icon points">
+  //           <FaStar />
+  //         </div>
+  //         <div className="stat-info">
+  //           <span className="stat-value">{customer.loyaltyPoints}</span>
+  //           <span className="stat-label">Loyalty Points</span>
+  //         </div>
+  //       </div>
+  //     </div>
 
-      {/* Upcoming Appointments */}
-      <div className="section-card">
-        <div className="section-header">
-          <h3>Upcoming Appointments</h3>
-          <button
-            className="view-all-btn"
-            onClick={() => setActiveSection("appointments")}
-          >
-            View All
-          </button>
-        </div>
-        <div className="appointments-list">
-          {appointments
-            .filter((a) => a.appointmentStatus === "CONFIRMED")
-            .map((apt) => (
-              <div key={apt._id} className="appointment-item">
-                <div className="appointment-info">
-                  <h4>{apt.services?.map((s) => s.serviceName).join(", ")}</h4>
-                  <div className="appointment-details">
-                    <span>
-                      <FaCalendarAlt /> {apt.appointmentDate}
-                    </span>
-                    <span>
-                      <FaClock /> {apt.startTime} - {apt.endTime}
-                    </span>
-                  </div>
-                </div>
-                <div className="appointment-actions">
-                  <span className="appointment-price">₹{apt.totalPrice}</span>
-                  <span
-                    className={`status-badge ${apt.appointmentStatus.toLowerCase()}`}
-                  >
-                    {getStatusLabel(apt.appointmentStatus)}
-                  </span>
-                </div>
-              </div>
-            ))}
-          {appointments.filter((a) => a.appointmentStatus === "CONFIRMED")
-            .length === 0 && (
-            <p className="no-data">No upcoming appointments</p>
-          )}
-        </div>
-      </div>
+  //     {/* Upcoming Appointments */}
+  //     <div className="section-card">
+  //       <div className="section-header">
+  //         <h3>Upcoming Appointments</h3>
+  //         <button
+  //           className="view-all-btn"
+  //           onClick={() => setActiveSection("appointments")}
+  //         >
+  //           View All
+  //         </button>
+  //       </div>
+  //       <div className="appointments-list">
+  //         {appointments
+  //           .filter((a) => a.appointmentStatus === "CONFIRMED")
+  //           .map((apt) => (
+  //             <div key={apt._id} className="appointment-item">
+  //               <div className="appointment-info">
+  //                 <h4>{apt.services?.map((s) => s.serviceName).join(", ")}</h4>
+  //                 <div className="appointment-details">
+  //                   <span>
+  //                     <FaCalendarAlt /> {apt.appointmentDate}
+  //                   </span>
+  //                   <span>
+  //                     <FaClock /> {apt.startTime} - {apt.endTime}
+  //                   </span>
+  //                 </div>
+  //               </div>
+  //               <div className="appointment-actions">
+  //                 <span className="appointment-price">₹{apt.totalPrice}</span>
+  //                 <span
+  //                   className={`status-badge ${apt.appointmentStatus.toLowerCase()}`}
+  //                 >
+  //                   {getStatusLabel(apt.appointmentStatus)}
+  //                 </span>
+  //               </div>
+  //             </div>
+  //           ))}
+  //         {appointments.filter((a) => a.appointmentStatus === "CONFIRMED")
+  //           .length === 0 && (
+  //           <p className="no-data">No upcoming appointments</p>
+  //         )}
+  //       </div>
+  //     </div>
 
-      {/* Quick Actions */}
-      <div className="section-card">
-        <div className="section-header">
-          <h3>Quick Actions</h3>
-        </div>
-        <div className="quick-actions">
-          <button
-            className="action-btn-primary"
-            onClick={() =>
-              navigate("/bookappointment", {
-                state: {
-                  customerPincode: customer?.customerPincode || "",
-                },
-              })
-            }
-          >
-            <FaPlus /> Book New Appointment
-          </button>
-          <button
-            className="action-btn-secondary"
-            onClick={() => navigate("/shop")}
-          >
-            <FaShoppingBag /> Browse Products
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+  //     {/* Quick Actions */}
+  //     <div className="section-card">
+  //       <div className="section-header">
+  //         <h3>Quick Actions</h3>
+  //       </div>
+  //       <div className="quick-actions">
+  //         <button
+  //           className="action-btn-primary"
+  //           onClick={() =>
+  //             navigate("/bookappointment", {
+  //               state: {
+  //                 customerPincode: customer?.customerPincode || "",
+  //               },
+  //             })
+  //           }
+  //         >
+  //           <FaPlus /> Book New Appointment
+  //         </button>
+  //         <button
+  //           className="action-btn-secondary"
+  //           onClick={() => navigate("/shop")}
+  //         >
+  //           <FaShoppingBag /> Browse Products
+  //         </button>
+  //       </div>
+  //     </div>
+  //   </div>
+  // );
 
   const renderSavedServices = () => (
     <div className="dashboard-content">
@@ -289,8 +282,6 @@ const CustomerDashboard = () => {
           Browse More
         </button>
       </div>
-
-    
     </div>
   );
 
@@ -302,8 +293,6 @@ const CustomerDashboard = () => {
           Browse Shop
         </button>
       </div>
-
-    
     </div>
   );
 
@@ -374,12 +363,21 @@ const CustomerDashboard = () => {
 
   const renderContent = () => {
     switch (activeSection) {
-      case "overview":
-        return renderOverview();
+    case "overview":
+  return (
+    <CustomerOverview
+      customer={customer}
+      appointments={appointments}
+      navigate={navigate}
+      setActiveSection={setActiveSection}
+    />
+  );
       case "bookappointments":
         return <CustomerAppointments />;
-      // case "appointments":
-      //   return <AppointmentBook />;
+      case "services":
+        return <CustomerServices customer={customer} />;
+      case "products":
+        return <CustomerProducts customer={customer} />;
       case "saved-services":
         return renderSavedServices();
       case "wishlist":
@@ -391,7 +389,7 @@ const CustomerDashboard = () => {
           <CustomerProfile customer={customer} setCustomer={setCustomer} />
         );
       default:
-        return renderOverview();
+        return <CustomerOverview/>;
     }
   };
 

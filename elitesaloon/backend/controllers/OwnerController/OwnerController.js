@@ -237,8 +237,9 @@ exports.updateOwnerProfile = async (req, res) => {
 
 exports.forgotPassword = async (req, res) => {
   const { ownerEmail } = req.body;
+ console.log("Owner Email Received:", ownerEmail);
   const owner = await OwnerModel.findOne({ ownerEmail });
-
+ console.log("Owner Found:", owner);
   if (owner != null) {
     let subject = "Mail for Reset Password in Elite Saloon";
     let message =

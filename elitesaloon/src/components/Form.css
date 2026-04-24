@@ -701,3 +701,78 @@ select::-ms-expand {
   color: white;
 }
 
+
+/* ====== date picker ====== */
+.custom-date-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+/* Main calendar box */
+.react-datepicker {
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  border: none;
+}
+
+/* Header */
+.react-datepicker__header {
+  background-color: #d4af37;
+  color: white;
+  border-bottom: none;
+}
+
+/* Month + Year text */
+.react-datepicker__current-month,
+.react-datepicker-time__header,
+.react-datepicker-year-header {
+  color: white;
+}
+
+/* Selected date (ONLY this should be colored) */
+.react-datepicker__day--selected {
+  background-color: #d4af37 ;
+  color: white ;
+}
+
+/* Hover effect */
+.react-datepicker__day:hover {
+  background-color: #f3e3a1 ;
+}
+
+.react-datepicker__day--today {
+  background-color: transparent ;
+  color: black ;
+  font-weight: normal ;
+}
+
+.react-datepicker__day--keyboard-selected {
+  background-color: transparent;
+  color: black ;
+}
+
+/* YEAR DROPDOWN FIX */
+.react-datepicker__year-dropdown,
+.react-datepicker__year-option {
+  background-color: white ;
+  color: black ;
+}
+
+/* Selected year */
+.react-datepicker__year-option--selected {
+  background-color: #d4af37 ;
+  color: white ;
+}
+
+/* Remove blue from year hover/select */
+.react-datepicker__year-option--keyboard-selected {
+  background-color: transparent ;
+  color: black ;
+}
+
+.react-datepicker__year-option:hover {
+  background-color: #f3e3a1 ;
+}

@@ -228,7 +228,7 @@ exports.getOwnersAppointments = async (req, res) => {
     const appointments = await AppointmentModel.find({ ownerId: ownerId })
       .populate("customerId", "customerName customerEmail")
       .populate("staffId", "staffName staffEmail")
-      .populate("ownerId", "ownerName")
+      .populate("ownerId", "ownerName ownerShopName")
       .populate("services.serviceId", "serviceName servicePrice");
 
     console.log("Particular Owner Appointments :", appointments);

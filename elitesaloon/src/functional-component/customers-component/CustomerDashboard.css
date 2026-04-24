@@ -3,31 +3,22 @@
 /* CSS Variables */
 .customer-dashboard {
   --primary-gold: #d4af37;
-  --mobile-overlay-bg: rgba(0, 0, 0, 0.5);
-  --hamburger-color: var(--charcoal);
-  --sidebar-z: 1001;
-
   --secondary-gold: #b8962e;
   --rose-gold: #b76e79;
   --burgundy: #800020;
   --charcoal: #36454f;
-  --slate-gray: #708090;
   --soft-gray: #e8e8e8;
   --light-bg: #fafafa;
   --off-white: #f8f5f2;
-  --text-dark: #2d2d2d;
-  --text-medium: #555555;
-  --text-light: #ffffff;
-  --text-muted: #888888;
-  --accent-teal: #008080;
-  --transition: all 0.3s ease;
+  --text-muted: #888;
+
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 8px 25px rgba(0, 0, 0, 0.12);
-  --radius-sm: 8px;
+
   --radius-md: 12px;
   --radius-lg: 20px;
-  --animate-delay: 0.1s;
-  --ripple-color: rgba(255, 255, 255, 0.6);
+
+  font-family: "Inter", sans-serif;
 }
 
 /* Main Layout */
@@ -188,11 +179,6 @@
   flex: 1;
   margin-left: 300px;
   padding: 80px 40px 40px;
-  width: calc(100vw - 300px);
-  min-height: 100vh;
-  overflow-x: hidden;
-  overflow-y: auto;
-  position: relative;
 }
 
 .mobile-menu-toggle {
@@ -289,21 +275,14 @@
 }
 
 .stat-card {
-  background: var(--text-light);
-  padding: 25px;
+  background: #fff;
+  padding: 22px;
   border-radius: var(--radius-lg);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 15px;
   box-shadow: var(--shadow-sm);
-  transition:
-    var(--transition),
-    transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  min-height: 140px;
-  position: relative;
-  animation: fadeInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-  animation-delay: calc(var(--animate-delay) * var(--order, 1));
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  transition: 0.3s;
 }
 
 @keyframes fadeInUp {
@@ -331,23 +310,17 @@
 }
 
 .stat-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: var(--shadow-md);
-}
-
-.stat-card:hover {
   transform: translateY(-5px);
   box-shadow: var(--shadow-md);
 }
 
 .stat-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: var(--radius-md);
+  width: 55px;
+  height: 55px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
 }
 
 .stat-icon.upcoming {
@@ -376,7 +349,7 @@
 }
 
 .stat-value {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 700;
   color: var(--charcoal);
 }
@@ -388,11 +361,11 @@
 
 /* Section Card */
 .section-card {
-  background: var(--text-light);
+  background: #fff;
+  padding: 22px;
   border-radius: var(--radius-lg);
-  padding: 25px;
   box-shadow: var(--shadow-sm);
-  margin-bottom: 30px;
+  margin-bottom: 25px;
 }
 
 .section-header {
@@ -643,6 +616,7 @@
   display: flex;
   gap: 10px;
   align-items: center;
+  
 }
 
 /* Wishlist Grid */
@@ -990,7 +964,6 @@
   }
 }
 
-
 @media (max-width: 992px) {
   .mobile-menu-toggle {
     display: block;
@@ -1013,29 +986,23 @@
 }
 
 @media (max-width: 768px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .dashboard-main {
+    margin-left: 0;
+    padding: 15px;
   }
+
 
   .dashboard-main {
     padding: 15px;
   }
 }
 
-@media (max-width: 576px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .quick-actions {
-    flex-direction: column;
-  }
-}
 
 @media (max-width: 576px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
+   .stats-grid {
+    grid-template-columns: 1fr 1fr;
   }
+
 
   .quick-actions {
     flex-direction: column;
@@ -1061,9 +1028,8 @@
   }
 }
 
-
 /*  appoinmetnt book form*/
-/* ===== BOOKING MODAL ===== *//* ===== BOOKING MODAL (Overlay) ===== */
+/* ===== BOOKING MODAL ===== */ /* ===== BOOKING MODAL (Overlay) ===== */
 .booking-modal {
   position: fixed;
   top: 0;
@@ -1261,17 +1227,25 @@ button[type="button"].btn-primary {
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Responsive Fix */
 @media (max-width: 600px) {
-  .booking-card { padding: 25px; }
-  .back-arrow span { display: none; } /* Mobile pe sirf arrow dikhega */
+  .booking-card {
+    padding: 25px;
+  }
+  .back-arrow span {
+    display: none;
+  } /* Mobile pe sirf arrow dikhega */
 }
-
-
 
 /* =========================================
    ELITE SALOON MODERN TABLE CSS - UPDATED
@@ -1367,9 +1341,9 @@ button[type="button"].btn-primary {
 /* 7. Service Tags (Optimized for 5+ Services) */
 .service-tags {
   display: flex;
-  flex-wrap: wrap;    /* Services zyada hone par niche line mein jayengi */
+  flex-wrap: wrap; /* Services zyada hone par niche line mein jayengi */
   gap: 6px;
-  max-width: 300px;   /* Column ko bahut zyada choda hone se rokega */
+  max-width: 300px; /* Column ko bahut zyada choda hone se rokega */
 }
 
 .tag {
@@ -1401,9 +1375,18 @@ button[type="button"].btn-primary {
   text-align: center;
 }
 
-.status-pill.confirmed { background: #e6fcf5; color: #0ca678; }
-.status-pill.pending { background: #fff9db; color: #f08c00; }
-.status-pill.cancelled { background: #fff5f5; color: #fa5252; }
+.status-pill.confirmed {
+  background: #e6fcf5;
+  color: #0ca678;
+}
+.status-pill.pending {
+  background: #fff9db;
+  color: #f08c00;
+}
+.status-pill.cancelled {
+  background: #fff5f5;
+  color: #fa5252;
+}
 
 /* 9. Action Buttons */
 .cancel-action-btn {
@@ -1430,4 +1413,276 @@ button[type="button"].btn-primary {
   font-size: 12px;
   color: #adb5bd;
   font-style: italic;
+}
+
+/* ===== CUSTOMER SERVICE CARDS ===== */
+.customer-service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+   align-items: stretch;
+}
+
+.customer-service-card {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: 0.3s;
+  height: 100%; 
+  display: flex;
+  flex-direction: column;
+}
+
+.customer-service-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-md);
+}
+
+.customer-service-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.service-body {
+  padding: 14px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.service-body h3 {
+  font-size: 16px;
+  color: var(--charcoal);
+  margin-bottom: 5px;
+}
+
+.service-body .desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  flex: 1;
+  margin-bottom: 10px;
+}
+
+/* Meta */
+.service-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: auto;
+  font-weight: 600;
+  color: var(--burgundy);
+}
+
+/* Buttons */
+.service-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+    width: 100%; 
+}
+
+.book-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: var(--burgundy);
+  color: #fff;
+  cursor: pointer;
+   width: 100%;   
+
+}
+
+.view-btn {
+  background: #f1f3f5;
+  color: #333;
+}
+.book-btn:hover {
+  background: #600018;
+}
+shop-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--burgundy);
+  text-transform: uppercase;
+}
+.shop-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--burgundy);
+  text-transform: uppercase;
+}
+
+
+.owner-email,
+.service-address {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.filter-bar {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: var(--shadow-sm);
+  flex-wrap: wrap;
+  margin: 20px 0;
+}
+
+.filter-bar input,
+.filter-bar select {
+  flex: 1;
+  min-width: 200px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #eee;
+  background: #fafafa;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.filter-bar input:focus,
+.filter-bar select:focus {
+  border-color: var(--burgundy);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.08);
+}
+
+
+/* ===== PRODUCT GRID ===== *//* ===== PRODUCT GRID ===== */
+.customer-product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 25px;
+  align-items: stretch;
+  padding: 10px;
+}
+
+/* ===== PRODUCT CARD ===== */
+.customer-product-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+min-height: 480px; /* Perfect balanced height */
+  overflow: hidden;
+  border: 1px solid #eee;
+}
+
+.customer-product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+  border-color: #800020; /* Burgundy border on hover */
+}
+
+/* IMAGE CONTAINER */
+.product-image {
+  height: 250px; /* 🔥 180px se badha kar 250px kar diya */
+  width: 100%;
+  background: #f9f9f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #f0f0f0;
+  overflow: hidden;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  /* 🔥 'cover' se image puri jagah bhar degi, 
+     lekin agar aap product cut-out nahi chahte toh 'contain' hi rakhein 
+     bas padding kam kar dein */
+  object-fit: contain; 
+  padding: 5px; /* Padding kam karne se image badi dikhegi */
+}
+/* BODY CONTENT */
+.product-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Pure space occupy karega */
+}
+
+.product-content {
+  flex: 1; /* Isse footer hamesha bottom mein rahega */
+}
+
+.shop-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #800020;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.owner-email,
+.service-address {
+  font-size: 12px;
+  color: #777;
+  margin-bottom: 2px;
+}
+
+.product-content h3 {
+  font-size: 17px;
+  font-weight: 600;
+  color: #333;
+  margin: 10px 0 6px 0;
+  /* 🔥 Fixed height for title alignment */
+  height: 42px; 
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.product-content .desc {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+  /* 🔥 Fixed height for description alignment */
+  height: 38px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+/* ===== FOOTER FIXED BOTTOM ===== */
+.product-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid #f5f5f5;
+}
+
+.product-meta {
+  font-size: 18px;
+  font-weight: 700;
+  color: #800020;
+}
+
+.buy-now-btn {
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  background: #800020;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+  white-space: nowrap;
+}
+
+.buy-now-btn:hover {
+  background: #600018;
 }
