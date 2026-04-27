@@ -1,4 +1,5 @@
 const OwnerModel = require("../../models/OwnerModel");
+const CustomerModel = require("../../models/CustomerModel");
 const emailSendOptimizeCode = require("../../utils/emailSendOptimizeCode");
 
 exports.approveOwner = async (req, res) =>{
@@ -79,3 +80,61 @@ exports.ownerRequest = async(req,res) =>{
         });
     }
 }
+
+exports.getAllOwnersList = async (req, res) => {
+    try {
+        const owners = await OwnerModel.find({
+            ownerVerified: true,
+            ownerApprovedStatus: "APPROVE"
+        }).select("-ownerPassword -ownerOTP"); // exclude password
+
+        if (!owners || owners.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No approved owners found"
+            });
+        }
+
+        console.log("Owners :", owners);
+
+        res.status(200).json({
+            success: true,
+            count: owners.length,
+            data: owners
+        });
+
+    } catch (error) {
+        console.error("Error fetching owners:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error"
+        });
+    }
+};
+
+exports.getAllCustomersList = async (req, res) => {
+    try {
+        const customers = await CustomerModel.find({
+            customerVerified: true,
+            customerStatus: "active"
+        }).select("-customerPassword -customerOTP"); // exclude password
+        
+        if (!customers || customers.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No active customers found"
+            });
+        }
+        res.status(200).json({
+            success: true,
+            count: customers.length,
+            data: customers
+        });
+    } catch (error) {
+        console.error("Error fetching customers:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error"
+        });
+    }
+};
