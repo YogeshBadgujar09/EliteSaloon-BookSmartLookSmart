@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash,FaTimes  } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import "../../components/Form.css";
 import useLoader from "../../hooks/useLoader";
@@ -90,7 +90,7 @@ const CustomerLogin = () => {
 
         console.log("Login Success:", data.customer);
 
-        navigate("/customerdashboard", { state: { customer } });
+        navigate("/customerdashboard", { state: { customer }, replace: true  });
       } else {
         Swal.fire({
           icon: "error",
@@ -112,7 +112,10 @@ const CustomerLogin = () => {
   return (
     <div className="form-wrapper login-wrapper">
       <CommonLoader loading={loading} />
-
+<FaTimes 
+  className="close-btn"
+  onClick={() => navigate(-1)}
+/>
       <h2>EliteSalon Login</h2>
 
       <form onSubmit={handleSubmit}>

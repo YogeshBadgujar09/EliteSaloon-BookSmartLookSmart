@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import PhoneInput from "react-phone-input-2";
 import Swal from "sweetalert2";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaTimes } from "react-icons/fa";
 import "react-phone-input-2/lib/style.css";
 import "../../components/Form.css";
 import { useNavigate } from "react-router-dom";
@@ -280,6 +280,10 @@ const CustomerRegistration = () => {
     <>
       <CommonLoader loading={loading} />
       <div className="form-wrapper">
+        <FaTimes 
+  className="close-btn"
+  onClick={() => navigate(-1)}
+/>
         <h2>EliteSalon Customer Registration</h2>
 
         <form onSubmit={handleSubmit}>

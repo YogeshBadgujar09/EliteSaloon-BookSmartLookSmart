@@ -96,6 +96,7 @@ const OwnerForgotPassword = () => {
       <CommonLoader loading={loading} />
 
       <div className="form-wrapper login-wrapper">
+        
         <h2>Owner Forgot Password</h2>
 
         <form onSubmit={handleSubmit}>

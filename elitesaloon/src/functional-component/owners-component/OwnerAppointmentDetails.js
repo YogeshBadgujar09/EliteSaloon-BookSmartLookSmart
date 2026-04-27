@@ -2,7 +2,12 @@ import React from "react";
 
 const OwnerAppointmentDetails = ({ data }) => {
   if (!data) return null;
-  
+
+
+  const handleComplete = () => {
+    console.log("Appointment ID:", data._id);
+    console.log("Status:", data.appointmentStatus);
+  };
 
   return (
     <div className="od-appointment-wrapper">
@@ -67,7 +72,12 @@ const OwnerAppointmentDetails = ({ data }) => {
       {/* BUTTON */}
       {data.appointmentStatus === "CONFIRMED" && (
         <div className="od-action">
-          <button className="od-btn od-btn-add">Complete Appointment</button>
+          <button 
+            className="od-btn od-btn-add"
+            onClick={handleComplete}   
+          >
+            Complete Appointment
+          </button>
         </div>
       )}
     </div>

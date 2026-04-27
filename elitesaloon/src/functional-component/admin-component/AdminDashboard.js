@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { FiGrid, FiUsers, FiLogOut } from "react-icons/fi";
 import "bootstrap/dist/css/bootstrap.min.css";
 import OwnerRequests from "./OwnerRequests";
+import CustomerList from "./CustomerList";
+import OwnerList from "./OwnerList";
 import "./AdminDashboard.css";
-
 const AdminDashboard = () => {
 
   const navigate = useNavigate();
@@ -13,6 +14,8 @@ const AdminDashboard = () => {
   const menuItems = [
     { id: "dashboard", icon: <FiGrid />, label: "Dashboard" },
     { id: "owner-requests", icon: <FiUsers />, label: "Owner Requests" },
+    { id: "customers", icon: <FiUsers />, label: "Customers" },
+     { id: "Owners", icon: <FiUsers />, label: "Owners" },
   ];
 
   const handleLogout = () => {
@@ -82,6 +85,8 @@ const AdminDashboard = () => {
         <div className="ad-content">
 
           {activeTab === "owner-requests" && <OwnerRequests />}
+{activeTab === "customers" && <CustomerList />}
+{activeTab === "Owners" && <OwnerList />}
 
           {activeTab === "dashboard" && (
 

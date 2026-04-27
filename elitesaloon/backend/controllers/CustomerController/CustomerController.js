@@ -361,7 +361,8 @@ exports.uploadProfileImage = async (req, res) => {
     if (req.file) {
       customer.customerProfileImage = req.file.filename; // Save the filename of the uploaded image to the customer's record in the database
     }else {
-      customer.customerProfileImage = "defaultProfile.png";
+      customer.customerProfileImage = "default/defaultProfile.png";
+      // customer.customerProfileImage = "defaultProfile.png";
     }
 
     // customer.customerStatus = "active";

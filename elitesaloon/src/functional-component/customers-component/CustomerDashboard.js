@@ -45,18 +45,6 @@ const CustomerDashboard = () => {
     }
   }, [navigate]);
 
-  // const getStatusLabel = (status) => {
-  //   switch (status) {
-  //     case "CONFIRMED":
-  //       return "Upcoming";
-  //     case "COMPLETED":
-  //       return "Completed";
-  //     case "CANCELLED":
-  //       return "Cancelled";
-  //     default:
-  //       return status;
-  //   }
-  // };
 
   // Mock feedback
   const feedbacks = [
@@ -139,7 +127,7 @@ const CustomerDashboard = () => {
             className="logout-btn"
             onClick={() => {
               localStorage.clear();
-              navigate("/customerlogin");
+              navigate("/ ",{ replace: true });
             }}
           >
             <FaSignOutAlt /> Logout
