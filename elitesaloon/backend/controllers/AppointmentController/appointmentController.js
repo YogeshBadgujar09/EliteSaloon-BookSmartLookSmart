@@ -112,10 +112,9 @@ exports.getAvailableSlots = async (req, res) => {
       appointmentStatus: { $in: ["PENDING", "CONFIRMED"] },
     });
 
-    // DEBUG (remove later)
     // console.log("Bookings:", bookings);
 
-    // Filter available slots (🔥 FIXED LOGIC)
+    // Filter available slots ( FIXED LOGIC)
     const availableSlots = allSlots.filter((slot) => {
       return !bookings.some((b) => {
         return (
@@ -269,5 +268,63 @@ exports.getCustomersAppointments = async (req, res) => {
 
 };
 
+exports.rescheduleAppointment = async (req, res) => {
 
+    try {
+        const { appointmentId, newDate, newStartTime } = req.body;
 
+        const appointment = await AppointmentModel.findById(appointmentId);
+
+        if (!appointment) {
+            return res.status(404).json({ message: "Appointment not found" });
+        }
+
+        const { toMinutes, toTime } = require("../../utils/timeUtils");
+
+        const newEndTime = toTime(
+            toMinutes(newStartTime) + appointment.totalDuration
+        );
+
+        // conflict check (exclude current)
+        const conflict = await AppointmentModel.findOne({
+            staffId: appointment.staffId,
+            appointmentDate: newDate,
+            _id: { $ne: appointmentId },
+            appointmentStatus: { $in: ["PENDING", "CONFIRMED"] },
+            $or: [
+                {
+                    startTime: { $lt: newEndTime },
+                    endTime: { $gt: newStartTime }
+                }
+            ]
+        });
+
+        if (conflict) {
+            return res.status(400).json({
+                message: "Selected slot not available"
+            });
+        }
+
+        appointment.appointmentDate = newDate;
+        appointment.startTime = newStartTime;
+        appointment.endTime = newEndTime;
+
+        await appointment.save();
+
+        res.json({
+            message: "Appointment rescheduled successfully",
+            appointment
+        });
+
+        const ownerEmail = await OwnerModel.findById(appointment.ownerId).select("ownerEmail");
+        const customerName = await CustomerModel.findById(appointment.customerId).select("customerName");
+        
+        // Send email notification to owner about appointment rescheduling
+        let subject = "Appointment Reschedule Notification";
+        let message = `Dear Owner,\n\nThe appointment with Name ${customerName.customerName} has been rescheduled for the Date: ${appointment.appointmentDate}and Time: ${appointment.startTime} by the customer.\n\nBest regards,\nElite Saloon Team`;
+        await emailSendOptimizeCode(ownerEmail.ownerEmail, subject, message);
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
