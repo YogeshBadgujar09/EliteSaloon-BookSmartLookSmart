@@ -14,7 +14,7 @@ const OwnerList = () => {
   // ✅ FETCH OWNERS
   const fetchOwners = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/admin/owners");
+      const res = await axios.get("http://localhost:5000/admin/get-owners-list");
 
       // handle both cases
       const data = res.data.data || res.data;
@@ -37,36 +37,31 @@ const OwnerList = () => {
   };
 
   // ✅ TOGGLE STATUS
-  const handleToggleStatus = async () => {
-    if (!selectedOwner) return;
+const handleToggleStatus = async () => {
+  if (!selectedOwner) return;
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      const newStatus =
-        selectedOwner.ownerAccountStatus === "ACTIVE"
-          ? "DEACTIVE"
-          : "ACTIVE";
+    const res = await axios.put(
+      "http://localhost:5000/admin/owner-status",
+      {
+        ownerId: selectedOwner._id
+      }
+    );
 
-      await axios.put(
-        `http://localhost:5000/admin/owner-status/${selectedOwner._id}`,
-        { status: newStatus }
-      );
 
-      // refresh data from backend (best practice)
-      await fetchOwners();
+    setSelectedOwner(res.data.data);
 
-      // update modal data
-      setSelectedOwner((prev) => ({
-        ...prev,
-        ownerAccountStatus: newStatus,
-      }));
-    } catch (err) {
-      console.log("Error updating owner status", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+   
+    await fetchOwners();
+
+  } catch (err) {
+    console.log("Error updating owner status", err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="ad-content">

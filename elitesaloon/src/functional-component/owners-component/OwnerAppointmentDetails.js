@@ -1,13 +1,61 @@
 import React from "react";
+import axios from "axios";
 
 const OwnerAppointmentDetails = ({ data }) => {
   if (!data) return null;
+  
 
+// Yogesh deore
+const handlePayment = async () => {
+  try {
 
-  const handleComplete = () => {
-    console.log("Appointment ID:", data._id);
-    console.log("Status:", data.appointmentStatus);
-  };
+    // Create Order
+    const orderRes = await axios.post(
+      "http://localhost:5000/payment/create-order",
+      {
+        appointmentId: data._id
+      }
+    );
+
+    const order = orderRes.data;
+
+    // Razorpay Popup
+    const options = {
+      key: "rzp_test_SPZsgkIqFM9JER",
+      amount: order.amount,
+      currency: "INR",
+      order_id: order.id,
+      name: data.ownerId?.ownerShopName || "Elite Saloon",
+
+      handler: async function (response) {
+
+        await axios.post(
+          "http://localhost:5000/payment/verify-payment",
+          {
+            appointmentId: data._id,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature
+          }
+        );
+
+        alert("Payment Successful");
+        window.location.reload();
+      }
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+
+  } catch (error) {
+
+    console.log("Payment Error:", error);
+    alert("Payment Failed!");
+
+  }
+};
+
+// ---------------------------------------------------------------------------------------
 
   return (
     <div className="od-appointment-wrapper">
@@ -72,12 +120,7 @@ const OwnerAppointmentDetails = ({ data }) => {
       {/* BUTTON */}
       {data.appointmentStatus === "CONFIRMED" && (
         <div className="od-action">
-          <button 
-            className="od-btn od-btn-add"
-            onClick={handleComplete}   
-          >
-            Complete Appointment
-          </button>
+          <button className="od-btn od-btn-add"  onClick={handlePayment}>Complete Appointment</button>
         </div>
       )}
     </div>

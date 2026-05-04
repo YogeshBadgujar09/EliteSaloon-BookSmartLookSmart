@@ -12,7 +12,7 @@ const CustomerList = () => {
 
   const fetchCustomers = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/admin/customers");
+      const res = await axios.get("http://localhost:5000/admin/get-customers-list");
       setCustomers(res.data.data);
     } catch (error) {
       console.log("Error fetching customers");
@@ -23,34 +23,30 @@ const CustomerList = () => {
     setSelectedCustomer(customer);
     setShowModal(true);
   };
-  const handleToggleStatus = async () => {
-    try {
-      const newStatus =
-        selectedCustomer.customerStatus === "active" ? "deactive" : "active";
+ const handleToggleStatus = async () => {
+  try {
+    const res = await axios.put(
+      "http://localhost:5000/admin/customer-status",
+      {
+        customerId: selectedCustomer._id,
+      }
+    );
 
-      await axios.put(
-        `http://localhost:5000/admin/customer-status/${selectedCustomer._id}`,
-        { status: newStatus },
-      );
+    const updatedCustomer = res.data.data; 
 
-      // update modal
-      setSelectedCustomer((prev) => ({
-        ...prev,
-        customerStatus: newStatus,
-      }));
+    // update modal
+    setSelectedCustomer(updatedCustomer);
 
-      // update table
-      setCustomers((prev) =>
-        prev.map((c) =>
-          c._id === selectedCustomer._id
-            ? { ...c, customerStatus: newStatus }
-            : c,
-        ),
-      );
-    } catch (e) {
-      console.log("Error updating status");
-    }
-  };
+    // update table
+    setCustomers((prev) =>
+      prev.map((c) =>
+        c._id === updatedCustomer._id ? updatedCustomer : c
+      )
+    );
+  } catch (e) {
+    console.log("Error updating status");
+  }
+};
   return (
     <div className="ad-content">
       <div className="ad-table-section">

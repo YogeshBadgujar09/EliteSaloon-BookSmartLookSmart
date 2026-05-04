@@ -4,8 +4,9 @@ const ProductModel = require("../../models/ProductModel");
 const ServiceModel = require("../../models/ServiceModel");
 const bcrypt = require("bcrypt");
 const { customerFindUsingEmail } = require("./CustomerOptimizeCode");
-const  emailSendOptimizeCode = require("../../utils/emailSendOptimizeCode");
-const generateOTP = require('../../utils/generateOTP');
+const emailSendOptimizeCode = require("../../utils/emailSendOptimizeCode");
+const generateOTP = require("../../utils/generateOTP");
+const AppointmentModel = require("../../models/AppointmentModel");
 
 /**
  * Author : Yogesh Badgujar
@@ -20,9 +21,10 @@ const generateOTP = require('../../utils/generateOTP');
  */
 exports.registerCustomer = async (req, res) => {
   const subject = "Mail for Register in Elite Saloon";
-  let message = "Please enter OTP for customer registration in Elite Saloon\n\n Your OTP is :";
+  let message =
+    "Please enter OTP for customer registration in Elite Saloon\n\n Your OTP is :";
 
-    // console.log(req.body);
+  // console.log(req.body);
   try {
     const { customerUsername, customerEmail } = req.body;
     console.log("Request Body Username :" + customerUsername);
@@ -36,8 +38,11 @@ exports.registerCustomer = async (req, res) => {
      * In this case, we will delete the existing customer data associated with that email and allow the new registration to proceed.
      * This way, we can ensure that only one customer can register with a particular email address, and if the email is not verified, we can allow another customer to register with the same email address without any issues.
      */
-    if ( existingEmail == null && existingCustomer != null && existingCustomer.customerVerified === false) {
-      
+    if (
+      existingEmail == null &&
+      existingCustomer != null &&
+      existingCustomer.customerVerified === false
+    ) {
       console.log("delete this data because email is not varified ... !!!");
       await CustomerModel.deleteOne({ customerUsername });
       existingCustomer = null; // Set existingCustomer to null after deleting the existing customer data
@@ -46,7 +51,6 @@ exports.registerCustomer = async (req, res) => {
     }
 
     if (existingCustomer == null && existingEmail == null) {
-
       console.log("You can save data ... !!!");
 
       // Remove confirmPassword before saving
@@ -83,7 +87,7 @@ exports.registerCustomer = async (req, res) => {
        * */
 
       let otp = await generateOTP();
-      message = message + otp ;
+      message = message + otp;
 
       const generatedOTP = await emailSendOptimizeCode(
         customer.customerEmail,
@@ -105,22 +109,19 @@ exports.registerCustomer = async (req, res) => {
           message: "redirect to OTP verification page",
           customerEmail: customer.customerEmail,
         });
-
       } else {
         res.status(500).json({
           message: "Failed to send OTP to customer email",
         });
       }
     } else {
-
       if (existingEmail != null) {
         console.log("Email already exists");
         return res.status(409).json({ message: "Email already exists" });
-      }else{
+      } else {
         console.log("Username already exists");
         return res.status(409).json({ message: "Username already exists" });
       }
-      
     }
   } catch (error) {
     console.log("Register Error:", error);
@@ -165,7 +166,11 @@ exports.loginCustomer = async (req, res) => {
       ) {
         res.status(200).json({
           message: "Customer Login Successful",
-          customer: customer.toObject()
+          customer: customer.toObject(),
+        });
+      } else if (customer.customerStatus === "deactive") {
+        res.status(401).json({
+          message: "Deactivated By Admin",
         });
       } else {
         return res.status(401).json({
@@ -218,7 +223,7 @@ exports.verifyOTP = async (req, res) => {
 
         res.status(200).json({
           message: "OTP verification successful",
-          customerEmail : customer.customerEmail
+          customerEmail: customer.customerEmail,
         });
       } else {
         res.status(400).json({ message: "enter valid OTP" });
@@ -249,10 +254,11 @@ exports.forgotPassword = async (req, res) => {
 
   if (customer != null) {
     let subject = "Mail for Reset Password in Elite Saloon";
-    let message = "Please enter OTP for reset password in Elite Saloon\n\n Your OTP is :";
+    let message =
+      "Please enter OTP for reset password in Elite Saloon\n\n Your OTP is :";
     let otp = await generateOTP();
-    
-    message = message + otp ;
+
+    message = message + otp;
 
     const generatedOTP = await emailSendOptimizeCode(
       customerEmail,
@@ -266,7 +272,7 @@ exports.forgotPassword = async (req, res) => {
 
       res.status(200).json({
         message:
-        "OTP sent successfully to customer email ... redirect to OTP verification page for reset password",
+          "OTP sent successfully to customer email ... redirect to OTP verification page for reset password",
         customerEmail: customer.customerEmail,
       });
     } else {
@@ -340,7 +346,6 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
-
 /**
  * add image controller
  * @param {*} req
@@ -360,7 +365,7 @@ exports.uploadProfileImage = async (req, res) => {
     // If user selected image
     if (req.file) {
       customer.customerProfileImage = req.file.filename; // Save the filename of the uploaded image to the customer's record in the database
-    }else {
+    } else {
       customer.customerProfileImage = "default/defaultProfile.png";
       // customer.customerProfileImage = "defaultProfile.png";
     }
@@ -371,7 +376,7 @@ exports.uploadProfileImage = async (req, res) => {
 
     res.status(200).json({
       message: "Profile image updated successfully",
-       customerProfileImage: customer.customerProfileImage,
+      customerProfileImage: customer.customerProfileImage,
     });
   } catch (error) {
     res.status(500).json({
@@ -380,7 +385,6 @@ exports.uploadProfileImage = async (req, res) => {
     });
   }
 };
-
 
 exports.updateCustomerProfile = async (req, res) => {
   try {
@@ -415,7 +419,6 @@ exports.updateCustomerProfile = async (req, res) => {
     if (customerDistrict) customer.customerDistrict = customerDistrict;
     if (customerState) customer.customerState = customerState;
 
-  
     if (req.file) {
       customer.customerProfileImage = req.file.filename;
     }
@@ -455,7 +458,7 @@ exports.changeCustomerPassword = async (req, res) => {
 
     const isMatch = await bcrypt.compare(
       currentPassword,
-      customer.customerPassword
+      customer.customerPassword,
     );
 
     if (!isMatch) {
@@ -485,73 +488,70 @@ exports.changeCustomerPassword = async (req, res) => {
   }
 };
 
-
-exports.getServiceForCustomerByPin = async (req,res)=>{
+exports.getServiceForCustomerByPin = async (req, res) => {
   try {
-   
     const { customerPincode } = req.params;
 
     if (!customerPincode) {
       return res.status(400).json({
         success: false,
-        message: "Customer pincode is required"
+        message: "Customer pincode is required",
       });
     }
 
     const owners = await OwnerModel.find({
       ownerShopPincode: String(customerPincode),
-      ownerAccountStatus: "ACTIVE",  
-      ownerApprovedStatus: "APPROVE"
+      ownerAccountStatus: "ACTIVE",
+      ownerApprovedStatus: "APPROVE",
     });
-    console.log("OWNERS FOUND:", owners); 
+    console.log("OWNERS FOUND:", owners);
 
     if (owners.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "No salons found in this area"
+        message: "No salons found in this area",
       });
     }
- 
-    const ownerIds = owners.map(owner => owner._id);
+
+    const ownerIds = owners.map((owner) => owner._id);
 
     const services = await ServiceModel.find({
-      ownerId: { $in: ownerIds }
-    }).populate("ownerId", "ownerShopName ownerShopStreet ownerShopDistrict ownerShopCity ownerShopPincode ownerEmail")
+      ownerId: { $in: ownerIds },
+    }).populate(
+      "ownerId",
+      "ownerShopName ownerShopStreet ownerShopDistrict ownerShopCity ownerShopPincode ownerEmail",
+    );
 
     res.status(200).json({
       success: true,
       totalOwners: owners.length,
       totalServices: services.length,
-      data: services
+      data: services,
     });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: "Server Error"
+      message: "Server Error",
     });
   }
-}
+};
 
-exports.getProductsForCustomerByPin = async (req,res)=>{
+exports.getProductsForCustomerByPin = async (req, res) => {
   try {
-   
     const { customerPincode } = req.params;
 
     if (!customerPincode) {
       return res.status(400).json({
         success: false,
-        message: "Customer pincode is required"
+        message: "Customer pincode is required",
       });
     }
-    
-
 
     const owners = await OwnerModel.find({
       ownerShopPincode: customerPincode,
-      ownerAccountStatus: "ACTIVE",   
-      ownerApprovedStatus: "APPROVE" 
+      ownerAccountStatus: "ACTIVE",
+      ownerApprovedStatus: "APPROVE",
     });
 
     // console.log("Owners found for pincode " + customerPincode + " : " + owners.length + " owners" + owners);
@@ -559,30 +559,86 @@ exports.getProductsForCustomerByPin = async (req,res)=>{
     if (owners.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "No shops found in this area"
+        message: "No shops found in this area",
       });
     }
 
     // Extract owner IDs
-    const ownerIds = owners.map(owner => owner._id);
+    const ownerIds = owners.map((owner) => owner._id);
 
     const products = await ProductModel.find({
-      ownerId: { $in: ownerIds }
-    }).populate("ownerId", "ownerShopName ownerEmail ownerShopCity ownerShopPincode")
+      ownerId: { $in: ownerIds },
+    }).populate(
+      "ownerId",
+      "ownerShopName ownerEmail ownerShopCity ownerShopPincode",
+    );
     // .populate("ownerId", "ownerShopName ownerShopCity ownerShopPincode");
-    
+
     res.status(200).json({
       success: true,
       totalOwners: owners.length,
       totalProducts: products.length,
-      data: products
+      data: products,
     });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: "Server Error"
+      message: "Server Error",
     });
   }
-}
+};
+
+//create By yogesh deore
+exports.cancelAppointmentByCustomer = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+
+    console.log("Appointment For cancel :", appointmentId);
+
+    if (!appointmentId) {
+      return res.status(400).json({
+        message: "Appointment ID required",
+      });
+    }
+
+    const appointment = await AppointmentModel.findById(appointmentId);
+
+    if (!appointment) {
+      return res.status(404).json({
+        message: "Appointment not found",
+      });
+    } 
+
+    if (appointment.appointmentStatus === "COMPLETED") {
+      return res.status(400).json({
+        message: "Cannot cancel completed appointment",
+      });
+    }
+
+    appointment.appointmentStatus = "CANCELLED";
+    await appointment.save();
+
+    const ownerEmail = await OwnerModel.findById(appointment.ownerId).select(
+      "ownerEmail",
+    );
+    const customerName = await CustomerModel.findById(
+      appointment.customerId,
+    ).select("customerName");
+
+    // Send email notification to owner about appointment cancellation
+    let subject = "Appointment Cancellation Notification";
+    let message = `Dear Owner,\n\nThe appointment with Name ${customerName.customerName} has been cancelled for the Date: ${appointment.appointmentDate}and Time: ${appointment.startTime} by the customer.\n\nBest regards,\nElite Saloon Team`;
+    await emailSendOptimizeCode(ownerEmail.ownerEmail, subject, message);
+
+    res.json({
+      message: "Appointment cancelled successfully",
+      appointment,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Error cancelling appointment",
+    });
+  }
+};

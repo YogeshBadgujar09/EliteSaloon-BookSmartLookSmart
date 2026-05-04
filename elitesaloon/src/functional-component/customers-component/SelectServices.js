@@ -7,19 +7,33 @@ const SelectServices = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Extract salonId and prevSelected from location state
-  const { salonId, selectedServices: prevSelected } = location.state || {};
+  const {
+    salonId,
+    selectedServices: prevSelected,
+    fromReschedule,
+    appointmentData
+  } = location.state || {};
+
   const [services, setServices] = useState([]);
   const [selectedServices, setSelectedServices] = useState(prevSelected || []);
   const [activeCategory, setActiveCategory] = useState("ALL");
   const [activeGender, setActiveGender] = useState("ALL");
 
+  // ✅ IMPORTANT FIX: jab wapas aate ho tab state sync karo
+  useEffect(() => {
+    if (prevSelected) {
+      setSelectedServices(prevSelected);
+    }
+  }, [prevSelected]);
+
+  // ✅ Fetch services
   useEffect(() => {
     if (!salonId) return;
+
     const fetchServices = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/owner/allservices/${salonId}`,
+          `http://localhost:5000/owner/allservices/${salonId}`
         );
         const data = await res.json();
         setServices(data.services || []);
@@ -27,6 +41,7 @@ const SelectServices = () => {
         console.log(err);
       }
     };
+
     fetchServices();
   }, [salonId]);
 
@@ -44,33 +59,30 @@ const SelectServices = () => {
     return catMatch && genMatch;
   });
 
-  const toggleService = (service) => {
-    const isSelected = selectedServices.some((s) => s._id === service._id);
-    if (isSelected) {
-      setSelectedServices(
-        selectedServices.filter((s) => s._id !== service._id),
-      );
-    } else {
-      setSelectedServices([...selectedServices, service]);
-    }
-  };
+ const getId = (s) => s._id || s.serviceId;
 
-  const total = selectedServices.reduce((sum, s) => sum + s.servicePrice, 0);
+const toggleService = (service) => {
+  const isSelected = selectedServices.some(
+    (s) => getId(s) === getId(service)
+  );
 
-  // ✅ FIX: navigate(-1) ki jagah direct route use karein aur salonId wapas bhejein
-  //   const handleContinue = () => {
-  //     navigate("/booking", {
-  //       state: {
-  //         selectedServices,
-  //         salonId // Yeh salonId bhejna sabse zaroori hai
-  //       }
-  //     });
-  //   };
+  if (isSelected) {
+    setSelectedServices(
+      selectedServices.filter((s) => getId(s) !== getId(service))
+    );
+  } else {
+    setSelectedServices([...selectedServices, service]);
+  }
+};
+
+const total = selectedServices.reduce(
+  (sum, s) => sum + (s.servicePrice || s.price || 0),
+  0
+);
 
   return (
     <div className="services-page">
       <div className="header-nav">
-        {/* Cancel button: bina data ke piche jane ke liye */}
         <button className="back-btn" onClick={() => navigate(-1)}>
           <IoChevronBack size={20} /> Cancel
         </button>
@@ -90,6 +102,7 @@ const SelectServices = () => {
             </button>
           ))}
         </div>
+
         <div className="filter-bar">
           {genders.map((g) => (
             <button
@@ -105,22 +118,31 @@ const SelectServices = () => {
 
       <div className="cards">
         {filteredServices.map((s) => {
-          const selected = selectedServices.some((x) => x._id === s._id);
+const selected = selectedServices.some(
+  (x) => (x._id || x.serviceId) === s._id
+);
+
           return (
             <div key={s._id} className={`card ${selected ? "selected" : ""}`}>
               <div className="image-wrapper">
-              
                 <img
-                  src={`http://localhost:5000/uploads/serviceImages/${s.serviceImages[0]}`}
+                  src={
+                    s.serviceImages?.length
+                      ? `http://localhost:5000/uploads/serviceImages/${s.serviceImages[0]}`
+                      : "/default.jpg"
+                  }
                   alt={s.serviceName}
                 />
                 <span className="badge">{s.servicePreferredGender}</span>
               </div>
+
               <div className="card-body">
                 <h3>{s.serviceName}</h3>
                 <div className="info">⏱ {s.serviceDuration} min</div>
+
                 <div className="bottom">
                   <span className="price">₹{s.servicePrice}</span>
+
                   <button
                     className={selected ? "remove" : "add"}
                     onClick={() => toggleService(s)}
@@ -141,17 +163,28 @@ const SelectServices = () => {
           </span>
           <span className="total-amount">₹{total}</span>
         </div>
-        {/* ✅ Continue button uses the new function */}
+
+        {/* ✅ FINAL FIX */}
         <button
           className="btn-continue"
-          onClick={() =>
-            navigate("/bookappointment", {
-              state: {
-                selectedServices,
-                salonId, // <--- Yeh bhejenge tabhi Booking form ko pata chalega
-              },
-            })
-          }
+          onClick={() => {
+            if (fromReschedule) {
+              navigate("/customerdashboard", {
+                state: {
+                  selectedServices,
+                  fromReschedule: true,
+                  appointmentData
+                }
+              });
+            } else {
+              navigate("/bookappointment", {
+                state: {
+                  selectedServices,
+                  salonId
+                }
+              });
+            }
+          }}
         >
           Continue
         </button>
