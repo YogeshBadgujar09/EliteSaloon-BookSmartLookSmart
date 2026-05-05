@@ -7,6 +7,7 @@ const SelectServices = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Destructuring state from location
   const {
     salonId,
     selectedServices: prevSelected,
@@ -19,95 +20,91 @@ const SelectServices = () => {
   const [activeCategory, setActiveCategory] = useState("ALL");
   const [activeGender, setActiveGender] = useState("ALL");
 
-  // ✅ IMPORTANT FIX: jab wapas aate ho tab state sync karo
+  // Sync state if prevSelected changes
   useEffect(() => {
     if (prevSelected) {
       setSelectedServices(prevSelected);
     }
   }, [prevSelected]);
 
-  // ✅ Fetch services
+  // Fetching services from API
   useEffect(() => {
     if (!salonId) return;
 
     const fetchServices = async () => {
       try {
-        const res = await fetch(
-          `http://localhost:5000/owner/allservices/${salonId}`
-        );
+        const res = await fetch(`http://localhost:5000/owner/allservices/${salonId}`);
         const data = await res.json();
         setServices(data.services || []);
       } catch (err) {
-        console.log(err);
+        console.error("Error fetching services:", err);
       }
     };
 
     fetchServices();
   }, [salonId]);
 
-  if (!salonId)
-    return <div className="error-screen">Please select salon first</div>;
+  if (!salonId) {
+    return (
+      <div className="error-screen">
+        <p>Please select a salon first.</p>
+        <button onClick={() => navigate(-1)}>Go Back</button>
+      </div>
+    );
+  }
 
+  // Filters Logic
   const categories = ["ALL", ...new Set(services.map((s) => s.serviceType))];
   const genders = ["ALL", "MALE", "FEMALE", "BOTH"];
 
   const filteredServices = services.filter((s) => {
-    const catMatch =
-      activeCategory === "ALL" || s.serviceType === activeCategory;
-    const genMatch =
-      activeGender === "ALL" || s.servicePreferredGender === activeGender;
+    const catMatch = activeCategory === "ALL" || s.serviceType === activeCategory;
+    const genMatch = activeGender === "ALL" || s.servicePreferredGender === activeGender;
     return catMatch && genMatch;
   });
 
- const getId = (s) => s._id || s.serviceId;
+  const getId = (s) => s._id || s.serviceId;
 
-const toggleService = (service) => {
-  const isSelected = selectedServices.some(
-    (s) => getId(s) === getId(service)
-  );
+  const toggleService = (service) => {
+    const isSelected = selectedServices.some((s) => getId(s) === getId(service));
+    if (isSelected) {
+      setSelectedServices(selectedServices.filter((s) => getId(s) !== getId(service)));
+    } else {
+      setSelectedServices([...selectedServices, service]);
+    }
+  };
 
-  if (isSelected) {
-    setSelectedServices(
-      selectedServices.filter((s) => getId(s) !== getId(service))
-    );
-  } else {
-    setSelectedServices([...selectedServices, service]);
-  }
-};
-
-const total = selectedServices.reduce(
-  (sum, s) => sum + (s.servicePrice || s.price || 0),
-  0
-);
+  const total = selectedServices.reduce((sum, s) => sum + (s.servicePrice || s.price || 0), 0);
 
   return (
     <div className="services-page">
+      {/* Header Section */}
       <div className="header-nav">
         <button className="back-btn" onClick={() => navigate(-1)}>
-          <IoChevronBack size={20} /> Cancel
+          <IoChevronBack size={20} /> Back
         </button>
         <h2 className="title">Select Services</h2>
         <div style={{ width: "80px" }}></div>
       </div>
 
+      {/* Filter Bar Section */}
       <div className="filters-container">
         <div className="filter-bar">
           {categories.map((cat) => (
-            <button
-              key={cat}
-              className={activeCategory === cat ? "active" : ""}
+            <button 
+              key={cat} 
+              className={activeCategory === cat ? "active" : ""} 
               onClick={() => setActiveCategory(cat)}
             >
               {cat}
             </button>
           ))}
         </div>
-
         <div className="filter-bar">
           {genders.map((g) => (
-            <button
-              key={g}
-              className={activeGender === g ? "active" : ""}
+            <button 
+              key={g} 
+              className={activeGender === g ? "active" : ""} 
               onClick={() => setActiveGender(g)}
             >
               {g}
@@ -116,35 +113,28 @@ const total = selectedServices.reduce(
         </div>
       </div>
 
+      {/* Service Cards Section */}
       <div className="cards">
         {filteredServices.map((s) => {
-const selected = selectedServices.some(
-  (x) => (x._id || x.serviceId) === s._id
-);
-
+          const selected = selectedServices.some((x) => getId(x) === s._id);
           return (
             <div key={s._id} className={`card ${selected ? "selected" : ""}`}>
               <div className="image-wrapper">
-                <img
-                  src={
-                    s.serviceImages?.length
-                      ? `http://localhost:5000/uploads/serviceImages/${s.serviceImages[0]}`
-                      : "/default.jpg"
-                  }
-                  alt={s.serviceName}
+                <img 
+                  src={s.serviceImages?.length 
+                    ? `http://localhost:5000/uploads/serviceImages/${s.serviceImages[0]}` 
+                    : "/default.jpg"} 
+                  alt={s.serviceName} 
                 />
                 <span className="badge">{s.servicePreferredGender}</span>
               </div>
-
               <div className="card-body">
                 <h3>{s.serviceName}</h3>
                 <div className="info">⏱ {s.serviceDuration} min</div>
-
                 <div className="bottom">
                   <span className="price">₹{s.servicePrice}</span>
-
-                  <button
-                    className={selected ? "remove" : "add"}
+                  <button 
+                    className={selected ? "remove" : "add"} 
                     onClick={() => toggleService(s)}
                   >
                     {selected ? "Remove" : "Add"}
@@ -156,32 +146,34 @@ const selected = selectedServices.some(
         })}
       </div>
 
+      {/* Footer Action Bar Section */}
       <div className="footer-action-bar">
         <div className="footer-info">
-          <span className="count">
-            {selectedServices.length} Services Selected
-          </span>
-          <span className="total-amount">₹{total}</span>
+          <span className="count">{selectedServices.length} Selected</span>
+          <span className="total-amount">Total: ₹{total}</span>
         </div>
 
-        {/* ✅ FINAL FIX */}
         <button
           className="btn-continue"
+          disabled={selectedServices.length === 0}
           onClick={() => {
             if (fromReschedule) {
+              // ✅ Navigating back to Dashboard with state to trigger Modal auto-open
               navigate("/customerdashboard", {
                 state: {
                   selectedServices,
                   fromReschedule: true,
-                  appointmentData
+                  appointmentData: appointmentData,
+                  openReschedule: true 
                 }
               });
             } else {
-              navigate("/bookappointment", {
-                state: {
-                  selectedServices,
-                  salonId
-                }
+              // Regular Booking flow
+              navigate("/bookappointment", { 
+                state: { 
+                  selectedServices, 
+                  salonId 
+                } 
               });
             }
           }}
