@@ -12,7 +12,7 @@ const SelectServices = () => {
     salonId,
     selectedServices: prevSelected,
     fromReschedule,
-    appointmentData
+    appointmentData,
   } = location.state || {};
 
   const [services, setServices] = useState([]);
@@ -33,7 +33,9 @@ const SelectServices = () => {
 
     const fetchServices = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/owner/allservices/${salonId}`);
+        const res = await fetch(
+          `http://localhost:5000/owner/allservices/${salonId}`,
+        );
         const data = await res.json();
         setServices(data.services || []);
       } catch (err) {
@@ -58,23 +60,32 @@ const SelectServices = () => {
   const genders = ["ALL", "MALE", "FEMALE", "BOTH"];
 
   const filteredServices = services.filter((s) => {
-    const catMatch = activeCategory === "ALL" || s.serviceType === activeCategory;
-    const genMatch = activeGender === "ALL" || s.servicePreferredGender === activeGender;
+    const catMatch =
+      activeCategory === "ALL" || s.serviceType === activeCategory;
+    const genMatch =
+      activeGender === "ALL" || s.servicePreferredGender === activeGender;
     return catMatch && genMatch;
   });
 
   const getId = (s) => s._id || s.serviceId;
 
   const toggleService = (service) => {
-    const isSelected = selectedServices.some((s) => getId(s) === getId(service));
+    const isSelected = selectedServices.some(
+      (s) => getId(s) === getId(service),
+    );
     if (isSelected) {
-      setSelectedServices(selectedServices.filter((s) => getId(s) !== getId(service)));
+      setSelectedServices(
+        selectedServices.filter((s) => getId(s) !== getId(service)),
+      );
     } else {
       setSelectedServices([...selectedServices, service]);
     }
   };
 
-  const total = selectedServices.reduce((sum, s) => sum + (s.servicePrice || s.price || 0), 0);
+  const total = selectedServices.reduce(
+    (sum, s) => sum + (s.servicePrice || s.price || 0),
+    0,
+  );
 
   return (
     <div className="services-page">
@@ -91,9 +102,9 @@ const SelectServices = () => {
       <div className="filters-container">
         <div className="filter-bar">
           {categories.map((cat) => (
-            <button 
-              key={cat} 
-              className={activeCategory === cat ? "active" : ""} 
+            <button
+              key={cat}
+              className={activeCategory === cat ? "active" : ""}
               onClick={() => setActiveCategory(cat)}
             >
               {cat}
@@ -102,9 +113,9 @@ const SelectServices = () => {
         </div>
         <div className="filter-bar">
           {genders.map((g) => (
-            <button 
-              key={g} 
-              className={activeGender === g ? "active" : ""} 
+            <button
+              key={g}
+              className={activeGender === g ? "active" : ""}
               onClick={() => setActiveGender(g)}
             >
               {g}
@@ -120,11 +131,13 @@ const SelectServices = () => {
           return (
             <div key={s._id} className={`card ${selected ? "selected" : ""}`}>
               <div className="image-wrapper">
-                <img 
-                  src={s.serviceImages?.length 
-                    ? `http://localhost:5000/uploads/serviceImages/${s.serviceImages[0]}` 
-                    : "/default.jpg"} 
-                  alt={s.serviceName} 
+                <img
+                  src={
+                    s.serviceImages?.length
+                      ? `http://localhost:5000/uploads/serviceImages/${s.serviceImages[0]}`
+                      : "/default.jpg"
+                  }
+                  alt={s.serviceName}
                 />
                 <span className="badge">{s.servicePreferredGender}</span>
               </div>
@@ -133,8 +146,8 @@ const SelectServices = () => {
                 <div className="info">⏱ {s.serviceDuration} min</div>
                 <div className="bottom">
                   <span className="price">₹{s.servicePrice}</span>
-                  <button 
-                    className={selected ? "remove" : "add"} 
+                  <button
+                    className={selected ? "remove" : "add"}
                     onClick={() => toggleService(s)}
                   >
                     {selected ? "Remove" : "Add"}
@@ -164,16 +177,16 @@ const SelectServices = () => {
                   selectedServices,
                   fromReschedule: true,
                   appointmentData: appointmentData,
-                  openReschedule: true 
-                }
+                  openReschedule: true,
+                },
               });
             } else {
               // Regular Booking flow
-              navigate("/bookappointment", { 
-                state: { 
-                  selectedServices, 
-                  salonId 
-                } 
+              navigate("/bookappointment", {
+                state: {
+                  selectedServices,
+                  salonId,
+                },
               });
             }
           }}
