@@ -129,86 +129,90 @@ const OwnerAppointments = () => {
             </thead>
 
             <tbody>
-              {appointments.map((apt, index) => (
-                <tr key={apt._id} className="table-row">
-                  {/* SR NO */}
-                  <td style={{ color: "#d4af37", fontWeight: "bold" }}>
-                    {index + 1}
-                  </td>
+              {appointments.map((apt, index) => {
+                console.log("OWNER STATUS:", apt.appointmentStatus); // ✅ ADD THIS
 
-                  {/* NAME */}
-                  <td>
-                    <strong style={{ fontSize: "15px" }}>
-                      {apt.customerId?.customerName || "Guest"}
-                    </strong>
-                  </td>
+                return (
+                  <tr key={apt._id} className="table-row">
+                    {/* SR NO */}
+                    <td style={{ color: "#d4af37", fontWeight: "bold" }}>
+                      {index + 1}
+                    </td>
 
-                  {/* SERVICES */}
-                  <td>
-                    {apt.services?.map((s, i) => (
-                      <span key={i} className="tag">
-                        {s.serviceName}
-                        {i < apt.services.length - 1 ? ", " : ""}
+                    {/* NAME */}
+                    <td>
+                      <strong style={{ fontSize: "15px" }}>
+                        {apt.customerId?.customerName || "Guest"}
+                      </strong>
+                    </td>
+
+                    {/* SERVICES */}
+                    <td>
+                      {apt.services?.map((s, i) => (
+                        <span key={i} className="tag">
+                          {s.serviceName}
+                          {i < apt.services.length - 1 ? ", " : ""}
+                        </span>
+                      ))}
+                    </td>
+
+                    {/* DATE TIME */}
+                    <td>
+                      <span style={{ fontSize: "13px", color: "#666" }}>
+                        {apt.appointmentDate} | {apt.startTime}
                       </span>
-                    ))}
-                  </td>
+                    </td>
 
-                  {/* DATE TIME */}
-                  <td>
-                    <span style={{ fontSize: "13px", color: "#666" }}>
-                      {apt.appointmentDate} | {apt.startTime}
-                    </span>
-                  </td>
-
-                  {/* STATUS */}
-                  <td>
-                    <span
-                      className={`status-pill ${apt.appointmentStatus.toLowerCase()}`}
-                    >
-                      {apt.appointmentStatus}
-                    </span>
-                  </td>
-
-                  {/* ACTIONS */}
-                  <td style={{ textAlign: "center" }}>
-                    {apt.appointmentStatus === "PENDING" ? (
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: "10px",
-                          justifyContent: "center",
-                        }}
+                    {/* STATUS */}
+                    <td>
+                      <span
+                        className={`status-pill ${apt.appointmentStatus.toLowerCase()}`}
                       >
+                        {apt.appointmentStatus}
+                      </span>
+                    </td>
+
+                    {/* ACTIONS */}
+                    <td style={{ textAlign: "center" }}>
+                      {apt.appointmentStatus?.toUpperCase() === "PENDING"? (
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "10px",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <button
+                            className="btn-action-view"
+                            onClick={() =>
+                              handleStatusUpdate(apt._id, "CONFIRMED")
+                            }
+                          >
+                            Accept
+                          </button>
+
+                          <button
+                            className="btn-action-view"
+                            style={{ color: "#e74c3c" }}
+                            onClick={() =>
+                              handleStatusUpdate(apt._id, "CANCELLED")
+                            }
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      ) : (
                         <button
                           className="btn-action-view"
-                          onClick={() =>
-                            handleStatusUpdate(apt._id, "CONFIRMED")
-                          }
+                          onClick={() => handleView(apt._id)}
                         >
-                          Accept
+                          View
                         </button>
-
-                        <button
-                          className="btn-action-view"
-                          style={{ color: "#e74c3c" }}
-                          onClick={() =>
-                            handleStatusUpdate(apt._id, "CANCELLED")
-                          }
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        className="btn-action-view"
-                        onClick={() => handleView(apt._id)}
-                      >
-                        View
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

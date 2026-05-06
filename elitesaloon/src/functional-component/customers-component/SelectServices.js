@@ -7,15 +7,30 @@ const SelectServices = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Extract salonId and prevSelected from location state
-  const { salonId, selectedServices: prevSelected } = location.state || {};
+  // Destructuring state from location
+  const {
+    salonId,
+    selectedServices: prevSelected,
+    fromReschedule,
+    appointmentData,
+  } = location.state || {};
+
   const [services, setServices] = useState([]);
   const [selectedServices, setSelectedServices] = useState(prevSelected || []);
   const [activeCategory, setActiveCategory] = useState("ALL");
   const [activeGender, setActiveGender] = useState("ALL");
 
+  // Sync state if prevSelected changes
+  useEffect(() => {
+    if (prevSelected) {
+      setSelectedServices(prevSelected);
+    }
+  }, [prevSelected]);
+
+  // Fetching services from API
   useEffect(() => {
     if (!salonId) return;
+
     const fetchServices = async () => {
       try {
         const res = await fetch(
@@ -24,15 +39,23 @@ const SelectServices = () => {
         const data = await res.json();
         setServices(data.services || []);
       } catch (err) {
-        console.log(err);
+        console.error("Error fetching services:", err);
       }
     };
+
     fetchServices();
   }, [salonId]);
 
-  if (!salonId)
-    return <div className="error-screen">Please select salon first</div>;
+  if (!salonId) {
+    return (
+      <div className="error-screen">
+        <p>Please select a salon first.</p>
+        <button onClick={() => navigate(-1)}>Go Back</button>
+      </div>
+    );
+  }
 
+  // Filters Logic
   const categories = ["ALL", ...new Set(services.map((s) => s.serviceType))];
   const genders = ["ALL", "MALE", "FEMALE", "BOTH"];
 
@@ -44,40 +67,38 @@ const SelectServices = () => {
     return catMatch && genMatch;
   });
 
+  const getId = (s) => s._id || s.serviceId;
+
   const toggleService = (service) => {
-    const isSelected = selectedServices.some((s) => s._id === service._id);
+    const isSelected = selectedServices.some(
+      (s) => getId(s) === getId(service),
+    );
     if (isSelected) {
       setSelectedServices(
-        selectedServices.filter((s) => s._id !== service._id),
+        selectedServices.filter((s) => getId(s) !== getId(service)),
       );
     } else {
       setSelectedServices([...selectedServices, service]);
     }
   };
 
-  const total = selectedServices.reduce((sum, s) => sum + s.servicePrice, 0);
-
-  // ✅ FIX: navigate(-1) ki jagah direct route use karein aur salonId wapas bhejein
-  //   const handleContinue = () => {
-  //     navigate("/booking", {
-  //       state: {
-  //         selectedServices,
-  //         salonId // Yeh salonId bhejna sabse zaroori hai
-  //       }
-  //     });
-  //   };
+  const total = selectedServices.reduce(
+    (sum, s) => sum + (s.servicePrice || s.price || 0),
+    0,
+  );
 
   return (
     <div className="services-page">
+      {/* Header Section */}
       <div className="header-nav">
-        {/* Cancel button: bina data ke piche jane ke liye */}
         <button className="back-btn" onClick={() => navigate(-1)}>
-          <IoChevronBack size={20} /> Cancel
+          <IoChevronBack size={20} /> Back
         </button>
         <h2 className="title">Select Services</h2>
         <div style={{ width: "80px" }}></div>
       </div>
 
+      {/* Filter Bar Section */}
       <div className="filters-container">
         <div className="filter-bar">
           {categories.map((cat) => (
@@ -103,15 +124,19 @@ const SelectServices = () => {
         </div>
       </div>
 
+      {/* Service Cards Section */}
       <div className="cards">
         {filteredServices.map((s) => {
-          const selected = selectedServices.some((x) => x._id === s._id);
+          const selected = selectedServices.some((x) => getId(x) === s._id);
           return (
             <div key={s._id} className={`card ${selected ? "selected" : ""}`}>
               <div className="image-wrapper">
-              
                 <img
-                  src={`http://localhost:5000/uploads/serviceImages/${s.serviceImages[0]}`}
+                  src={
+                    s.serviceImages?.length
+                      ? `http://localhost:5000/uploads/serviceImages/${s.serviceImages[0]}`
+                      : "/default.jpg"
+                  }
                   alt={s.serviceName}
                 />
                 <span className="badge">{s.servicePreferredGender}</span>
@@ -134,24 +159,37 @@ const SelectServices = () => {
         })}
       </div>
 
+      {/* Footer Action Bar Section */}
       <div className="footer-action-bar">
         <div className="footer-info">
-          <span className="count">
-            {selectedServices.length} Services Selected
-          </span>
-          <span className="total-amount">₹{total}</span>
+          <span className="count">{selectedServices.length} Selected</span>
+          <span className="total-amount">Total: ₹{total}</span>
         </div>
-        {/* ✅ Continue button uses the new function */}
+
         <button
           className="btn-continue"
-          onClick={() =>
-            navigate("/bookappointment", {
-              state: {
-                selectedServices,
-                salonId, // <--- Yeh bhejenge tabhi Booking form ko pata chalega
-              },
-            })
-          }
+          disabled={selectedServices.length === 0}
+          onClick={() => {
+            if (fromReschedule) {
+              // ✅ Navigating back to Dashboard with state to trigger Modal auto-open
+              navigate("/customerdashboard", {
+                state: {
+                  selectedServices,
+                  fromReschedule: true,
+                  appointmentData: appointmentData,
+                  openReschedule: true,
+                },
+              });
+            } else {
+              // Regular Booking flow
+              navigate("/bookappointment", {
+                state: {
+                  selectedServices,
+                  salonId,
+                },
+              });
+            }
+          }}
         >
           Continue
         </button>

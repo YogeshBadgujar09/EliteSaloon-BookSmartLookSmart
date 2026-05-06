@@ -209,7 +209,7 @@ useEffect(() => {
       localStorage.clear(); 
       
       
-      navigate("/ownerlogin", { replace: true }); 
+      navigate("/", { replace: true }); 
     }
   });
 };

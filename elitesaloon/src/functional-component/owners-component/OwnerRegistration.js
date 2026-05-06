@@ -3,6 +3,7 @@ import PhoneInput from "react-phone-input-2";
 import Swal from "sweetalert2";
 import "react-phone-input-2/lib/style.css";
 import "../../components/Form.css";
+import { FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import useLoader from "../../hooks/useLoader";
 import CommonLoader from "../../components/CommonLoader";
@@ -202,6 +203,10 @@ const OwnerRegistration = () => {
       <CommonLoader loading={loading} />
 
       <div className="form-wrapper">
+        <FaTimes 
+  className="close-btn"
+  onClick={() => navigate(-1)}
+/>
         <h2>EliteSalon Owner Registration</h2>
 
         <form onSubmit={handleSubmit}>

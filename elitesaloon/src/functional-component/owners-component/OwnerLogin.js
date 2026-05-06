@@ -1,6 +1,6 @@
 import React, { useState,useEffect } from "react";
 import Swal from "sweetalert2";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash ,FaTimes} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import "../../components/Form.css";
 import useLoader from "../../hooks/useLoader";
@@ -117,7 +117,7 @@ const OwnerLogin = () => {
 
         console.log("Login Success:", owner);
 
-        navigate("/ownerdashboard", { state: { owner: owner } });
+        navigate("/ownerdashboard", { state: { owner: owner }, replace: true  });
       } else {
         Swal.fire({
           icon: "error",
@@ -139,7 +139,10 @@ const OwnerLogin = () => {
   return (
     <div className="form-wrapper login-wrapper">
       {loading && <CommonLoader />}
-
+<FaTimes 
+  className="close-btn"
+  onClick={() => navigate(-1)}
+/>
       <h2>EliteSalon Owner Login</h2>
 
       <form onSubmit={handleSubmit}>
