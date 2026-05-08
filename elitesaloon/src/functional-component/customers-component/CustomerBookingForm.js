@@ -147,7 +147,7 @@ const CustomerBookingForm = () => {
       fetch("http://localhost:5000/appointment/slots", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: JSON.stringify({  
           staffId: form.staffId,
           date: form.date,
           serviceIds: selectedServices.map((s) => s._id), // multiple services

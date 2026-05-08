@@ -776,3 +776,20 @@ select::-ms-expand {
 .react-datepicker__year-option:hover {
   background-color: #f3e3a1 ;
 }
+
+
+/* ===== CLOSE BUTTON (❌) ===== */.close-btn {
+  position: absolute;
+  top: 20px;
+  right: 25px;
+  font-size: 24px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+
+.close-btn:hover {
+  color: var(--brand-burgundy);
+  transform:  scale(1.2);
+}

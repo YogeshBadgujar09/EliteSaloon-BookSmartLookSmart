@@ -7,7 +7,8 @@ const {
   appointmentResult,
   getSalons,
   getOwnersAppointments,
-  getCustomersAppointments
+  getCustomersAppointments,
+  rescheduleAppointment
 } = require("../controllers/AppointmentController/appointmentController");
 
 routes.post("/slots", getAvailableSlots);
@@ -16,4 +17,6 @@ routes.put("/appointment-result", appointmentResult);
 routes.get("/get-salon/:pincode", getSalons);
 routes.get("/get-appointment/:ownerId", getOwnersAppointments );
 routes.get("/customer-appointments/:customerId", getCustomersAppointments );
+routes.put("/reschedule-appointment", rescheduleAppointment);
+
 module.exports = routes;
