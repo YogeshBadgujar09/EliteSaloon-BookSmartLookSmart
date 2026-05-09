@@ -331,6 +331,8 @@ exports.getCustomersAppointments = async (req, res) => {
 // };
 
 
+
+
 exports.rescheduleAppointment = async (req, res) => {
   try {
     const { appointmentId, newDate, newStartTime, serviceIds } = req.body;
@@ -359,8 +361,8 @@ exports.rescheduleAppointment = async (req, res) => {
       updatedServices = services.map((s) => ({
         serviceId: s._id,
         serviceName: s.serviceName,
-        serviceDuration: s.serviceDuration, // ✅ fixed
-        servicePrice: s.servicePrice,       // ✅ fixed
+        duration: s.serviceDuration, 
+        price: s.servicePrice,       
       }));
 
       // ✅ recalc (same logic)

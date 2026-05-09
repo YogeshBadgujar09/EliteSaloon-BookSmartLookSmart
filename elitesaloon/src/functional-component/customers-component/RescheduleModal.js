@@ -12,26 +12,32 @@ const RescheduleModal = ({ selectedAppointment, initialServices, onClose, fetchA
 
   // Nayi services aane par state update karein
   useEffect(() => {
-    if (initialServices) setSelectedServices(initialServices);
+    if (initialServices) {
+      setSelectedServices(initialServices);
+    }
   }, [initialServices]);
 
-  // Fetch Slots
-  const fetchSlots = async (date) => {
+  // ✅ LOGIC FIX: Slots fetch karne ka dedicated function
+  const fetchSlots = async (date, services) => {
+    if (!selectedAppointment || services.length === 0 || !date) return;
     try {
-      if (!selectedAppointment || selectedServices.length === 0) return;
       const res = await axios.post("http://localhost:5000/appointment/slots", {
         staffId: selectedAppointment.staffId?._id || selectedAppointment.staffId,
         date: date,
-        serviceIds: selectedServices.map((s) => s._id || s.serviceId),
+        serviceIds: services.map((s) => s.serviceId || s._id),
       });
       setTimeSlots(res.data.availableSlots || []);
     } catch (err) {
+      console.error("Error fetching slots:", err);
       setTimeSlots([]);
     }
   };
 
+  // Jab bhi Date ya Services badle (ya wapas aayein), slots fetch karo
   useEffect(() => {
-    if (newDate && selectedServices.length > 0) fetchSlots(newDate);
+    if (newDate && selectedServices.length > 0) {
+      fetchSlots(newDate, selectedServices);
+    }
   }, [newDate, selectedServices]);
 
   const handleReschedule = async () => {
@@ -44,13 +50,13 @@ const RescheduleModal = ({ selectedAppointment, initialServices, onClose, fetchA
         appointmentId: selectedAppointment._id,
         newDate,
         newStartTime: newTime,
-        serviceIds: selectedServices.map((s) => s._id || s.serviceId),
+        serviceIds: selectedServices.map((s) => s.serviceId || s._id),
       });
       Swal.fire("Success", res.data.message, "success");
       onClose();
       fetchAppointments();
     } catch (error) {
-      Swal.fire("Error", "Failed to reschedule", "error");
+      Swal.fire("Error", error.response?.data?.message || "Failed to reschedule", "error");
     }
   };
 
@@ -63,9 +69,9 @@ const RescheduleModal = ({ selectedAppointment, initialServices, onClose, fetchA
           <label>Services</label>
           <button
             type="button" className="btn-primary"
-            onClick={() => navigate("/selectservices", {
+            onClick={() => navigate("/rescheduleservice", {
               state: {
-                salonId: selectedAppointment?.ownerId,
+                salonId: selectedAppointment?.ownerId?._id || selectedAppointment?.ownerId,
                 selectedServices,
                 fromReschedule: true,
                 appointmentData: selectedAppointment,
@@ -83,7 +89,15 @@ const RescheduleModal = ({ selectedAppointment, initialServices, onClose, fetchA
 
         <div className="form-group">
           <label>New Date</label>
-          <input type="date" className="custom-datepicker" value={newDate} onChange={(e) => setNewDate(e.target.value)} />
+          <input 
+            type="date" 
+            className="custom-datepicker" 
+            value={newDate} 
+            onChange={(e) => {
+              setNewDate(e.target.value);
+              setNewTime(""); // Date badalne par time clear
+            }} 
+          />
         </div>
 
         <div className="form-group">
