@@ -394,7 +394,7 @@ useEffect(() => {
             <img
               src={
                 !formData.customerProfileImage ||
-                formData.customerProfileImage === "defaultProfile.png"
+                formData.customerProfileImage === "default/defaultProfile.png"
                   ? "http://localhost:5000/uploads/default/defaultProfile.png"
                   : `http://localhost:5000/uploads/customerProfile/${formData.customerProfileImage}`
               }
