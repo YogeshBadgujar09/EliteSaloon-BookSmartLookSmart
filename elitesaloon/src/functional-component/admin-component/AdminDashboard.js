@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { FiGrid, FiUsers, FiLogOut } from "react-icons/fi";
+import { FiGrid, FiUsers, FiLogOut, FiCreditCard } from "react-icons/fi";
 import Swal from "sweetalert2";
 import "bootstrap/dist/css/bootstrap.min.css";
 import OwnerRequests from "./OwnerRequests";
 import CustomerTabs from "./CustomerTabs";
 import OwnerTabs from "./OwnerTabs";
 import AdminStats from "./AdminStats";
+import PaymentHistory from "./PaymentHistory";
 import "./AdminDashboard.css";
 
 const AdminDashboard = () => {
@@ -18,7 +19,7 @@ const AdminDashboard = () => {
   // 1. Security Check: Agar Auth nahi hai toh Login pe bhejo
   useEffect(() => {
     const isAdminAuth = localStorage.getItem("isAdminAuthenticated");
-    
+
     if (isAdminAuth !== "true") {
       navigate("/adminlogin", { replace: true });
     } else {
@@ -34,6 +35,7 @@ const AdminDashboard = () => {
     { id: "owner-requests", icon: <FiUsers />, label: "Owner Requests" },
     { id: "customers", icon: <FiUsers />, label: "Customers" },
     { id: "Owners", icon: <FiUsers />, label: "Owners" },
+    { id: "payments", icon: <FiCreditCard />, label: "Payments" },
   ];
 
   // 2. Logout function with Confirmation
@@ -45,7 +47,7 @@ const AdminDashboard = () => {
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, Logout"
+      confirmButtonText: "Yes, Logout",
     }).then((result) => {
       if (result.isConfirmed) {
         localStorage.removeItem("isAdminAuthenticated");
@@ -57,7 +59,7 @@ const AdminDashboard = () => {
 
   // Agar admin data load nahi hua (unauthorized), toh kuch render na karein
   if (!admin && localStorage.getItem("isAdminAuthenticated") !== "true") {
-    return null; 
+    return null;
   }
 
   return (
@@ -83,7 +85,7 @@ const AdminDashboard = () => {
             </div>
           ))}
 
-          <div className="ad-menu-item logout-item" onClick={handleLogout} >
+          <div className="ad-menu-item logout-item" onClick={handleLogout}>
             <FiLogOut />
             <span>Logout</span>
           </div>
@@ -98,7 +100,10 @@ const AdminDashboard = () => {
               {activeTab.charAt(0).toUpperCase() +
                 activeTab.slice(1).replace("-", " ")}
             </h1>
-            <p>Welcome, <strong>{admin?.adminName || "Admin"}</strong> to Elite Saloon Admin Panel</p>
+            <p>
+              Welcome, <strong>{admin?.adminName || "Admin"}</strong> to Elite
+              Saloon Admin Panel
+            </p>
           </div>
         </header>
 
@@ -106,16 +111,18 @@ const AdminDashboard = () => {
           {activeTab === "owner-requests" && <OwnerRequests />}
           {activeTab === "customers" && <CustomerTabs />}
           {activeTab === "Owners" && <OwnerTabs />}
-
+          {activeTab === "payments" && <PaymentHistory />}
           {activeTab === "dashboard" && (
-    <div className="container-fluid py-4">
-        <header className="mb-4">
-            <h3 className="fw-bold">Welcome, {admin?.adminName} 👋</h3>
-            <p className="text-muted">Elite Saloon system is running smoothly.</p>
-        </header>
-        <AdminStats />
-    </div>
-)}
+            <div className="container-fluid py-4">
+              <header className="mb-4">
+                <h3 className="fw-bold">Welcome, {admin?.adminName} 👋</h3>
+                <p className="text-muted">
+                  Elite Saloon system is running smoothly.
+                </p>
+              </header>
+              <AdminStats />
+            </div>
+          )}
         </div>
       </main>
     </div>

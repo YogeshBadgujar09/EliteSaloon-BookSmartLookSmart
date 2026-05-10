@@ -12,7 +12,9 @@ const CustomerList = () => {
 
   const fetchCustomers = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/admin/get-customers-list");
+      const res = await axios.get(
+        "http://localhost:5000/admin/get-customers-list",
+      );
       setCustomers(res.data.data);
     } catch (error) {
       console.log("Error fetching customers");
@@ -23,30 +25,28 @@ const CustomerList = () => {
     setSelectedCustomer(customer);
     setShowModal(true);
   };
- const handleToggleStatus = async () => {
-  try {
-    const res = await axios.put(
-      "http://localhost:5000/admin/customer-status",
-      {
-        customerId: selectedCustomer._id,
-      }
-    );
+  const handleToggleStatus = async () => {
+    try {
+      const res = await axios.put(
+        "http://localhost:5000/admin/customer-status",
+        {
+          customerId: selectedCustomer._id,
+        },
+      );
 
-    const updatedCustomer = res.data.data; 
+      const updatedCustomer = res.data.data;
 
-    // update modal
-    setSelectedCustomer(updatedCustomer);
+      // update modal
+      setSelectedCustomer(updatedCustomer);
 
-    // update table
-    setCustomers((prev) =>
-      prev.map((c) =>
-        c._id === updatedCustomer._id ? updatedCustomer : c
-      )
-    );
-  } catch (e) {
-    console.log("Error updating status");
-  }
-};
+      // update table
+      setCustomers((prev) =>
+        prev.map((c) => (c._id === updatedCustomer._id ? updatedCustomer : c)),
+      );
+    } catch (e) {
+      console.log("Error updating status");
+    }
+  };
   return (
     <div className="ad-content">
       <div className="ad-table-section">
@@ -106,15 +106,17 @@ const CustomerList = () => {
                 <div className="profile-section">
                   <img
                     src={
-                      selectedCustomer?.customerProfileImage
-                        ? `http://localhost:5000/uploads/customerProfile/${selectedCustomer.customerProfileImage}`
-                        : "http://localhost:5000/uploads/default/defaultProfile.png"
+                      !selectedCustomer?.customerProfileImage ||
+                      selectedCustomer.customerProfileImage ===
+                        "defaultProfile.png"
+                        ?"http://localhost:5000/uploads/default/defaultProfile.png" 
+                        : `http://localhost:5000/uploads/customerProfile/${selectedCustomer.customerProfileImage}`
                     }
                     alt="profile"
                     className="owner-photo"
                   />
                   <h4>{selectedCustomer.customerName}</h4>
-                  <p>@{selectedCustomer.customerUsername}</p>
+                  <p>{selectedCustomer.customerUsername}</p>
                 </div>
 
                 {/* GRID */}

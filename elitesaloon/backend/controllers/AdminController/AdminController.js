@@ -329,240 +329,196 @@ exports.loginAdmin = async (req, res) => {
   }
 };
 
-
-
-
 exports.totalActiveCustomers = async (req, res) => {
-    try {
+  try {
+    const count = await CustomerModel.countDocuments({
+      customerStatus: "active",
+    });
 
-        const count = await CustomerModel.countDocuments({
-            customerStatus: "active"
-        });
-
-        res.status(200).json(count);
-
-    } catch (error) {
-
-        res.status(500).json({
-            message: error.message
-        });
-
-    }
+    res.status(200).json(count);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
 exports.totalDeactiveCustomers = async (req, res) => {
-    try {
+  try {
+    const count = await CustomerModel.countDocuments({
+      customerStatus: "deactive",
+    });
 
-        const count = await CustomerModel.countDocuments({
-            customerStatus: "deactive"
-        });
-
-        res.status(200).json(count);
-
-    } catch (error) {
-
-        res.status(500).json({
-            message: error.message
-        });
-
-    }
+    res.status(200).json(count);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
 exports.totalActiveOwners = async (req, res) => {
-    try {
+  try {
+    const count = await OwnerModel.countDocuments({
+      ownerAccountStatus: "ACTIVE",
+    });
 
-        const count = await OwnerModel.countDocuments({
-            ownerAccountStatus: "ACTIVE"
-        });
-
-        res.status(200).json(count);
-
-    } catch (error) {
-
-        res.status(500).json({
-            message: error.message
-        });
-
-    }
+    res.status(200).json(count);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
-
 
 exports.totalDeactiveOwners = async (req, res) => {
-    try {
+  try {
+    const count = await OwnerModel.countDocuments({
+      ownerAccountStatus: "DEACTIVE",
+    });
 
-        const count = await OwnerModel.countDocuments({
-            ownerAccountStatus: "DEACTIVE"
-        });
-
-        res.status(200).json(count);
-
-    } catch (error) {
-
-        res.status(500).json({
-            message: error.message
-        });
-
-    }
+    res.status(200).json(count);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
-
 exports.totalApprovedOwners = async (req, res) => {
-    try {
+  try {
+    const count = await OwnerModel.countDocuments({
+      ownerApprovedStatus: "APPROVE",
+    });
 
-        const count = await OwnerModel.countDocuments({
-            ownerApprovedStatus: "APPROVE"
-        });
-
-        res.status(200).json(count);
-
-    } catch (error) {
-
-        res.status(500).json({
-            message: error.message
-        });
-
-    }
+    res.status(200).json(count);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
 exports.totalPendingOwners = async (req, res) => {
-    try {
+  try {
+    const count = await OwnerModel.countDocuments({
+      ownerApprovedStatus: "PENDING",
+    });
 
-        const count = await OwnerModel.countDocuments({
-            ownerApprovedStatus: "PENDING"
-        });
-
-        res.status(200).json(count);
-
-    } catch (error) {
-
-        res.status(500).json({
-            message: error.message
-        });
-
-    }
+    res.status(200).json(count);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
 exports.totalConfirmedOwners = async (req, res) => {
-    try {
+  try {
+    const count = await OwnerModel.countDocuments({
+      ownerVerified: true,
+    });
 
-        const count = await OwnerModel.countDocuments({
-            ownerVerified: true
-        });
-
-        res.status(200).json(count);
-
-    } catch (error) {
-
-        res.status(500).json({
-            message: error.message
-        });
-
-    }
+    res.status(200).json(count);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
 exports.totalCustomers = async (req, res) => {
-    try {
+  try {
+    const count = await CustomerModel.countDocuments();
 
-        const count = await CustomerModel.countDocuments();
-
-        res.status(200).json(count);
-
-    } catch (error) {
-
-        res.status(500).json({
-            message: error.message
-        });
-
-    }
+    res.status(200).json(count);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
 exports.totalOwners = async (req, res) => {
-    try {
+  try {
+    const count = await OwnerModel.countDocuments();
 
-        const count = await OwnerModel.countDocuments();
-
-        res.status(200).json(count);
-
-    } catch (error) {
-
-        res.status(500).json({
-            message: error.message
-        });
-
-    }
+    res.status(200).json(count);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
-
 exports.totalAppointments = async (req, res) => {
-    try {
+  try {
+    const count = await AppointmentModel.countDocuments();
 
-        const count = await AppointmentModel.countDocuments();
-
-        res.status(200).json(count);
-
-    } catch (error) {
-
-        res.status(500).json({
-            message: error.message
-        });
-
-    }
+    res.status(200).json(count);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
 //
 // Analytics for Dashboard (All in one)
 exports.getAdminDashboardStats = async (req, res) => {
-    try {
-        const [
-            totalCustomers,
-            activeCustomers,
-            totalOwners,
-            activeOwners,
-            pendingOwners,
-            totalAppointments,
-            revenueData
-        ] = await Promise.all([
-            CustomerModel.countDocuments(),
-            CustomerModel.countDocuments({ customerStatus: "active" }),
-            OwnerModel.countDocuments(),
-            OwnerModel.countDocuments({ ownerAccountStatus: "ACTIVE" }),
-            OwnerModel.countDocuments({ ownerApprovedStatus: "PENDING" }),
-            AppointmentModel.countDocuments(),
-            // Revenue calculate karne ke liye aggregation
-            AppointmentModel.aggregate([
-                { $match: { appointmentStatus: "COMPLETED" } },
-                { $group: { _id: null, total: { $sum: "$totalPrice" } } }
-            ])
-        ]);
+  try {
+    const [
+      totalCustomers,
+      activeCustomers,
+      totalOwners,
+      activeOwners,
+      pendingOwners,
+      totalAppointments,
+      revenueData,
+    ] = await Promise.all([
+      CustomerModel.countDocuments(),
+      CustomerModel.countDocuments({ customerStatus: "active" }),
+      OwnerModel.countDocuments(),
+      OwnerModel.countDocuments({ ownerAccountStatus: "ACTIVE" }),
+      OwnerModel.countDocuments({ ownerApprovedStatus: "PENDING" }),
+      AppointmentModel.countDocuments(),
+      // Revenue calculate karne ke liye aggregation
+      AppointmentModel.aggregate([
+        { $match: { appointmentStatus: "COMPLETED" } },
+        { $group: { _id: null, total: { $sum: "$totalPrice" } } },
+      ]),
+    ]);
 
-        // Monthly Growth Logic (Graph ke liye)
-        const growthData = await CustomerModel.aggregate([
-            {
-                $group: {
-                    _id: { $month: "$customerCreatedAt" },
-                    count: { $sum: 1 }
-                }
-            },
-            { $sort: { "_id": 1 } }
-        ]);
+    // Monthly Growth Logic (Graph ke liye)
+    const growthData = await CustomerModel.aggregate([
+      {
+        $group: {
+          _id: { $month: "$customerCreatedAt" },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
 
-        res.status(200).json({
-            success: true,
-            cards: {
-                totalCustomers,
-                activeCustomers,
-                totalOwners,
-                activeOwners,
-                pendingOwners,
-                totalAppointments,
-                totalRevenue: revenueData[0]?.total || 0
-            },
-            growthData: growthData.map(item => ({
-                month: new Date(0, item._id - 1).toLocaleString('en', { month: 'short' }),
-                count: item.count
-            }))
-        });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
+    res.status(200).json({
+      success: true,
+      cards: {
+        totalCustomers,
+        activeCustomers,
+        totalOwners,
+        activeOwners,
+        pendingOwners,
+        totalAppointments,
+        totalRevenue: revenueData[0]?.total || 0,
+      },
+      growthData: growthData.map((item) => ({
+        month: new Date(0, item._id - 1).toLocaleString("en", {
+          month: "short",
+        }),
+        count: item.count,
+      })),
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
