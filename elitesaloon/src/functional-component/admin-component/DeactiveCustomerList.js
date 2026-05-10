@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const CustomerList = () => {
+const DeactiveCustomerList = () => {
   const [customers, setCustomers] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -12,9 +12,8 @@ const CustomerList = () => {
 
   const fetchCustomers = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:5000/admin/get-customers-list",
-      );
+      // ✅ ONLY CHANGE (API)
+      const res = await axios.get("http://localhost:5000/admin/get-deactive-customers-list");
       setCustomers(res.data.data);
     } catch (error) {
       console.log("Error fetching customers");
@@ -25,33 +24,38 @@ const CustomerList = () => {
     setSelectedCustomer(customer);
     setShowModal(true);
   };
+
   const handleToggleStatus = async () => {
     try {
       const res = await axios.put(
         "http://localhost:5000/admin/customer-status",
         {
           customerId: selectedCustomer._id,
-        },
+        }
       );
 
       const updatedCustomer = res.data.data;
 
-      // update modal
+      // ✅ SAME AS CUSTOMER LIST
       setSelectedCustomer(updatedCustomer);
 
-      // update table
       setCustomers((prev) =>
-        prev.map((c) => (c._id === updatedCustomer._id ? updatedCustomer : c)),
+        prev.map((c) =>
+          c._id === updatedCustomer._id ? updatedCustomer : c
+        )
       );
+
     } catch (e) {
       console.log("Error updating status");
     }
   };
+
   return (
     <div className="ad-content">
       <div className="ad-table-section">
         <div className="ad-section-header">
-          <h2 className="ad-section-title">Customer List</h2>
+          {/* ✅ TITLE CHANGE */}
+          <h2 className="ad-section-title">Deactive Customer List</h2>
         </div>
 
         <div className="ad-table-container">
@@ -87,11 +91,12 @@ const CustomerList = () => {
           </table>
         </div>
       </div>
+
       {showModal && selectedCustomer && (
         <div className="modal show d-block custom-modal" tabIndex="-1">
           <div className="modal-dialog modal-lg modal-dialog-centered">
             <div className="modal-content">
-              {/* HEADER */}
+
               <div className="modal-header">
                 <h5 className="modal-title">Customer Details</h5>
                 <button
@@ -100,47 +105,35 @@ const CustomerList = () => {
                 ></button>
               </div>
 
-              {/* BODY */}
               <div className="modal-body custom-body">
-                {/* PROFILE */}
+
                 <div className="profile-section">
                   <img
                     src={
-                      !selectedCustomer?.customerProfileImage ||
-                      selectedCustomer.customerProfileImage ===
-                        "defaultProfile.png"
-                        ?"http://localhost:5000/uploads/default/defaultProfile.png" 
-                        : `http://localhost:5000/uploads/customerProfile/${selectedCustomer.customerProfileImage}`
+                      selectedCustomer?.customerProfileImage
+                        ? `http://localhost:5000/uploads/customerProfile/${selectedCustomer.customerProfileImage}`
+                        : "http://localhost:5000/uploads/default/defaultProfile.png"
                     }
                     alt="profile"
                     className="owner-photo"
                   />
                   <h4>{selectedCustomer.customerName}</h4>
-                  <p>{selectedCustomer.customerUsername}</p>
+                  <p>@{selectedCustomer.customerUsername}</p>
                 </div>
 
-                {/* GRID */}
                 <div className="details-grid">
                   <div className="detail-card">
                     <h6>Contact</h6>
-                    <p>
-                      <span>Email:</span> {selectedCustomer.customerEmail}
-                    </p>
-                    <p>
-                      <span>Mobile:</span> {selectedCustomer.customerMobile}
-                    </p>
+                    <p><span>Email:</span> {selectedCustomer.customerEmail}</p>
+                    <p><span>Mobile:</span> {selectedCustomer.customerMobile}</p>
                   </div>
 
                   <div className="detail-card">
                     <h6>Personal</h6>
-                    <p>
-                      <span>Gender:</span> {selectedCustomer.customerGender}
-                    </p>
+                    <p><span>Gender:</span> {selectedCustomer.customerGender}</p>
                     <p>
                       <span>DOB:</span>{" "}
-                      {new Date(
-                        selectedCustomer.customerDOB,
-                      ).toLocaleDateString()}
+                      {new Date(selectedCustomer.customerDOB).toLocaleDateString()}
                     </p>
                   </div>
 
@@ -175,7 +168,7 @@ const CustomerList = () => {
                     </p>
                     <p>
                       <span>Verified:</span>{" "}
-                      {selectedCustomer.customerVerified ? "Yes " : "No "}
+                      {selectedCustomer.customerVerified ? "Yes" : "No"}
                     </p>
                   </div>
 
@@ -183,22 +176,18 @@ const CustomerList = () => {
                     <h6>System</h6>
                     <p>
                       <span>Created:</span>{" "}
-                      {new Date(
-                        selectedCustomer.customerCreatedAt,
-                      ).toLocaleString()}
+                      {new Date(selectedCustomer.customerCreatedAt).toLocaleString()}
                     </p>
                     <p>
                       <span>Updated:</span>{" "}
-                      {new Date(
-                        selectedCustomer.customerUpdatedAt,
-                      ).toLocaleString()}
+                      {new Date(selectedCustomer.customerUpdatedAt).toLocaleString()}
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* FOOTER */}
               <div className="modal-footer">
+                {/* ✅ SAME TOGGLE BUTTON */}
                 <button
                   className={
                     selectedCustomer.customerStatus === "active"
@@ -219,6 +208,7 @@ const CustomerList = () => {
                   Close
                 </button>
               </div>
+
             </div>
           </div>
         </div>
@@ -227,4 +217,4 @@ const CustomerList = () => {
   );
 };
 
-export default CustomerList;
+export default DeactiveCustomerList;
