@@ -4,6 +4,7 @@ const AdminModel = require("../../models/AdminModel");
 const AppointmentModel = require("../../models/AppointmentModel");
 const emailSendOptimizeCode = require("../../utils/emailSendOptimizeCode");
 const bcrypt = require("bcrypt");
+
 exports.approveOwner = async (req, res) => {
   const { ownerId } = req.params;
   const { ownerApprovedStatus } = req.body;
@@ -298,11 +299,11 @@ exports.loginAdmin = async (req, res) => {
 
     // 1. Find Admin by Email
     const admin = await AdminModel.findOne({ adminEmail });
-
+    
     // 2. Simple logic: Agar admin exist karta hai toh password check karo
     if (admin != null) {
       // Bcrypt se password compare karein
-      const isMatch = await bcrypt.compare(adminPassword, admin.adminPassword);
+      // const isMatch = await bcrypt.compare(adminPassword, admin.adminPassword);
 
       if (isMatch) {
         res.status(200).json({

@@ -20,6 +20,11 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err, "MongoDB connection error"));
 
+// mongoose
+//   .connect(process.env.MONGO_URL)
+//   .then(() => console.log("MongoDB connected"))
+//   .catch((err) => console.log(err, "MongoDB connection error"));
+
 //routes for customer
 app.use("/customer", require("./routes/customerRoutes"));
 

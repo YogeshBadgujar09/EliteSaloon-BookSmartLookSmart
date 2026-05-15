@@ -66,7 +66,7 @@ const CustomerDashboard = () => {
             <img
               src={
                 !customer?.customerProfileImage ||
-                customer.customerProfileImage === "defaultProfile.png"
+                customer.customerProfileImage === "default/defaultProfile.png"
                   ? "http://localhost:5000/uploads/default/defaultProfile.png"
                   : `http://localhost:5000/uploads/customerProfile/${customer.customerProfileImage}?t=${Date.now()}`
               }
