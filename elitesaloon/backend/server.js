@@ -14,16 +14,16 @@ app.use("/default", express.static("C:/uploadEliteSaloonImages/default"));
 
 // Connect to MongoDB
 // mongoose.connect('mongodb://localhost:27017/elitesaloon')
-// mongoose
-//   .connect("mongodb://127.0.0.1:27017/elitesaloon")
-
-//   .then(() => console.log("MongoDB connected"))
-//   .catch((err) => console.log(err, "MongoDB connection error"));
-
 mongoose
-  .connect(process.env.MONGO_URL)
+  .connect("mongodb://127.0.0.1:27017/elitesaloon")
+
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err, "MongoDB connection error"));
+
+// mongoose
+//   .connect(process.env.MONGO_URL)
+//   .then(() => console.log("MongoDB connected"))
+//   .catch((err) => console.log(err, "MongoDB connection error"));
 
 //routes for customer
 app.use("/customer", require("./routes/customerRoutes"));

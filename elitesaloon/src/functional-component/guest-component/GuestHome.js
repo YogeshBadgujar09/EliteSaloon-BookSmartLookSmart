@@ -98,14 +98,14 @@ const GuestHome = () => {
             <div className="hero-buttons">
               <button
                 className="btn-primary"
-                onClick={() => handleProtectedNavigation("/bookappointment")}
+                onClick={() => handleProtectedNavigation("/customerlogin")}
               >
                 Book Appointment
               </button>
               <button
                 className="btn-secondary"
                 onClick={() =>
-                  handleProtectedNavigation("/customerdashboard", {
+                  handleProtectedNavigation("/customerlogin", {
                     activeSection: "services",
                   })
                 }

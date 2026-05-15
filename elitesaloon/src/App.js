@@ -31,6 +31,7 @@ import OtpVerify from "./components/OtpVerify";
 
 //customer service
 import SelectServices from "./functional-component/customers-component/SelectServices";
+import RescheduleService from "./functional-component/customers-component/RescheduleService";
 
 // Owner
 import OwnerRegistration from "./functional-component/owners-component/OwnerRegistration";
@@ -76,6 +77,7 @@ function AppContent() {
     "/ownerresetpassword",
     "bookappointment",
     "/selectservices",
+   "/reschedulservice", 
     "/appointment-details"
   ];
 
@@ -104,6 +106,7 @@ function AppContent() {
         <Route path="/OtpVerify" element={<OtpVerify />} />
 
         <Route path="/selectservices" element={<SelectServices />} />
+        <Route path="/rescheduleservice" element ={<RescheduleService/>}/>
 
         {/* FORGOT PASSWORD */}
         <Route path="/forgotpassword" element={<ForgotPassword />} />

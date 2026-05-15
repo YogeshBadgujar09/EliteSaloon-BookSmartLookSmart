@@ -139,6 +139,7 @@ const Navbar = () => {
 
             {showAccountMenu && (
               <div className="account-dropdown">
+                <Link to="/adminlogin">Admin Login</Link>
                 <Link to="/customerlogin">Customer Login</Link>
                 <Link to="/ownerlogin">Owner Login</Link>
               </div>

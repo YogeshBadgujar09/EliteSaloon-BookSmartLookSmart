@@ -77,3 +77,30 @@ exports.verifyPayment = async (req, res) => {
     res.status(500).send("Verification error");
   }
 };
+
+
+//payment history
+
+exports.getRazorpayPayments = async (req, res) => {
+  try {
+
+    const payments = await razorpay.payments.all({
+      count: 100
+    });
+
+    res.json({
+      success: true,
+      payments: payments.items
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Error fetching Razorpay payments"
+    });
+
+  }
+};

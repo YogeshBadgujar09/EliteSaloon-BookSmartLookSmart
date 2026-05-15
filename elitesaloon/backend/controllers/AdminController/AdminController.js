@@ -1,6 +1,9 @@
 const OwnerModel = require("../../models/OwnerModel");
 const CustomerModel = require("../../models/CustomerModel");
+const AdminModel = require("../../models/AdminModel");
+const AppointmentModel = require("../../models/AppointmentModel");
 const emailSendOptimizeCode = require("../../utils/emailSendOptimizeCode");
+const bcrypt = require("bcrypt");
 
 exports.approveOwner = async (req, res) => {
   const { ownerId } = req.params;
@@ -151,11 +154,6 @@ exports.deactivateCustomer = async (req, res) => {
       });
     }
 
-    // customer.customerStatus =
-    //     customer.customerStatus === "ACTIVE"
-    //         ? "DEACTIVE"
-    //         : "ACTIVE";
-
     customer.customerStatus =
       customer.customerStatus === "active" ? "deactive" : "active";
 
@@ -232,5 +230,296 @@ exports.deactivateOwner = async (req, res) => {
       success: false,
       message: error.message,
     });
+  }
+};
+
+//deactive customerlist
+exports.getDeactiveCustomersList = async (req, res) => {
+  try {
+    const customers = await CustomerModel.find({
+      customerVerified: true,
+      customerStatus: "deactive",
+    }).select("-customerPassword -customerOTP");
+
+    if (!customers || customers.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No deactive customers found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      count: customers.length,
+      data: customers,
+    });
+  } catch (error) {
+    console.error("Error fetching customers:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+//deactivate owner list
+
+exports.getDeactiveOwnersList = async (req, res) => {
+  try {
+    const owners = await OwnerModel.find({
+      ownerVerified: true,
+      ownerApprovedStatus: "APPROVE",
+      ownerAccountStatus: "DEACTIVE", // ✅ CHANGE
+    }).select("-ownerPassword -ownerOTP");
+
+    if (!owners || owners.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No deactive owners found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      count: owners.length,
+      data: owners,
+    });
+  } catch (error) {
+    console.error("Error fetching owners:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+exports.loginAdmin = async (req, res) => {
+  try {
+    const { adminEmail, adminPassword } = req.body;
+
+    // 1. Find Admin by Email
+    const admin = await AdminModel.findOne({ adminEmail });
+    
+    // 2. Simple logic: Agar admin exist karta hai toh password check karo
+    if (admin != null) {
+      // Bcrypt se password compare karein
+      // const isMatch = await bcrypt.compare(adminPassword, admin.adminPassword);
+
+      if (isMatch) {
+        res.status(200).json({
+          message: "Admin Login Successful",
+          admin: {
+            _id: admin._id,
+            adminName: admin.adminName,
+            adminEmail: admin.adminEmail,
+          },
+        });
+      } else {
+        res.status(401).json({
+          message: "Password is invalid ... !!!",
+        });
+      }
+    } else {
+      // Agar admin database mein nahi hai
+      res.status(401).json({
+        message: "Email does not exist",
+      });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.totalActiveCustomers = async (req, res) => {
+  try {
+    const count = await CustomerModel.countDocuments({
+      customerStatus: "active",
+    });
+
+    res.status(200).json(count);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+exports.totalDeactiveCustomers = async (req, res) => {
+  try {
+    const count = await CustomerModel.countDocuments({
+      customerStatus: "deactive",
+    });
+
+    res.status(200).json(count);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+exports.totalActiveOwners = async (req, res) => {
+  try {
+    const count = await OwnerModel.countDocuments({
+      ownerAccountStatus: "ACTIVE",
+    });
+
+    res.status(200).json(count);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+exports.totalDeactiveOwners = async (req, res) => {
+  try {
+    const count = await OwnerModel.countDocuments({
+      ownerAccountStatus: "DEACTIVE",
+    });
+
+    res.status(200).json(count);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+exports.totalApprovedOwners = async (req, res) => {
+  try {
+    const count = await OwnerModel.countDocuments({
+      ownerApprovedStatus: "APPROVE",
+    });
+
+    res.status(200).json(count);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+exports.totalPendingOwners = async (req, res) => {
+  try {
+    const count = await OwnerModel.countDocuments({
+      ownerApprovedStatus: "PENDING",
+    });
+
+    res.status(200).json(count);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+exports.totalConfirmedOwners = async (req, res) => {
+  try {
+    const count = await OwnerModel.countDocuments({
+      ownerVerified: true,
+    });
+
+    res.status(200).json(count);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+exports.totalCustomers = async (req, res) => {
+  try {
+    const count = await CustomerModel.countDocuments();
+
+    res.status(200).json(count);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+exports.totalOwners = async (req, res) => {
+  try {
+    const count = await OwnerModel.countDocuments();
+
+    res.status(200).json(count);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+exports.totalAppointments = async (req, res) => {
+  try {
+    const count = await AppointmentModel.countDocuments();
+
+    res.status(200).json(count);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+//
+// Analytics for Dashboard (All in one)
+exports.getAdminDashboardStats = async (req, res) => {
+  try {
+    const [
+      totalCustomers,
+      activeCustomers,
+      totalOwners,
+      activeOwners,
+      pendingOwners,
+      totalAppointments,
+      revenueData,
+    ] = await Promise.all([
+      CustomerModel.countDocuments(),
+      CustomerModel.countDocuments({ customerStatus: "active" }),
+      OwnerModel.countDocuments(),
+      OwnerModel.countDocuments({ ownerAccountStatus: "ACTIVE" }),
+      OwnerModel.countDocuments({ ownerApprovedStatus: "PENDING" }),
+      AppointmentModel.countDocuments(),
+      // Revenue calculate karne ke liye aggregation
+      AppointmentModel.aggregate([
+        { $match: { appointmentStatus: "COMPLETED" } },
+        { $group: { _id: null, total: { $sum: "$totalPrice" } } },
+      ]),
+    ]);
+
+    // Monthly Growth Logic (Graph ke liye)
+    const growthData = await CustomerModel.aggregate([
+      {
+        $group: {
+          _id: { $month: "$customerCreatedAt" },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      cards: {
+        totalCustomers,
+        activeCustomers,
+        totalOwners,
+        activeOwners,
+        pendingOwners,
+        totalAppointments,
+        totalRevenue: revenueData[0]?.total || 0,
+      },
+      growthData: growthData.map((item) => ({
+        month: new Date(0, item._id - 1).toLocaleString("en", {
+          month: "short",
+        }),
+        count: item.count,
+      })),
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
