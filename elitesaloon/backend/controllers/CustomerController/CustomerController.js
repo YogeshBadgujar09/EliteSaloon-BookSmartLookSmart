@@ -642,3 +642,60 @@ exports.cancelAppointmentByCustomer = async (req, res) => {
     });
   }
 };
+
+
+
+// resend otp
+
+exports.resendCustomerOtp = async (req, res) => {
+  try {
+    const { customerEmail } = req.body;
+
+    const customer = await CustomerModel.findOne({ customerEmail });
+
+    if (!customer) {
+      return res.status(404).json({
+        message: "Customer not found",
+      });
+    }
+
+    const subject = "Resend OTP for Elite Saloon";
+
+    let message =
+      "Please enter OTP for customer registration in Elite Saloon\n\n Your OTP is :";
+
+    // Generate New OTP
+    let otp = await generateOTP();
+
+    message = message + otp;
+
+    // Send Email
+    const generatedOTP = await emailSendOptimizeCode(
+      customer.customerEmail,
+      subject,
+      message
+    );
+
+    if (generatedOTP) {
+      // Update OTP in database
+      customer.customerOTP = otp;
+
+      await customer.save();
+
+      return res.status(200).json({
+        message: "OTP Resent Successfully",
+      });
+    } else {
+      return res.status(500).json({
+        message: "Failed to resend OTP",
+      });
+    }
+  } catch (error) {
+    console.log("Resend OTP Error:", error);
+
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};

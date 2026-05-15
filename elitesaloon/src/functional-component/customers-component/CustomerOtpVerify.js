@@ -105,7 +105,7 @@ const CustomerOtpVerify = () => {
       Swal.fire(
         "Server Error",
         "Unable to verify OTP. Try again later.",
-        "error"
+        "error",
       );
     } finally {
       stopLoading();

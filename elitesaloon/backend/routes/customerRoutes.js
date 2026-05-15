@@ -13,7 +13,7 @@ routes.post('/verifyotp', CustomerController.verifyOTP);
 routes.post('/forgotpassword', CustomerController.forgotPassword);
 // routes.post('/matchotp', CustomerController.matchOTP);
 routes.post('/resetpassword', CustomerController.resetPassword);
-
+routes.post('/resendotp',CustomerController.resendCustomerOtp);
 //for imsge
 routes.post('/uploadprofile', imageUpload.single('customerProfileImage'), CustomerController.uploadProfileImage);routes.put(
   '/update-profile/:id',

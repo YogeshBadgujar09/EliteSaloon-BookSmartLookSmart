@@ -154,7 +154,6 @@ const CustomerLoginWithOTP = () => {
           </>
         )}
       </div>
-
     </div>
   );
 };
