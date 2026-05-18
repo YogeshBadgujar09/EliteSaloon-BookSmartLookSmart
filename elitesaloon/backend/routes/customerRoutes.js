@@ -3,7 +3,7 @@ const routes  = express.Router();
 // const upload = require('../middleware/upload');
 const imageUpload = require("../utils/imageUpload");
 const CustomerController = require('../controllers/CustomerController/CustomerController');
-const Customer = require('../models/CustomerModel');
+// const Customer = require('../models/CustomerModel');
 
 // routes.post('/register', upload.single('customerProfileImage'), CustomerController.registerCustomer);
 routes.post('/register', CustomerController.registerCustomer);
@@ -13,7 +13,7 @@ routes.post('/verifyotp', CustomerController.verifyOTP);
 routes.post('/forgotpassword', CustomerController.forgotPassword);
 // routes.post('/matchotp', CustomerController.matchOTP);
 routes.post('/resetpassword', CustomerController.resetPassword);
-
+routes.post('/resendotp',CustomerController.resendCustomerOtp);
 //for imsge
 routes.post('/uploadprofile', imageUpload.single('customerProfileImage'), CustomerController.uploadProfileImage);routes.put(
   '/update-profile/:id',

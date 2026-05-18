@@ -6,7 +6,6 @@ import useLoader from "../../hooks/useLoader";
 import CommonLoader from "../../components/CommonLoader";
 
 const OwnerResetOtp = () => {
-
   const navigate = useNavigate();
   const location = useLocation();
   const ownerEmail = location.state?.ownerEmail;
@@ -41,7 +40,6 @@ const OwnerResetOtp = () => {
   /* ================= HANDLE SUBMIT ================= */
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
     const finalOtp = otp.join("");
@@ -52,7 +50,6 @@ const OwnerResetOtp = () => {
     }
 
     try {
-
       startLoading();
 
       const response = await fetch(
@@ -68,34 +65,55 @@ const OwnerResetOtp = () => {
       console.log("Owner OTP Verify Response:", data);
 
       if (response.ok) {
-
-        Swal.fire("Success 🎉", "OTP Verified Successfully", "success")
-          .then(() => {
-            navigate("/ownerresetpassword", { state: { ownerEmail } });
-          });
-
+        Swal.fire("Success 🎉", "OTP Verified Successfully", "success").then(() => {
+          navigate("/ownerresetpassword", { state: { ownerEmail } });
+        });
       } else {
-
         Swal.fire("Error", data.message || "Invalid OTP", "error");
-
       }
-
     } catch (error) {
-
       console.error("Owner OTP Verify Error:", error);
-
       Swal.fire("Server Error", "Unable to verify OTP", "error");
-
     } finally {
-
       stopLoading();
-
     }
+  };
 
+  /* ================= RESEND OTP FOR OWNER ================= */
+
+  const handleResendOtp = async () => {
+    console.log("Resend OTP clicked for Owner");
+
+    startLoading();
+
+    try {
+      const response = await fetch("http://localhost:5000/owner/resendotp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ownerEmail: ownerEmail,
+        }),
+      });
+
+      const data = await response.json();
+      console.log("Owner Resend OTP Response:", data);
+
+      if (response.ok) {
+        Swal.fire("Success", "OTP Resent Successfully", "success");
+      } else {
+        Swal.fire("Error", data.message || "Failed to resend OTP", "error");
+      }
+    } catch (error) {
+      console.log("Owner Resend OTP Error:", error);
+      Swal.fire("Server Error", "Unable to resend OTP", "error");
+    } finally {
+      stopLoading();
+    }
   };
 
   return (
-
     <>
       <CommonLoader loading={loading} />
 
@@ -103,7 +121,6 @@ const OwnerResetOtp = () => {
         <h2>Enter OTP</h2>
 
         <form onSubmit={handleSubmit}>
-
           <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
             {otp.map((data, index) => (
               <input
@@ -127,9 +144,22 @@ const OwnerResetOtp = () => {
             {loading ? "Verifying..." : "Next"}
           </button>
 
+          {/* ✅ RESEND OTP FOR OWNER ADDED HERE */}
+          <p
+            onClick={!loading ? handleResendOtp : null}
+            style={{
+              textAlign: "center",
+              marginTop: "15px",
+              cursor: loading ? "not-allowed" : "pointer",
+              color: "#f8b500",
+              fontWeight: "600",
+              opacity: loading ? 0.6 : 1,
+            }}
+          >
+            Resend OTP
+          </p>
         </form>
       </div>
-
     </>
   );
 };

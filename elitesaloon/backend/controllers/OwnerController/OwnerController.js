@@ -5,6 +5,8 @@ const generateOTP = require("../../utils/generateOTP");
 const ServiceModel = require("../../models/ServiceModel");
 const ProductModel = require("../../models/ProductModel");
 const StaffModel = require("../../models/StaffModel");
+const AppointmentModel = require("../../models/AppointmentModel"); 
+const mongoose = require("mongoose");
 
 exports.registerOwner = async (req, res) => {
   const subject = "Mail for Register Owner in Elite Saloon";
@@ -78,8 +80,8 @@ exports.registerOwner = async (req, res) => {
       }
     } else {
       if (
-        existingOwner.ownerAccountStatus == "DEACTIVE" &&
-        existingOwner.ownerApprovedStatus == "PENDING"
+        existingOwner.ownerAccountStatus === "DEACTIVE" &&
+        existingOwner.ownerApprovedStatus === "PENDING"
       ) {
         return res.status(409).json({
           success: false,
@@ -836,5 +838,253 @@ exports.getOwnerStaff = async (req, res) => {
       message: "Error fetching staff list",
       error: error.message,
     });
+  }
+};
+
+
+//resend otp
+exports.resendOwnerOtp = async (req, res) => {
+  try {
+    const { ownerEmail } = req.body;
+
+    // 1. Check karo ki owner exist karta hai ya nahi
+    const owner = await OwnerModel.findOne({ ownerEmail });
+
+    if (!owner) {
+      return res.status(404).json({
+        message: "Owner not found",
+      });
+    }
+
+    // 2. Email subject aur message content set karo
+    const subject = "Resend OTP for Elite Saloon Owner Verification";
+
+    let message =
+      "Please enter OTP for Owner registration in Elite Saloon\n\n Your OTP is :";
+
+    // 3. Naya OTP generate karo
+    let otp = await generateOTP();
+
+    message = message + otp;
+
+    // 4. Email send karo
+    const generatedOTP = await emailSendOptimizeCode(
+      owner.ownerEmail,
+      subject,
+      message
+    );
+
+    if (generatedOTP) {
+      // 5. Database me naya OTP update aur save karo
+      owner.ownerOTP = otp;
+
+      await owner.save();
+
+      return res.status(200).json({
+        message: "OTP Resent Successfully",
+      });
+    } else {
+      return res.status(500).json({
+        message: "Failed to resend OTP to owner email",
+      });
+    }
+  } catch (error) {
+    console.log("Resend Owner OTP Error:", error);
+
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
+
+
+// ==========================================
+// 1. TOTAL UNIQUE CUSTOMERS FOR AN OWNER
+// ==========================================
+exports.totalOwnerCustomers = async (req, res) => {
+  try {
+    const { ownerId } = req.params;
+
+    if (!ownerId || !mongoose.Types.ObjectId.isValid(ownerId)) {
+      return res.status(400).json({ message: "Valid Owner ID parameter is required" });
+    }
+
+    const ownerObjectId = new mongoose.Types.ObjectId(ownerId);
+
+    const distinctCustomers = await AppointmentModel.aggregate([
+      { $match: { ownerId: ownerObjectId } },
+      { $group: { _id: "$customerId" } },
+      { $count: "uniqueCount" }
+    ]);
+
+    const count = distinctCustomers[0]?.uniqueCount || 0;
+    return res.status(200).json(count);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error counting unique owner customers",
+      error: error.message,
+    });
+  }
+};
+
+// ==========================================
+// 2. TOTAL SERVICES LISTED BY AN OWNER
+// ==========================================
+exports.totalOwnerServices = async (req, res) => {
+  try {
+    const { ownerId } = req.params;
+
+    if (!ownerId) {
+      return res.status(400).json({ message: "Owner ID parameter is required" });
+    }
+
+    const count = await ServiceModel.countDocuments({ ownerId: ownerId });
+    return res.status(200).json(count);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error counting owner services",
+      error: error.message,
+    });
+  }
+};
+
+// ==========================================
+// 3. TOTAL EARNINGS FOR AN OWNER (COMPLETED ONLY)
+// ==========================================
+exports.totalOwnerEarning = async (req, res) => {
+  try {
+    const { ownerId } = req.params;
+
+    if (!ownerId || !mongoose.Types.ObjectId.isValid(ownerId)) {
+      return res.status(400).json({ message: "Valid Owner ID parameter is required" });
+    }
+
+    const ownerObjectId = new mongoose.Types.ObjectId(ownerId);
+
+    const earningData = await AppointmentModel.aggregate([
+      { 
+        $match: { 
+          ownerId: ownerObjectId, 
+          appointmentStatus: "COMPLETED" 
+        } 
+      },
+      { 
+        $group: { 
+          _id: null, 
+          total: { $sum: "$totalPrice" } 
+        } 
+      }
+    ]);
+
+    const totalEarning = earningData[0]?.total || 0;
+    return res.status(200).json(totalEarning);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error calculating owner total earnings",
+      error: error.message,
+    });
+  }
+};
+
+// ==========================================
+// 4. TOTAL APPOINTMENTS RECEIVED BY AN OWNER
+// ==========================================
+exports.totalOwnerAppointments = async (req, res) => {
+  try {
+    const { ownerId } = req.params;
+
+    if (!ownerId) {
+      return res.status(400).json({ message: "Owner ID parameter is required" });
+    }
+
+    const count = await AppointmentModel.countDocuments({ ownerId: ownerId });
+    return res.status(200).json(count);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error counting owner appointments",
+      error: error.message,
+    });
+  }
+};
+
+// ==========================================
+// 5. UNIFIED ALL-IN-ONE ANALYTICS (FOR GRAPH & REPORT COMPONENT)
+// ==========================================
+exports.getOwnerDashboardStats = async (req, res) => {
+  try {
+    const { ownerId } = req.params;
+
+    if (!ownerId || !mongoose.Types.ObjectId.isValid(ownerId)) {
+      return res.status(400).json({ success: false, message: "Valid Owner ID is required" });
+    }
+
+    const ownerObjectId = new mongoose.Types.ObjectId(ownerId);
+
+    // Parallel execution using Promise.all for high performance
+    const [
+      totalServices,
+      totalProducts,
+      totalStaff,
+      totalAppointments,
+      earningData,
+      distinctCustomers
+    ] = await Promise.all([
+      ServiceModel.countDocuments({ ownerId: ownerId }),
+      ProductModel.countDocuments({ ownerId: ownerId }),
+      StaffModel.countDocuments({ ownerId: ownerId, isVerified: true }),
+      AppointmentModel.countDocuments({ ownerId: ownerId }),
+      AppointmentModel.aggregate([
+        { $match: { ownerId: ownerObjectId, appointmentStatus: "COMPLETED" } },
+        { $group: { _id: null, total: { $sum: "$totalPrice" } } }
+      ]),
+      AppointmentModel.aggregate([
+        { $match: { ownerId: ownerObjectId } },
+        { $group: { _id: "$customerId" } },
+        { $count: "uniqueCount" }
+      ])
+    ]);
+
+    // String Date splitting logic targeting "YYYY-MM-DD" schema structures securely
+    const growthData = await AppointmentModel.aggregate([
+      { $match: { ownerId: ownerObjectId } },
+      {
+        $group: {
+          _id: { $substr: ["$appointmentDate", 5, 2] }, // Cuts the "MM" portion
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      cards: {
+        totalCustomers: distinctCustomers[0]?.uniqueCount || 0,
+        totalServices,
+        totalProducts,
+        totalStaff,
+        totalAppointments,
+        totalEarning: earningData[0]?.total || 0,
+      },
+      growthData: growthData.map((item) => {
+        const monthIndex = parseInt(item._id, 10);
+        return {
+          month: isNaN(monthIndex) || monthIndex < 1 || monthIndex > 12
+            ? "Unknown"
+            : new Date(0, monthIndex - 1).toLocaleString("en", { month: "short" }),
+          count: item.count,
+        };
+      }),
+    });
+
+  } catch (error) {
+    console.error("Dashboard Stats Engine Crash:", error);
+    return res.status(500).json({ success: false, message: error.message });
   }
 };

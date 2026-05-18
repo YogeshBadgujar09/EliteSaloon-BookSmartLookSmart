@@ -18,11 +18,10 @@ const ServiceSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-
-    serviceType:{
-        type:String,
-        enum:["HAIRCUT","BEARD","FACIAL","MAKEUP","SKIN"],
-        required:true
+    serviceType: {
+    type: String,
+    enum: ["HAIRCUT","BEARD", "FACIAL","SKIN","HAIRWASH","HAIRSPA","HAIRCOLORING","CLEANUP","KERATINTREATMENT" ],
+    required: true
     },
 
     serviceImages:[

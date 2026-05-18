@@ -1686,3 +1686,10 @@ min-height: 480px; /* Perfect balanced height */
 .buy-now-btn:hover {
   background: #600018;
 }
+.content-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+

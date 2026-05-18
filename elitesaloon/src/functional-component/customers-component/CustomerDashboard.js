@@ -11,8 +11,6 @@ import {
   FaUser,
   FaCalendarAlt,
   FaShoppingBag,
-  FaStar,
-  FaEdit,
   FaSignOutAlt,
   FaCog,
 } from "react-icons/fa";
@@ -22,21 +20,30 @@ const CustomerDashboard = () => {
   const location = useLocation();
 
   // Initial state check: Agar reschedule se aa rahe hain toh direct 'bookappointments' tab khule
-  const [activeSection, setActiveSection] = useState(
-    location.state?.openReschedule ? "bookappointments" : "overview"
-  );
+ const [activeSection, setActiveSection] = useState(
+  location.state?.activeSection ||
+  (location.state?.openReschedule
+    ? "bookappointments"
+    : "overview")
+);
 
   const [customer, setCustomer] = useState(() => {
     const stored = localStorage.getItem("customer");
     return location.state?.customer || (stored ? JSON.parse(stored) : {});
   });
 
-  // ✅ NEW: Yeh effect handle karega jab hum SelectServices se wapas aayenge
-  useEffect(() => {
-    if (location.state?.openReschedule) {
-      setActiveSection("bookappointments");
-    }
-  }, [location.state]);
+  
+useEffect(() => {
+
+  if (location.state?.activeSection) {
+    setActiveSection(location.state.activeSection);
+  }
+
+  if (location.state?.openReschedule) {
+    setActiveSection("bookappointments");
+  }
+
+}, [location.state]);
 
   // Session check
   useEffect(() => {
@@ -105,12 +112,6 @@ const CustomerDashboard = () => {
             <FaShoppingBag /> Products
           </button>
 
-          <button
-            className={`nav-item ${activeSection === "feedback" ? "active" : ""}`}
-            onClick={() => setActiveSection("feedback")}
-          >
-            <FaStar /> My Reviews
-          </button>
 
           <button
             className={`nav-item ${activeSection === "profile" ? "active" : ""}`}
@@ -154,8 +155,6 @@ const CustomerDashboard = () => {
         return <CustomerServices customer={customer} />;
       case "products":
         return <CustomerProducts customer={customer} />;
-      case "feedback":
-        return renderFeedback(); // Aapka existing renderFeedback function
       case "profile":
         return <CustomerProfile customer={customer} setCustomer={setCustomer} />;
       default:
@@ -163,28 +162,6 @@ const CustomerDashboard = () => {
     }
   };
 
-  // Helper render for feedback to keep code clean
-  const renderFeedback = () => (
-    <div className="dashboard-content">
-      <div className="content-header"><h2>My Reviews</h2></div>
-      <div className="feedback-list">
-        {feedbacks.map((fb) => (
-          <div key={fb.id} className="feedback-card">
-            <div className="feedback-header">
-              <h4>{fb.service}</h4>
-              <span className="feedback-date">{fb.date}</span>
-            </div>
-            <div className="feedback-rating">
-              {[...Array(5)].map((_, i) => (
-                <FaStar key={i} className={i < fb.rating ? "star filled" : "star"} />
-              ))}
-            </div>
-            <p className="feedback-comment">{fb.comment}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
 
   return (
     <div className="customer-dashboard">

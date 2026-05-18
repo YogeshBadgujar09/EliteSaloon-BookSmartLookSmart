@@ -5,9 +5,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 // Guest
 import Navbar from "./functional-component/guest-component/Navbar";
 import GuestHome from "./functional-component/guest-component/GuestHome";
-import Shop from "./functional-component/guest-component/Shop";
-import Search from "./functional-component/guest-component/Search";
-import Offers from "./functional-component/guest-component/Offers";
+
 
 //admin
 import AdminLogin from "./functional-component/admin-component/AdminLogin";
@@ -90,9 +88,7 @@ function AppContent() {
       <Routes>
         {/* GUEST */}
         <Route path="/" element={<GuestHome />} />
-        <Route path="/shop" element={<Shop />} />
-        <Route path="/search" element={<Search />} />
-        <Route path="/offers" element={<Offers />} />
+    
 
         {/* CUSTOMER */}
         <Route path="/customerregister" element={<CustomerRegistration />} />

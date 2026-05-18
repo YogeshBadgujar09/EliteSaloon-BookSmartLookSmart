@@ -9,6 +9,7 @@ import Products from "./Products";
 import Staff from "./Staff";
 import OwnerProfile from "./OwnerProfile";
 import OwnerAppointments from "./OwnerAppointments";
+import OwnerReports from "./OwnerReports"; // 🔥 NEW: Child Component Imported Here
 
 import {
   FiGrid,
@@ -34,28 +35,23 @@ const OwnerDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [loading, setLoading] = useState(true);
 
-  // const owner =location.state?.owner || JSON.parse(localStorage.getItem("owner"));
-  // console.log("Owner Print at Dashboard :", owner);
   const [owner] = useState(() => {
-  return location.state?.owner || JSON.parse(localStorage.getItem("owner"));
-});
-  
+    return location.state?.owner || JSON.parse(localStorage.getItem("owner"));
+  });
 
-//session
-// Dashboard ke andar ye change karein
-useEffect(() => {
+  // session
+  useEffect(() => {
     const isAuth = localStorage.getItem("isOwnerAuthenticated");
     const ownerData = localStorage.getItem("owner");
 
     if (isAuth !== "true" || !ownerData) {
-        // Clear storage just in case
-        localStorage.removeItem("isOwnerAuthenticated");
-        localStorage.removeItem("owner");
-        navigate("/ownerlogin", { replace: true }); 
+      localStorage.removeItem("isOwnerAuthenticated");
+      localStorage.removeItem("owner");
+      navigate("/ownerlogin", { replace: true });
     } else {
-        setLoading(false); 
+      setLoading(false);
     }
-}, [navigate]);
+  }, [navigate]);
 
   const [ownerProfile, setOwnerProfile] = useState({
     ownerName: "",
@@ -110,65 +106,67 @@ useEffect(() => {
     staffAddress: "",
   });
 
-const fetchDashboardData = async () => {
-  try {
-    if (!owner || !owner._id) {
-      console.log("Owner ID missing, redirecting to home...");
-      navigate("/");
-      return;
+  const fetchDashboardData = async () => {
+    try {
+      if (!owner || !owner._id) {
+        console.log("Owner ID missing, redirecting to home...");
+        navigate("/");
+        return;
+      }
+
+      const ownerRes = owner;
+      setOwnerProfile(ownerRes || {});
+
+      const ownerId = ownerRes._id;
+      console.log("Fetching data for Owner ID:", ownerId);
+
+      const serviceRes = await axios.get(
+        `http://localhost:5000/owner/allservices/${ownerId}`
+      );
+
+      const serviceData = Array.isArray(serviceRes.data.services)
+        ? serviceRes.data.services
+        : [];
+      setServices(serviceData);
+
+      const productRes = await axios.get(
+        `http://localhost:5000/owner/viewall-products/${ownerId}`
+      );
+
+      const productData = Array.isArray(productRes.data.products)
+        ? productRes.data.products
+        : [];
+      setProducts(productData);
+
+      const staffRes = await axios.get(
+        `http://localhost:5000/owner/staff-list/${ownerId}`
+      );
+
+      console.log("Staff List :", staffRes.data);
+
+      const staffData = Array.isArray(staffRes.data.staff)
+        ? staffRes.data.staff
+        : [];
+      setStaff(staffData);
+
+    } catch (error) {
+      console.error("Dashboard Load Error:", error);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const ownerRes = owner;
-    setOwnerProfile(ownerRes || {});
+  useEffect(() => {
+    if (owner && owner._id) {
+      fetchDashboardData();
+    }
+  }, [owner]);
 
-    const ownerId = ownerRes._id;
-    console.log("Fetching data for Owner ID:", ownerId);
-
-    const serviceRes = await axios.get(
-      `http://localhost:5000/owner/allservices/${ownerId}`
-    );
-
-    const serviceData = Array.isArray(serviceRes.data.services)
-      ? serviceRes.data.services
-      : [];
-    setServices(serviceData);
-
-    const productRes = await axios.get(
-      `http://localhost:5000/owner/viewall-products/${ownerId}`
-    );
-
-    const productData = Array.isArray(productRes.data.products)
-      ? productRes.data.products
-      : [];
-    setProducts(productData);
-
-    const staffRes = await axios.get(
-      `http://localhost:5000/owner/staff-list/${ownerId}`
-    );
-
-    console.log("Staff List :", staffRes.data);
-
-    const staffData = Array.isArray(staffRes.data.staff)
-      ? staffRes.data.staff
-      : [];
-    setStaff(staffData);
-
-  } catch (error) {
-    console.error("Dashboard Load Error:", error);
-  } finally {
-    setLoading(false);
-  }
-};
-useEffect(() => {
-  if (owner && owner._id) {
-    fetchDashboardData();
-  }
-}, [owner]);  
   const filteredServices = Array.isArray(services)
     ? serviceCategory === "all"
       ? services
       : services.filter(
-          (s) => s.servicePreferredGender === serviceCategory.toUpperCase(),
+          (s) => s.servicePreferredGender === serviceCategory.toUpperCase()
         )
     : [];
 
@@ -176,7 +174,7 @@ useEffect(() => {
     ? productCategory === "all"
       ? products
       : products.filter(
-          (p) => p.productPreferredGender === productCategory.toUpperCase(),
+          (p) => p.productPreferredGender === productCategory.toUpperCase()
         )
     : [];
 
@@ -193,26 +191,23 @@ useEffect(() => {
     }
   };
 
-  //logout
+  // logout
+  const handleLogout = () => {
+    Swal.fire({
+      title: "Logout?",
+      text: "Are you sure you want to logout?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#800020",
+      confirmButtonText: "Yes, Logout",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.clear();
+        navigate("/", { replace: true });
+      }
+    });
+  };
 
- const handleLogout = () => {
-  Swal.fire({
-    title: "Logout?",
-    text: "Are you sure you want to logout?",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#800020",
-    confirmButtonText: "Yes, Logout",
-  }).then((result) => {
-    if (result.isConfirmed) {
-      
-      localStorage.clear(); 
-      
-      
-      navigate("/", { replace: true }); 
-    }
-  });
-};
   ///services handlesubmit
   const handleServiceSubmit = async (e) => {
     e.preventDefault();
@@ -224,7 +219,7 @@ useEffect(() => {
     formData.append("serviceType", serviceForm.serviceType);
     formData.append(
       "servicePreferredGender",
-      serviceForm.servicePreferredGender,
+      serviceForm.servicePreferredGender
     );
     formData.append("servicePrice", serviceForm.servicePrice);
     formData.append("serviceDuration", serviceForm.serviceDuration);
@@ -239,7 +234,7 @@ useEffect(() => {
       if (editingService && editingService._id) {
         await axios.put(
           `http://localhost:5000/owner/update-service/${editingService._id}`,
-          formData,
+          formData
         );
         Swal.fire("Success", "Service updated successfully", "success");
       } else {
@@ -297,8 +292,6 @@ useEffect(() => {
   const handleProductSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation call
-
     const formData = new FormData();
 
     formData.append("productName", productForm.productName);
@@ -307,7 +300,7 @@ useEffect(() => {
     formData.append("productPrice", productForm.productPrice);
     formData.append(
       "productPreferredGender",
-      productForm.productPreferredGender,
+      productForm.productPreferredGender
     );
 
     formData.append("ownerId", owner._id);
@@ -320,7 +313,7 @@ useEffect(() => {
       if (editingProduct) {
         await axios.put(
           `http://localhost:5000/owner/update-product/${editingProduct._id}`,
-          formData,
+          formData
         );
         Swal.fire("Success", "Product updated successfully", "success");
       } else {
@@ -353,6 +346,7 @@ useEffect(() => {
       }
     });
   };
+
   const openEditProduct = (product) => {
     setEditingProduct(product);
     setProductForm(product);
@@ -375,33 +369,24 @@ useEffect(() => {
   ///staff handlesubmit
   const handleStaffSubmit = async (formData, callback) => {
     try {
-      // ownerId add karo
       formData.append("ownerId", owner._id);
 
       if (editingStaff) {
         await axios.put(
           `http://localhost:5000/owner/staff-update/${editingStaff._id}`,
-          formData,
+          formData
         );
-
         Swal.fire("Success", "Staff updated successfully", "success");
       } else {
         const res = await axios.post(
           `http://localhost:5000/owner/add-staff/${owner._id}`,
-          formData,
+          formData
         );
         const email = res.data.staffEmail;
 
         if (callback) {
           callback(email);
         }
-        // console.log("Staff Receive :", res.data.staffEmail);
-
-        // if(res.ok)
-        // {
-        //      navigate("/staffotpverify",
-        //      {state: { staffEmail: email }} );
-        // }
 
         Swal.fire("Success", "OTP sent successfully", "success");
       }
@@ -431,12 +416,9 @@ useEffect(() => {
       }
     });
   };
+
   const openEditStaff = (member) => {
     setEditingStaff(member);
-    setStaffForm({
-      ...member,
-      // staffSpecialization: member.staffSpecialization.join(", "),
-    });
     setShowStaffModal(true);
   };
 
@@ -447,10 +429,6 @@ useEffect(() => {
       staffName: "",
       staffEmail: "",
       staffMobile: "",
-      // staffGender: "MALE",
-      // staffRole: "stylist",
-      // staffSpecialization: "",
-      // staffExperience: "",
     });
   };
 
@@ -462,7 +440,6 @@ useEffect(() => {
     { id: "products", icon: <FiShoppingBag />, label: "Products" },
     { id: "staff", icon: <FiUsers />, label: "Staff" },
     { id: "reports", icon: <FiBarChart2 />, label: "Reports" },
-    { id: "settings", icon: <FiSettings />, label: "Settings" },
   ];
 
   if (loading) {
@@ -504,10 +481,10 @@ useEffect(() => {
               <span>{item.label}</span>
             </div>
           ))}
-         <div className="od-menu-item" onClick={handleLogout}>
-  <FiLogOut />
-  <span>Logout</span>
-</div>
+          <div className="od-menu-item" onClick={handleLogout}>
+            <FiLogOut />
+            <span>Logout</span>
+          </div>
         </nav>
       </aside>
 
@@ -519,23 +496,20 @@ useEffect(() => {
             <p>Welcome back, {ownerProfile.ownerName}</p>
           </div>
           <div className="od-header-actions">
-            <button className="od-notification-btn">
-              <FiBell />
-              <span className="od-notification-badge">3</span>
-            </button>
+          
             <div className="od-profile-dropdown">
               <img
                 src={
                   ownerProfile.ownerProfileImage?.startsWith("data:")
                     ? ownerProfile.ownerProfileImage
                     : ownerProfile.ownerProfileImage === "defaultProfile.png"
-                      ? "http://localhost:5000/uploads/default/defaultProfile.png"
-                      : `http://localhost:5000/uploads/ownerProfile/${ownerProfile.ownerProfileImage}`
+                    ? "http://localhost:5000/uploads/default/defaultProfile.png"
+                    : `http://localhost:5000/uploads/ownerProfile/${ownerProfile.ownerProfileImage}`
                 }
                 alt="Profile"
                 className="od-profile-img"
               />
-           
+
               <div className="od-profile-info">
                 <div className="od-profile-name">{ownerProfile.ownerName}</div>
                 <div className="od-profile-role">Owner</div>
@@ -570,7 +544,6 @@ useEffect(() => {
                   <div className="od-stat-value">{staff.length}</div>
                   <div className="od-stat-label">Staff Members</div>
                 </div>
-              
               </div>
               <div className="od-section">
                 <div className="od-section-header">
@@ -602,7 +575,7 @@ useEffect(() => {
                               onError={(e) => {
                                 console.log(
                                   "Image load error:",
-                                  service.serviceImages[0],
+                                  service.serviceImages[0]
                                 );
                                 e.target.style.display = "none";
                               }}
@@ -664,10 +637,11 @@ useEffect(() => {
             />
           )}
 
-{/* APPOINTMENTS TAB */}
-{activeTab === "appointments" && (
-  <OwnerAppointments ownerId={owner?._id} /> 
-)}
+          {/* APPOINTMENTS TAB */}
+          {activeTab === "appointments" && (
+            <OwnerAppointments ownerId={owner?._id} />
+          )}
+
           {/* SERVICES */}
           {activeTab === "services" && (
             <Services
@@ -722,74 +696,16 @@ useEffect(() => {
             />
           )}
 
-          {/* REPORTS */}
+          {/* REPORTS - Rendered cleanly via Child Component */}
           {activeTab === "reports" && (
-            <div className="od-section">
-              <div className="od-section-header">
-                <h2 className="od-section-title">Reports & Analytics</h2>
-              </div>
-              <div className="od-stats-grid">
-                <div className="od-stat-card">
-                  <div className="od-stat-icon">
-                    <FiDollarSign />
-                  </div>
-                  <div className="od-stat-value">₹4,25,000</div>
-                  <div className="od-stat-label">Monthly Revenue</div>
-                </div>
-                <div className="od-stat-card">
-                  <div className="od-stat-icon">
-                    <FiUser />
-                  </div>
-                  <div className="od-stat-value">156</div>
-                  <div className="od-stat-label">New Customers</div>
-                </div>
-                <div className="od-stat-card">
-                  <div className="od-stat-icon">
-                    <FiStar />
-                  </div>
-                  <div className="od-stat-value">4.8</div>
-                  <div className="od-stat-label">Avg Rating</div>
-                </div>
-                <div className="od-stat-card">
-                  <div className="od-stat-icon">
-                    <FiScissors />
-                  </div>
-                  <div className="od-stat-value">520</div>
-                  <div className="od-stat-label">Services Done</div>
-                </div>
-              </div>
-            </div>
+            <OwnerReports 
+              servicesCount={services.length}
+              productsCount={products.length}
+              staffCount={staff.length}
+            />
           )}
 
-          {/* SETTINGS */}
-          {activeTab === "settings" && (
-            <div className="od-section">
-              <div className="od-section-header">
-                <h2 className="od-section-title">Settings</h2>
-              </div>
-              <div className="od-card" style={{ padding: "30px" }}>
-                <div className="od-profile-form">
-                  <div className="od-form-group">
-                    <label>Business Email</label>
-                    <input
-                      type="email"
-                      defaultValue={ownerProfile.ownerEmail}
-                    />
-                  </div>
-                  <div className="od-form-group">
-                    <label>Business Phone</label>
-                    <input
-                      type="text"
-                      defaultValue={ownerProfile.ownerMobile}
-                    />
-                  </div>
-                </div>
-                <button className="od-btn-save" style={{ marginTop: "20px" }}>
-                  Save Settings
-                </button>
-              </div>
-            </div>
-          )}
+          
         </div>
       </main>
     </div>
@@ -797,4 +713,3 @@ useEffect(() => {
 };
 
 export default OwnerDashboard;
-

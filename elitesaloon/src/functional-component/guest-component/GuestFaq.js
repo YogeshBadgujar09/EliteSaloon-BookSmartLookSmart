@@ -1,4 +1,8 @@
-export const faqs = [
+import React, { useState } from "react";
+import { FaPlus, FaMinus } from "react-icons/fa";
+
+
+const faqsData = [
   {
     id: 1,
     question: "How do I book an appointment?",
@@ -84,3 +88,45 @@ export const faqs = [
     category: "general",
   },
 ];
+
+const GuestFaq = () => {
+  const [openFaq, setOpenFaq] = useState(null);
+
+  const toggleFaq = (id) => {
+    setOpenFaq(openFaq === id ? null : id);
+  };
+
+  return (
+    <section className="faq-section">
+      <div className="container">
+        <div className="section-header">
+          <h2 className="section-title">Frequently Asked Questions</h2>
+         
+        </div>
+
+        <div className="faq-grid">
+          {faqsData.map((faq) => (
+            <div
+              key={faq.id}
+              className={`faq-item ${openFaq === faq.id ? "active" : ""}`}
+            >
+              <button
+                className="faq-question"
+                onClick={() => toggleFaq(faq.id)}
+                aria-expanded={openFaq === faq.id}
+              >
+                <span>{faq.question}</span>
+                {openFaq === faq.id ? <FaMinus /> : <FaPlus />}
+              </button>
+              <div className="faq-answer">
+                <p>{faq.answer}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default GuestFaq;

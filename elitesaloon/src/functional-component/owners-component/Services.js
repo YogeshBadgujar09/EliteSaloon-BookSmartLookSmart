@@ -269,18 +269,23 @@ const Service = ({
                     }
                   >
                     <option value="">Select</option>
+
                     <option value="HAIRCUT">Haircut</option>
                     <option value="BEARD">Beard</option>
                     <option value="FACIAL">Facial</option>
-                    <option value="MAKEUP">Makeup</option>
                     <option value="SKIN">Skin</option>
+                     <option value="HAIRWASH">HairWash</option>
+                    <option value="HAIRSPA">Hair Spa</option>
+                    <option value="HAIRCOLORING">Hair Coloring</option>
+                    <option value="CLEANUP">Cleanup</option>
+                    <option value="KERATINTREATMENT">Keratin Treatment</option>
                   </select>
                 </div>
 
                 <div className="od-form-group">
                   <label>Description</label>
 
-                  <textarea
+                  <textarea     
                     value={serviceForm.serviceDescription}
                     onChange={(e) =>
                       setServiceForm({

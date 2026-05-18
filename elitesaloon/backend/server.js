@@ -38,7 +38,7 @@ app.use("/appointment", require("./routes/appointmentRoutes"));
 // app.use("/appointment", require("./routes/appointmentRoutes") );
 
 app.use("/payment", require("./routes/paymentRoutes"));
-   
+   app.use("/guest",require("./routes/guestRoutes"));
 app.listen(5000, () => {
   console.log("Server is running on port 5000");
 });
