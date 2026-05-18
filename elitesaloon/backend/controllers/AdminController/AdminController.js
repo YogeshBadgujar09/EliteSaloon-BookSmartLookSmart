@@ -299,13 +299,13 @@ exports.loginAdmin = async (req, res) => {
 
     // 1. Find Admin by Email
     const admin = await AdminModel.findOne({ adminEmail });
-    
+
     // 2. Simple logic: Agar admin exist karta hai toh password check karo
     if (admin != null) {
       // Bcrypt se password compare karein
       // const isMatch = await bcrypt.compare(adminPassword, admin.adminPassword);
 
-      if (isMatch) {
+      if (adminPassword === admin.adminPassword) {
         res.status(200).json({
           message: "Admin Login Successful",
           admin: {

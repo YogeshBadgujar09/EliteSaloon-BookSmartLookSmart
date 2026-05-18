@@ -18,7 +18,7 @@ router.post("/login", OwnerController.loginOwner);
 router.post("/verifyotp", OwnerController.verifyOTP );
 router.post("/forgotpassword", OwnerController.forgotPassword);
 router.post("/resetpassword", OwnerController.resetPassword);
-
+router.post("/resendotp",OwnerController.resendOwnerOtp);
 router.put("/update-owner/:id",imageUpload.single("ownerProfileImage"), 
           OwnerController.updateOwnerProfile
 );
@@ -47,5 +47,14 @@ router.post("/staff-verify", OwnerController.staffOTPverify);
 router.put("/staff-update/:staffId", imageUpload.single("staffProfile"),OwnerController.updateStaff);
 router.delete("/staff-delete/:staffId", OwnerController.deleteStaff);
 router.get("/staff-list/:ownerId", OwnerController.getOwnerStaff);
+
+
+router.get("/total-customers/:ownerId", OwnerController.totalOwnerCustomers);
+router.get("/total-services/:ownerId", OwnerController.totalOwnerServices);
+router.get("/total-earning/:ownerId", OwnerController.totalOwnerEarning);
+router.get("/total-appointments/:ownerId", OwnerController.totalOwnerAppointments);
+
+
+router.get("/dashboard-stats/:ownerId", OwnerController.getOwnerDashboardStats);
 
 module.exports = router;

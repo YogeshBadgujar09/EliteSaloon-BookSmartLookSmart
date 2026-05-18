@@ -1345,3 +1345,20 @@ select:focus-visible {
 .skip-link:focus {
   top: 0;
 }
+
+.hero-section {
+  position: relative;
+  height: 100vh;
+  min-height: 600px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  
+  /* 🔥 Yeh do lines add karein smooth transition ke liye */
+  transition: background-image 1.5s ease-in-out;
+  background-color: var(--dark-bg, #1a1a1a); /* Image load hone tak blank white jhatka nahi dikhega */
+
+  will-change: background-image; /* Enhances hardware rendering processing speed */
+}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaClock, FaCalendarAlt } from "react-icons/fa";
+import { FaClock, FaCalendarAlt, FaPlus } from "react-icons/fa";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -73,9 +73,16 @@ const CustomerAppointments = () => {
 
   return (
     <div className="dashboard-content">
-      <div className="content-header">
-        <h2>My Booking History</h2>
-      </div>
+     <div className="content-header">
+  <h2>My Booking History</h2>
+
+  <button
+    className="action-btn-primary"
+    onClick={() => navigate("/bookappointment")}
+  >
+    <FaPlus /> Book Appointment
+  </button>
+</div>
 
       <div className="section-card">
         <div className="table-responsive">

@@ -1,21 +1,19 @@
-import React, { useState, useEffect, useRef } from "react"; // 🔥 NEW
+import React, { useState, useEffect, useRef } from "react"; 
 import { Link, useLocation, useNavigate } from "react-router-dom";
-
 import "./Navbar.css";
-import { FaSearch, FaUser, FaBars, FaTimes } from "react-icons/fa";
+import { FaSearch, FaUser, FaBars, FaTimes, FaChevronDown } from "react-icons/fa";
 
 const Navbar = () => {
   const [showServices, setShowServices] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showAccountMenu, setShowAccountMenu] = useState(false);
+  
   const location = useLocation();
   const navigate = useNavigate();
+  const accountRef = useRef(); 
+
   const isActive = (path) => location.pathname === path;
 
-  const [showAccountMenu, setShowAccountMenu] = useState(false);
-
-  const accountRef = useRef(); // 🔥 NEW
-
-  // 🔥 NEW → outside click close
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (accountRef.current && !accountRef.current.contains(event.target)) {
@@ -27,12 +25,19 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Helper function to redirect any sub-service click straight to booking action
+  const handleServiceClick = () => {
+    setMobileMenuOpen(false);
+    setShowServices(false);
+    navigate("/", { state: { scrollTo: "services" } });
+  };
+
   return (
     <>
       {/* ===== TOP STRIP ===== */}
       <div className="top-strip">
         <div className="top-strip-content">
-          <span>Welcome To EliteSalon </span>
+          <span>Welcome To EliteSalon</span>
           <div className="top-strip-contact">
             <p>elitesaloon18@gmail.com</p>
           </div>
@@ -41,21 +46,20 @@ const Navbar = () => {
 
       {/* ===== MAIN NAVBAR ===== */}
       <nav className="main-navbar">
-        {/* BRAND */}
+        {/* BRAND LOGO */}
         <div className="brand">
           <Link to="/" className="brand-text">
             Elite<span className="brand-highlight">Salon</span>
           </Link>
         </div>
 
-        {/* CENTER MENU */}
+        {/* NAVIGATION LINKS */}
         <ul className={`menu ${mobileMenuOpen ? "menu-open" : ""}`}>
           <li
-            className={isActive("/") ? "active" : ""}
+            className={isActive("/") && !location.state?.scrollTo ? "active" : ""}
             onClick={() => {
-              navigate("/", {
-                state: { scrollTo: "home" },
-              });
+              setMobileMenuOpen(false);
+              navigate("/", { state: { scrollTo: "home" } });
             }}
           >
             <Link to="/">Home</Link>
@@ -68,44 +72,41 @@ const Navbar = () => {
           >
             <span
               className="menu-link"
-              style={{ cursor: "pointer" }}
               onClick={() => {
-                navigate("/", {
-                  state: { scrollTo: "services" },
-                });
+                setMobileMenuOpen(false);
+                navigate("/", { state: { scrollTo: "services" } });
               }}
             >
-              Services
+              Services <FaChevronDown className="dropdown-arrow-icon" />
             </span>
 
             {showServices && (
               <div className="dropdown">
                 <div className="dropdown-column">
                   <h4>For Her</h4>
-                  <Link to="/booking">Hair Styling</Link>
-                  <Link to="/booking">Hair Coloring</Link>
-                  <Link to="/booking">Facial Treatment</Link>
-                  <Link to="/booking">Bridal Makeup</Link>
-                  <Link to="/booking">Manicure & Pedicure</Link>
-                  <Link to="/booking">Body Spa</Link>
+                  <span className="dropdown-item-text" onClick={handleServiceClick}>Hair Styling</span>
+                  <span className="dropdown-item-text" onClick={handleServiceClick}>Hair Coloring</span>
+                  <span className="dropdown-item-text" onClick={handleServiceClick}>Facial Treatment</span>
+                  <span className="dropdown-item-text" onClick={handleServiceClick}>Manicure & Pedicure</span>
+                  <span className="dropdown-item-text" onClick={handleServiceClick}>Body Spa</span>
                 </div>
 
                 <div className="dropdown-column">
                   <h4>For Him</h4>
-                  <Link to="/booking">Haircut & Styling</Link>
-                  <Link to="/booking">Beard Styling</Link>
-                  <Link to="/booking">Hair Coloring</Link>
-                  <Link to="/booking">Facial Treatment</Link>
-                  <Link to="/booking">Body Massage</Link>
-                  <Link to="/booking">Beard Shave</Link>
+                  <span className="dropdown-item-text" onClick={handleServiceClick}>Haircut & Styling</span>
+                  <span className="dropdown-item-text" onClick={handleServiceClick}>Beard Styling</span>
+                  <span className="dropdown-item-text" onClick={handleServiceClick}>Hair Coloring</span>
+                  <span className="dropdown-item-text" onClick={handleServiceClick}>Facial Treatment</span>
+                  <span className="dropdown-item-text" onClick={handleServiceClick}>Body Massage</span>
+                  <span className="dropdown-item-text" onClick={handleServiceClick}>Beard Shave</span>
                 </div>
 
                 <div className="dropdown-column dropdown-image">
                   <img
                     src="https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=400&q=80"
-                    alt="Salon Services"
+                    alt="Salon Premium Services Panel View"
                   />
-                  <Link to="/booking" className="dropdown-cta">
+                  <Link to="/customerlogin" className="dropdown-cta">
                     Book Appointment
                   </Link>
                 </div>
@@ -113,45 +114,67 @@ const Navbar = () => {
             )}
           </li>
 
-          <li className={isActive("/shop") ? "active" : ""}>
-            <Link to="/shop">Shop</Link>
+          <li 
+            className={location.state?.scrollTo === "products" ? "active" : ""}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              navigate("/", { state: { scrollTo: "products" } });
+            }}
+          >
+            <span className="menu-link">Product</span>
           </li>
 
-          <li className={isActive("/offers") ? "active" : ""}>
-            <Link to="/offers">Offers</Link>
+          {/* 🔥 NEW: ABOUT US SECTION LINK DISPATCHER */}
+          <li 
+            className={location.state?.scrollTo === "about" ? "active" : ""}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              navigate("/", { state: { scrollTo: "about" } });
+            }}
+          >
+            <span className="menu-link">About Us</span>
+          </li>
+
+          {/* 🔥 NEW: CONTACT US SECTION LINK DISPATCHER */}
+          <li 
+            className={location.state?.scrollTo === "contact" ? "active" : ""}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              navigate("/", { state: { scrollTo: "contact" } });
+            }}
+          >
+            <span className="menu-link">Contact Us</span>
           </li>
         </ul>
 
-        {/* RIGHT SECTION */}
+        {/* SYSTEM CONTROL TARGETS */}
         <div className="right-section">
-          <Link to="/search" className="icon-link" title="Search">
-            <FaSearch />
-          </Link>
-
-          {/* 🔥 UPDATED ACCOUNT DROPDOWN */}
+          
+          {/* CAPSULE PROFILE TRIGGERS */}
           <div className="account-wrapper" ref={accountRef}>
-            <div
-              className="icon-link"
+            <button 
+              className="login-trigger-btn"
               onClick={() => setShowAccountMenu(!showAccountMenu)}
             >
-              <FaUser />
-            </div>
+              <FaUser style={{ fontSize: "12px" }} />
+              <span>Login / Sign In</span>
+            </button>
 
             {showAccountMenu && (
               <div className="account-dropdown">
-                <Link to="/adminlogin">Admin Login</Link>
-                <Link to="/customerlogin">Customer Login</Link>
-                <Link to="/ownerlogin">Owner Login</Link>
-                 <Link to="/adminlogin">Admin Login</Link>
+                <Link to="/adminlogin" onClick={() => setShowAccountMenu(false)}>Admin Login</Link>
+                <Link to="/customerlogin" onClick={() => setShowAccountMenu(false)}>Customer Login</Link>
+                <Link to="/ownerlogin" onClick={() => setShowAccountMenu(false)}>Owner Login</Link>
               </div>
             )}
           </div>
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Menu Toggle Button */}
           <button
             className="mobile-menu-toggle"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
+            aria-label="Toggle navigation map layer"
+          > 
             {mobileMenuOpen ? <FaTimes /> : <FaBars />}
           </button>
         </div>

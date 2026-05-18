@@ -66,13 +66,14 @@ const AdminStats = () => {
     secondary: "#6c757d", // Grey
   };
 
+  // 🔥 CHANGED: Labels and Colors updated to match Approve, Pending, Deactive using exact layout palette
   const approvalData = [
-    { name: "Approved", value: cards.activeOwners, color: COLORS.success },
+    { name: "Approve", value: cards.activeOwners, color: COLORS.success },
     { name: "Pending", value: cards.pendingOwners, color: COLORS.warning },
     {
-      name: "Others",
+      name: "Deactive",
       value: cards.totalOwners - cards.activeOwners - cards.pendingOwners,
-      color: COLORS.secondary,
+      color: COLORS.danger,
     },
   ];
 
@@ -104,8 +105,9 @@ const AdminStats = () => {
           color="info"
           footerText="Total Bookings Done"
         />
+        {/* 🔥 CHANGED: Label updated to Total Earning */}
         <StatCard
-          title="Total Revenue"
+          title="Total Earning"
           value={`₹${cards.totalRevenue.toLocaleString()}`}
           icon={<FiDollarSign />}
           color="warning"
@@ -253,12 +255,13 @@ const AdminStats = () => {
             className="card border-0 shadow-sm p-4"
             style={{ borderRadius: "15px" }}
           >
+            
             <h6 className="fw-bold mb-3 small text-uppercase text-muted">
-              Verification Queue
+                Owner Approval Status
             </h6>
             <div className="row text-center mb-3">
               <div className="col-6 border-end">
-                <p className="text-muted mb-0 small text-uppercase">Awaiting</p>
+                <p className="text-muted mb-0 small text-uppercase">Pending</p>
                 <h4 className="fw-bold text-warning">{cards.pendingOwners}</h4>
               </div>
               <div className="col-6">

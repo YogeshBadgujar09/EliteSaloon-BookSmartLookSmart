@@ -123,13 +123,6 @@ const CustomerProducts = ({ customer, isPreview }) => {
                   <div className="product-meta">
                     <FaRupeeSign /> {product.productPrice}
                   </div>
-
-                  <button
-                    className="buy-now-btn"
-                    onClick={() => handleBuyNow(product)}
-                  >
-                    Buy Now
-                  </button>
                 </div>
 
               </div>
